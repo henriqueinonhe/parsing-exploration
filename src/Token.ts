@@ -1,9 +1,3 @@
-export enum TokenClass
-{
-  Terminal,
-  NonTerminal
-}
-
 /**
  * Represents a Token that will compose a TokenString.
  */
@@ -23,11 +17,10 @@ export class Token
     }
   }
 
-  constructor(tokenString : string, tokenClass = TokenClass.Terminal)
+  constructor(tokenString : string)
   {
     Token.validateTokenString(tokenString);
     this.tokenString = tokenString;
-    this.tokenClass = tokenClass;
   }
 
   public getTokenString() : string
@@ -38,15 +31,8 @@ export class Token
   public isEqual(other : Token) : boolean
   {
     return other instanceof Token &&
-           this.getTokenString() === other.getTokenString() &&
-           this.isTerminal() === other.isTerminal();
+           this.getTokenString() === other.getTokenString();
   }
-
-  public isTerminal() : boolean
-  {
-    return this.tokenClass === TokenClass.Terminal;
-  }
-
+  
   private readonly tokenString : string;
-  private readonly tokenClass : TokenClass;
 }

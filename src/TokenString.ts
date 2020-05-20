@@ -5,9 +5,18 @@ import { Token } from "./Token";
  */
 export class TokenString
 {
-  constructor(tokenList : Array<Token>)
+  private static lex(string : string) : Array<Token>
   {
-    this.tokenList = tokenList;
+    const substringList = string.split(/ +/);
+    const noEmptyPartsSubstringList = substringList.filter(substring => substring !== "");
+    const tokenList = noEmptyPartsSubstringList.map(substring => new Token(substring));
+
+    return tokenList;
+  }
+
+  constructor(string : string)
+  {
+    this.tokenList = TokenString.lex(string);
   }
 
   /**
@@ -35,8 +44,7 @@ export class TokenString
   public isEqual(other : TokenString) : boolean
   {
     return other instanceof TokenString &&
-           this.getTokenList().length === other.getTokenList().length &&
-           this.getTokenList().every((thisToken, currentIndex) => thisToken.isEqual(other.getTokenList()[currentIndex]));
+           this.toString() === other.toString();
   }
 
   private readonly tokenList : Array<Token>;

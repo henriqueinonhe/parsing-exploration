@@ -1,4 +1,4 @@
-import { Token, TokenClass } from "../src/Token";
+import { Token } from "../src/Token";
 
 describe("constructor", () =>
 {
@@ -32,15 +32,6 @@ describe("constructor", () =>
       expect(new Token("DMIad9s9auj3").getTokenString()).toBe("DMIad9s9auj3");
       expect(new Token("aaaaaaaaa").getTokenString()).toBe("aaaaaaaaa");
 
-      expect(new Token("Jupiter").isTerminal()).toBe(true);
-      expect(new Token("da9duna890dn").isTerminal()).toBe(true);
-      expect(new Token("DMIad9s9auj3").isTerminal()).toBe(true);
-      expect(new Token("aaaaaaaaa").isTerminal()).toBe(true);
-
-      expect(new Token("Jupiter", TokenClass.NonTerminal).isTerminal()).toBe(false);
-      expect(new Token("da9duna890dn", TokenClass.NonTerminal).isTerminal()).toBe(false);
-      expect(new Token("DMIad9s9auj3", TokenClass.NonTerminal).isTerminal()).toBe(false);
-      expect(new Token("aaaaaaaaa", TokenClass.NonTerminal).isTerminal()).toBe(false);
     });
   }); 
 });

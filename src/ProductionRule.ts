@@ -1,6 +1,4 @@
 import { TokenString } from "./TokenString";
-import { Signature } from "./Signature";
-import { Lexer } from "./Lexer";
 
 export class ProductionRule
 {
