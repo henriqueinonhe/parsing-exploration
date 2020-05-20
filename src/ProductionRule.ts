@@ -32,11 +32,10 @@ export class ProductionRule
     return rhsWithoutDuplicates;
   }
 
-  constructor(signature : Signature, lhs : string, rhs : Array<string>)
+  constructor(lhs : string, rhs : Array<string>)
   {
-    const lexer = new Lexer(signature);
-    const tokenStringLhs = lexer.lex(lhs);
-    const tokenStringRhs = rhs.map(string => lexer.lex(string));
+    const tokenStringLhs = new TokenString(lhs);
+    const tokenStringRhs = rhs.map(string => new TokenString(string));
 
     ProductionRule.validateLhs(tokenStringLhs);
     ProductionRule.validateRhs(tokenStringRhs);

@@ -9,21 +9,31 @@ var TokenString = /** @class */ (function () {
     function TokenString(string) {
         this.tokenList = TokenString.lex(string);
     }
-    /**
-     * Lexes a given string splitting it into tokens.
-     *
-     * @param string
-     */
     TokenString.lex = function (string) {
-        return string.split(/ +/).map(function (substring) { return new Token_1.Token(substring); });
+        var substringList = string.split(/ +/);
+        var noEmptyPartsSubstringList = substringList.filter(function (substring) { return substring !== ""; });
+        var tokenList = noEmptyPartsSubstringList.map(function (substring) { return new Token_1.Token(substring); });
+        return tokenList;
     };
     /**
      * Returns string representation of the token list,
      * like a detonekization process.
      */
     TokenString.prototype.toString = function () {
-        //This final slice is to remove the first trailing whitespace
         return this.tokenList.reduce(function (string, token) { return string += " " + token.getTokenString(); }, "").trim();
+    };
+    TokenString.prototype.getTokenList = function () {
+        return this.tokenList;
+    };
+    /**
+     * Checks if the string is empty, that is, contains no tokens.
+     */
+    TokenString.prototype.isEmpty = function () {
+        return this.tokenList.length === 0;
+    };
+    TokenString.prototype.isEqual = function (other) {
+        return other instanceof TokenString &&
+            this.toString() === other.toString();
     };
     return TokenString;
 }());

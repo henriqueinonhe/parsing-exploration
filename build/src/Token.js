@@ -25,7 +25,7 @@ var Token = /** @class */ (function () {
     };
     Token.prototype.isEqual = function (other) {
         return other instanceof Token &&
-            this.getTokenString() == other.getTokenString();
+            this.getTokenString() === other.getTokenString();
     };
     return Token;
 }());
