@@ -1,0 +1,27 @@
+{
+    "name": "pre-parsing",
+    "jest": {
+        "rootDir": "./tests",
+        "transform": {
+            "^.+\\.[jt]sx?$": "ts-jest"
+        }
+    },
+    "scripts": {
+        "test": "jest",
+        "build": "tsc -p .",
+        "docs": "typedoc"
+    },
+    "devDependencies": {
+        "@types/jest": "^25.2.2",
+        "@typescript-eslint/eslint-plugin": "^2.33.0",
+        "@typescript-eslint/parser": "^2.33.0",
+        "eslint": "^7.0.0",
+        "jest": "^25.0.0",
+        "ts-jest": "^25.5.1",
+        "typedoc": "^0.17.6",
+        "uglify-js": "^3.9.3"
+    },
+    "dependencies": {
+        "typescript": "^3.9.2"
+    }
+}

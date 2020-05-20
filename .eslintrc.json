@@ -1,0 +1,104 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+    ],
+    "globals": {
+        "Atomics": "readonly",
+        "SharedArrayBuffer": "readonly"
+    },
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "ecmaVersion": 11,
+        "sourceType": "module"
+    },
+    "plugins": [
+        "@typescript-eslint"
+    ],
+    "rules": {
+        "indent": [
+            "warn",
+            2,
+            {
+                "FunctionDeclaration": {
+                    "parameters": "first"
+                },
+                "FunctionExpression": {
+                    "parameters": "first"
+                },
+                "CallExpression": {
+                    "arguments": "first"
+                },
+                "ArrayExpression": "first",
+                "ObjectExpression": "first"
+            }
+        ],
+        "linebreak-style": [
+            "warn",
+            "windows"
+        ],
+        "quotes": [
+            "warn",
+            "double",
+            {
+                "allowTemplateLiterals" : true
+            }
+        ],
+        "semi": [
+            "warn",
+            "always"
+        ],
+        "no-unused-vars": 0,
+        "function-paren-newline": [
+            "warn",
+            "consistent"
+        ],
+        "brace-style": [
+            "warn",
+            "allman",
+            {
+                "allowSingleLine": true
+            }
+        ],
+        "comma-dangle": [
+            "error",
+            "never"
+        ],
+        "comma-spacing": [
+            "warn",
+            {
+                "before": false,
+                "after": true
+            }
+        ],
+        "function-call-argument-newline": [
+            "warn",
+            "consistent"
+        ],
+        "@typescript-eslint/type-annotation-spacing": [
+            "warn",
+            {
+                "before": true,
+                "after": true
+            }
+        ],
+        "@typescript-eslint/consistent-type-assertions": [
+            "warn",
+            {
+                "assertionStyle": "as"
+            }
+        ],
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-empty-function": "warn",
+        "@typescript-eslint/explicit-function-return-type": "error"
+        
+
+
+    }
+}
