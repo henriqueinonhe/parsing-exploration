@@ -1,22 +1,14 @@
+export enum TokenClass
+{
+  Terminal,
+  NonTerminal
+}
+
 /**
  * Represents a Token that will compose a TokenString.
  */
 export class Token
 {
-  /**
-   * Validates token class using the regex /^[A-z][A-z0-9]*$/.
-   * 
-   * @param string 
-   */
-  private static validateTokenClass(string : string) : void
-  {
-    const validTokenClassRegex = /^[A-z][A-z0-9]*$/;
-    if(!validTokenClassRegex.test(string))
-    {
-      throw new Error("Invalid token class!");
-    }
-  }
-
   /**
    * Valiates token string, making sure it is not a whitespace character.
    * 
@@ -31,10 +23,9 @@ export class Token
     }
   }
 
-  constructor(tokenString : string, tokenClass : string)
+  constructor(tokenString : string, tokenClass = TokenClass.Terminal)
   {
     Token.validateTokenString(tokenString);
-    Token.validateTokenClass(tokenClass);
     this.tokenString = tokenString;
     this.tokenClass = tokenClass;
   }
@@ -44,18 +35,18 @@ export class Token
     return this.tokenString;
   }
 
-  public getTokenClass() : string
-  {
-    return this.tokenClass;
-  }
-
   public isEqual(other : Token) : boolean
   {
     return other instanceof Token &&
-           this.getTokenString() == other.getTokenString() &&
-           this.getTokenClass() == other.getTokenClass();
+           this.getTokenString() === other.getTokenString() &&
+           this.isTerminal() === other.isTerminal();
+  }
+
+  public isTerminal() : boolean
+  {
+    return this.tokenClass === TokenClass.Terminal;
   }
 
   private readonly tokenString : string;
-  private readonly tokenClass : string;
+  private readonly tokenClass : TokenClass;
 }

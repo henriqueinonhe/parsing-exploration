@@ -1,50 +1,51 @@
 import { Token } from "./Token";
 
-/**
- * Represents a pool of tokens from which 
- * the lexer will draw from.
- */
+interface TokenTable
+{
+  [key : string] : Token;
+}
+
 export class Signature
 {
   constructor()
   {
-    this.tokenList = [];
+    this.tokenTable = {};
   }
 
   /**
-   * Adds a new token to the signature if it is not
-   * already present, throws exception otherwise.
+   * Returns a [[Token]] reference to the token
+   * associated with the given tokenString if present,
+   * otherwise throws an exception.
    * 
-   * @param token 
+   * @param tokenString
    */
-  public addToken(token : Token) : void
+  public getTokenRef(tokenString : string) : Token
   {
-    if(this.tokenIsPresent(token))
+    if(!this.tokenTable[tokenString])
     {
-      throw new Error(`Token "${token.getTokenString()}" is already present in the signature!`);
+      throw new Error(`There is no token associated with "${tokenString}" present in the signature!`);
+    }
+    
+    return this.tokenTable[tokenString];
+  }
+
+  /**
+   * If there isn't any token present in the signature
+   * with the same token string as tokenCandidate, adds 
+   * tokenCandidate to the signature.
+   * 
+   * @param tokenCandidate 
+   */
+  public addToken(tokenCandidate : Token) : void
+  {   
+    const tokenCandidateKey = tokenCandidate.getTokenString();
+    if(this.tokenTable[tokenCandidateKey])
+    {
+      throw new Error(`Token "${tokenCandidateKey}" already is in the signature!`);
     }
 
-    this.tokenList.push(token);
+    this.tokenTable[tokenCandidateKey] = tokenCandidate;
   }
 
-  /**
-   * Checks whether a token with a given token string is already
-   * present in the token list.
-   * 
-   * @param candidateToken 
-   */
-  private tokenIsPresent(candidateToken : Token) : boolean
-  {
-    return this.tokenList.some( (tokenInList) => 
-    {
-      return tokenInList.getTokenString() === candidateToken.getTokenString();
-    });
-  }
-
-  public getTokenRef(string : string) : Token
-  {
-    
-  }
-
-  private tokenList : Array<Token>;
+  private tokenTable : TokenTable;
 }

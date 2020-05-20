@@ -5,19 +5,9 @@ import { Token } from "./Token";
  */
 export class TokenString
 {
-  /**
-   * Lexes a given string splitting it into tokens.
-   * 
-   * @param string 
-   */
-  private static lex(string : string) : Array<Token>
+  constructor(tokenList : Array<Token>)
   {
-    return string.split(/ +/).map(substring => new Token(substring));
-  }
-
-  constructor(string : string)
-  {
-    this.tokenList = TokenString.lex(string);
+    this.tokenList = tokenList;
   }
 
   /**
@@ -26,8 +16,27 @@ export class TokenString
    */
   public toString() : string
   {
-    //This final slice is to remove the first trailing whitespace
-    return this.tokenList.reduce((string, token) => string += " " + token.getString(), "").trim();
+    return this.tokenList.reduce((string, token) => string += " " + token.getTokenString(), "").trim();
+  }
+
+  public getTokenList() : Array<Token>
+  {
+    return this.tokenList;
+  }
+
+  /**
+   * Checks if the string is empty, that is, contains no tokens.
+   */
+  public isEmpty() : boolean
+  {
+    return this.tokenList.length === 0;
+  }
+
+  public isEqual(other : TokenString) : boolean
+  {
+    return other instanceof TokenString &&
+           this.getTokenList().length === other.getTokenList().length &&
+           this.getTokenList().every((thisToken, currentIndex) => thisToken.isEqual(other.getTokenList()[currentIndex]));
   }
 
   private readonly tokenList : Array<Token>;
