@@ -1,0 +1,2 @@
+- Extract merge rules to the ProductionRule class - Done
+- Work on rules and grammar classification

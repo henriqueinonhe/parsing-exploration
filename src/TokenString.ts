@@ -3,7 +3,7 @@ import { Token } from "./Token";
 /**
  * Represents a token string that will be used for parsing.
  */
-export class TokenString
+export class TokenString extends Array<Token>
 {
   private static lex(string : string) : Array<Token>
   {
@@ -14,9 +14,16 @@ export class TokenString
     return tokenList;
   }
 
-  constructor(string : string)
+  //WARNING It is not clear how exactly this works, but it does and helps
+  //immensely!
+  constructor(...args : Array<Token>)
   {
-    this.tokenList = TokenString.lex(string);
+    super(...args);
+  }
+
+  public static constructFromString(string : string) : TokenString
+  {
+    return new TokenString(... TokenString.lex(string));
   }
 
   /**
@@ -25,12 +32,7 @@ export class TokenString
    */
   public toString() : string
   {
-    return this.tokenList.reduce((string, token) => string += " " + token.toString(), "").trim();
-  }
-
-  public getTokenList() : Array<Token>
-  {
-    return this.tokenList;
+    return this.reduce((string, token) => string += " " + token.toString(), "").trim();
   }
 
   /**
@@ -38,7 +40,7 @@ export class TokenString
    */
   public isEmpty() : boolean
   {
-    return this.tokenList.length === 0;
+    return this.length === 0;
   }
 
   public isEqual(other : TokenString) : boolean
@@ -47,5 +49,8 @@ export class TokenString
            this.toString() === other.toString();
   }
 
-  private readonly tokenList : Array<Token>;
+  public size() : number
+  {
+    return this.length;
+  }
 }

@@ -1,17 +1,8 @@
 import { Token } from "./Token";
 import { ProductionRule } from "./ProductionRule";
 import { Utils } from "./Utils";
+import { TokenTable, TokenSort } from "./TokenTable";
 
-enum TokenSort
-{
-  NonTerminal,
-  Terminal
-}
-
-interface TokenTable
-{
-  [tokenString : string] : TokenSort;
-}
 
 export class Grammar
 {
@@ -73,7 +64,7 @@ export class Grammar
 
   private static checkStartSymbolIsInTable(tokenTable : TokenTable, startSymbol : Token) : void
   {
-    if(!tokenTable[startSymbol.toString()])
+    if(tokenTable[startSymbol.toString()] === undefined)
     {
       throw new Error(`Start symbol "${startSymbol.toString()}" is not present in the token table!`);
     }
@@ -90,7 +81,7 @@ export class Grammar
         const mergedRule = mergedRules[index];
         if(rule.getLhs().isEqual(mergedRule.getLhs()))
         {
-          mergedRules[index] = Grammar.mergeRuleRhs(rule, mergedRule);
+          mergedRules[index] = rule.mergeRule(mergedRule);
           continue loop; //In the mergedRules array there will be at most 1 rule with a given lhs at all times
         }
       }
@@ -98,22 +89,6 @@ export class Grammar
     }
     return mergedRules;
   }
-
-  private static mergeRuleRhs(rule1 : ProductionRule, rule2 : ProductionRule) : ProductionRule
-  {
-    const rule1Rhs = rule1.getRhs();
-    const rule2Rhs = rule2.getRhs();
-    const mergedRhs = [... rule1Rhs];
-    for(const option of rule2Rhs)
-    {
-      if(mergedRhs.every(elem => !elem.isEqual(option)))
-      {
-        mergedRhs.push(option);
-      }
-    }
-    //NOTE Maybe fix this by incrementing ProductionRule API
-    return new ProductionRule(rule1.getLhs().toString(), mergedRhs.map(elem => elem.toString()));
-  } 
 
   constructor(nonTerminals : Array<Token>, terminals : Array<Token>, rules : Array<ProductionRule>, startSymbol : Token)
   {
@@ -138,14 +113,29 @@ export class Grammar
     this.startSymbol = startSymbol;
   }
 
-  public static stringBasedConstructor(nonTerminals : Array<string>, terminals : Array<string>, rules : Array<{lhs : string; rhs : Array<string>}>, startSymbol : string) : Grammar
+  public static constructFromStrings(nonTerminals : Array<string>, terminals : Array<string>, rules : Array<{lhs : string; rhs : Array<string>}>, startSymbol : string) : Grammar
   {
     const tokenizedNonTerminals = nonTerminals.map(string => new Token(string));
     const tokenizedTerminals = terminals.map(string => new Token(string));
-    const tokenizedRules = rules.map(rule => new ProductionRule(rule.lhs, rule.rhs));
+    const tokenizedRules = rules.map(rule => ProductionRule.constructFromString(rule.lhs, rule.rhs));
     const tokenizedStartSymbol = new Token(startSymbol);
 
     return new Grammar(tokenizedNonTerminals, tokenizedTerminals, tokenizedRules, tokenizedStartSymbol);
+  }
+
+  public getTokenTable() : TokenTable
+  {
+    return this.tokenTable;
+  }
+
+  public getRules() : Array<ProductionRule>
+  {
+    return this.rules;
+  }
+
+  public getStartSymbol() : Token
+  {
+    return this.startSymbol;
   }
 
   private readonly tokenTable : TokenTable;
