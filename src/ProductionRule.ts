@@ -141,7 +141,32 @@ export class ProductionRule
   public isContextSensitive(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
-    //This one is tricky!
+    //TODO
+    const lhs = this.lhs;
+    for(const option of this.rhs)
+    {
+      let leftPivotIndex = undefined;
+      for(let index = 0; index < lhs.length && index < option.length; index++)
+      {
+        const currentLhsToken = lhs[index];
+        const currentOptionToken = option[index];
+        if(!currentLhsToken.isEqual(currentOptionToken))
+        {
+          if(tokenTable[currentLhsToken.toString()] !== TokenSort.NonTerminal)
+          {
+            return false;
+          }
+          else
+          {
+            leftPivotIndex = index;
+            break;
+          }
+        }
+      }
+
+      let rightPivotIndex = undefined;
+      for(let count = 0; )
+    }
   }
 
   private readonly lhs : TokenString;
