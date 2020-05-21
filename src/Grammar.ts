@@ -15,7 +15,7 @@ interface TokenTable
 
 export class Grammar
 {
-  private static checkTokenAppearsInTerminalsAndNonTerminals(nonTerminals : Array<Token>, terminals : Array<Token>) : void
+  private static checkNonTerminalsAndTerminalsAreDisjunct(nonTerminals : Array<Token>, terminals : Array<Token>) : void
   {
     const duplicates = [];
     for(const nonTerminal of nonTerminals)
@@ -29,7 +29,7 @@ export class Grammar
     if(duplicates.length !== 0)
     {
       const duplicatesStringList = duplicates.map(elem => elem.toString());
-      throw new Error(`Tokens "${duplicatesStringList.join(`","`)}" appear both as terminals and non terminals!`);
+      throw new Error(`Tokens "${duplicatesStringList.join(`", "`)}" appear both as terminals and non terminals!`);
     }
   }
 
@@ -40,16 +40,18 @@ export class Grammar
     const ruleTokenNotInTable = [] as Array<Token>;
     for(const ruleToken of everyTokenInProductionRules)
     {
-      if(!tokenTable[ruleToken.toString()])
+      if(tokenTable[ruleToken.toString()] === undefined)
       {
         ruleTokenNotInTable.push(ruleToken);
       }
     }
 
-    if(ruleTokenNotInTable.length !== 0)
+    const ruleTokenNotInTableWithoutDuplicates = Utils.removeArrayDuplicates(ruleTokenNotInTable, (token1, token2) => token1.isEqual(token2));
+
+    if(ruleTokenNotInTableWithoutDuplicates.length !== 0)
     {
-      const stringnizedTokensNotFound = ruleTokenNotInTable.map(token => token.toString());
-      throw new Error(`The following tokens were found in production rules but are not declared either as non terminals or terminals: "${stringnizedTokensNotFound.join(`", "`)}"`);
+      const stringnizedTokensNotFound = ruleTokenNotInTableWithoutDuplicates.map(token => token.toString());
+      throw new Error(`The following tokens were found in production rules but are not declared either as non terminals or terminals: "${stringnizedTokensNotFound.join(`", "`)}"!`);
     }
   }
 
@@ -80,17 +82,38 @@ export class Grammar
   private static mergeRules(rules : Array<ProductionRule>) : Array<ProductionRule>
   {
     const mergedRules = [] as Array<ProductionRule>;
+    loop:
     for(const rule of rules)
     {
-      for(const mergedRule of mergedRules)
+      for(let index = 0; index < mergedRules.length; index++)
       {
+        const mergedRule = mergedRules[index];
         if(rule.getLhs().isEqual(mergedRule.getLhs()))
         {
-          
+          mergedRules[index] = Grammar.mergeRuleRhs(rule, mergedRule);
+          continue loop; //In the mergedRules array there will be at most 1 rule with a given lhs at all times
         }
       }
+      mergedRules.push(rule);
     }
+    return mergedRules;
   }
+
+  private static mergeRuleRhs(rule1 : ProductionRule, rule2 : ProductionRule) : ProductionRule
+  {
+    const rule1Rhs = rule1.getRhs();
+    const rule2Rhs = rule2.getRhs();
+    const mergedRhs = [... rule1Rhs];
+    for(const option of rule2Rhs)
+    {
+      if(mergedRhs.every(elem => !elem.isEqual(option)))
+      {
+        mergedRhs.push(option);
+      }
+    }
+    //NOTE Maybe fix this by incrementing ProductionRule API
+    return new ProductionRule(rule1.getLhs().toString(), mergedRhs.map(elem => elem.toString()));
+  } 
 
   constructor(nonTerminals : Array<Token>, terminals : Array<Token>, rules : Array<ProductionRule>, startSymbol : Token)
   {
@@ -104,11 +127,25 @@ export class Grammar
       throw new Error("Terminals list is empty!");
     }
 
-    Grammar.checkTokenAppearsInTerminalsAndNonTerminals(nonTerminals, terminals);
-
+    Grammar.checkNonTerminalsAndTerminalsAreDisjunct(nonTerminals, terminals);
     const tokenTable = Grammar.initializeTokenTable(nonTerminals, terminals);
     Grammar.checkTokensInRulesAreInTokenTable(tokenTable, rules);
     Grammar.checkStartSymbolIsInTable(tokenTable, startSymbol);
+    const mergedRules = Grammar.mergeRules(rules);
+
+    this.tokenTable = tokenTable;
+    this.rules = mergedRules;
+    this.startSymbol = startSymbol;
+  }
+
+  public static stringBasedConstructor(nonTerminals : Array<string>, terminals : Array<string>, rules : Array<{lhs : string; rhs : Array<string>}>, startSymbol : string) : Grammar
+  {
+    const tokenizedNonTerminals = nonTerminals.map(string => new Token(string));
+    const tokenizedTerminals = terminals.map(string => new Token(string));
+    const tokenizedRules = rules.map(rule => new ProductionRule(rule.lhs, rule.rhs));
+    const tokenizedStartSymbol = new Token(startSymbol);
+
+    return new Grammar(tokenizedNonTerminals, tokenizedTerminals, tokenizedRules, tokenizedStartSymbol);
   }
 
   private readonly tokenTable : TokenTable;
