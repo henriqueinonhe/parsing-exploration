@@ -20,12 +20,12 @@ var Token = /** @class */ (function () {
             throw new Error("Invalid token string!");
         }
     };
-    Token.prototype.getTokenString = function () {
+    Token.prototype.toString = function () {
         return this.tokenString;
     };
     Token.prototype.isEqual = function (other) {
         return other instanceof Token &&
-            this.getTokenString() === other.getTokenString();
+            this.toString() === other.toString();
     };
     return Token;
 }());

@@ -25,7 +25,7 @@ export class TokenString
    */
   public toString() : string
   {
-    return this.tokenList.reduce((string, token) => string += " " + token.getTokenString(), "").trim();
+    return this.tokenList.reduce((string, token) => string += " " + token.toString(), "").trim();
   }
 
   public getTokenList() : Array<Token>

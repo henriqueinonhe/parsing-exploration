@@ -21,10 +21,10 @@ describe("constructor", function () {
     });
     describe("Post Conditions", function () {
         test("Token string is set correctly during construction", function () {
-            expect(new Token_1.Token("Jupiter").getTokenString()).toBe("Jupiter");
-            expect(new Token_1.Token("da9duna890dn").getTokenString()).toBe("da9duna890dn");
-            expect(new Token_1.Token("DMIad9s9auj3").getTokenString()).toBe("DMIad9s9auj3");
-            expect(new Token_1.Token("aaaaaaaaa").getTokenString()).toBe("aaaaaaaaa");
+            expect(new Token_1.Token("Jupiter").toString()).toBe("Jupiter");
+            expect(new Token_1.Token("da9duna890dn").toString()).toBe("da9duna890dn");
+            expect(new Token_1.Token("DMIad9s9auj3").toString()).toBe("DMIad9s9auj3");
+            expect(new Token_1.Token("aaaaaaaaa").toString()).toBe("aaaaaaaaa");
         });
     });
 });

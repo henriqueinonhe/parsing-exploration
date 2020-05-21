@@ -27,10 +27,10 @@ describe("constructor", () =>
   {
     test("Token string is set correctly during construction", () =>
     {
-      expect(new Token("Jupiter").getTokenString()).toBe("Jupiter");
-      expect(new Token("da9duna890dn").getTokenString()).toBe("da9duna890dn");
-      expect(new Token("DMIad9s9auj3").getTokenString()).toBe("DMIad9s9auj3");
-      expect(new Token("aaaaaaaaa").getTokenString()).toBe("aaaaaaaaa");
+      expect(new Token("Jupiter").toString()).toBe("Jupiter");
+      expect(new Token("da9duna890dn").toString()).toBe("da9duna890dn");
+      expect(new Token("DMIad9s9auj3").toString()).toBe("DMIad9s9auj3");
+      expect(new Token("aaaaaaaaa").toString()).toBe("aaaaaaaaa");
 
     });
   }); 

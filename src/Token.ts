@@ -23,7 +23,7 @@ export class Token
     this.tokenString = tokenString;
   }
 
-  public getTokenString() : string
+  public toString() : string
   {
     return this.tokenString;
   }
@@ -31,7 +31,7 @@ export class Token
   public isEqual(other : Token) : boolean
   {
     return other instanceof Token &&
-           this.getTokenString() === other.getTokenString();
+           this.toString() === other.toString();
   }
   
   private readonly tokenString : string;

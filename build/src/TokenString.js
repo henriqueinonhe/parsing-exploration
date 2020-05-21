@@ -20,7 +20,7 @@ var TokenString = /** @class */ (function () {
      * like a detonekization process.
      */
     TokenString.prototype.toString = function () {
-        return this.tokenList.reduce(function (string, token) { return string += " " + token.getTokenString(); }, "").trim();
+        return this.tokenList.reduce(function (string, token) { return string += " " + token.toString(); }, "").trim();
     };
     TokenString.prototype.getTokenList = function () {
         return this.tokenList;

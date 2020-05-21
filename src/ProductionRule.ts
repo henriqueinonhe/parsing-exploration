@@ -1,4 +1,6 @@
 import { TokenString } from "./TokenString";
+import { Token } from "./Token";
+import { Utils } from "./Utils";
 
 export class ProductionRule
 {
@@ -18,20 +20,6 @@ export class ProductionRule
     }
   }
 
-  private static removeRhsDuplicates(rhs : Array<TokenString>) : Array<TokenString>
-  {
-    const rhsWithoutDuplicates = [] as Array<TokenString>;
-    for(const tokenString of rhs)
-    {
-      if(!rhsWithoutDuplicates.some(elem => elem.isEqual(tokenString)))
-      {
-        rhsWithoutDuplicates.push(tokenString);
-      }
-    }
-
-    return rhsWithoutDuplicates;
-  }
-
   constructor(lhs : string, rhs : Array<string>)
   {
     const tokenStringLhs = new TokenString(lhs);
@@ -39,7 +27,7 @@ export class ProductionRule
 
     ProductionRule.validateLhs(tokenStringLhs);
     ProductionRule.validateRhs(tokenStringRhs);
-    const rhsWithoutDuplicates = ProductionRule.removeRhsDuplicates(tokenStringRhs);
+    const rhsWithoutDuplicates = Utils.removeArrayDuplicates(tokenStringRhs, (tokenString1, tokenString2) => tokenString1.isEqual(tokenString2));
 
     this.lhs = tokenStringLhs;
     this.rhs = rhsWithoutDuplicates;
@@ -53,6 +41,23 @@ export class ProductionRule
   public getRhs() : Array<TokenString>
   {
     return this.rhs;
+  }
+
+  /**
+   * Returns a list without duplicates of every token present 
+   * in lhs and rhs token lists.
+   */
+  public everyTokenList() : Array<Token>
+  {
+    //Maybe use a hash table to speed up things
+    const tokenList = this.lhs.getTokenList().slice();
+
+    for(const tokenString of this.rhs)
+    {
+      tokenList.push(... tokenString.getTokenList());
+    }
+    
+    return Utils.removeArrayDuplicates(tokenList, (token1, token2) => token1.isEqual(token2));
   }
 
   private readonly lhs : TokenString;
