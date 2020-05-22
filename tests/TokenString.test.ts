@@ -37,3 +37,60 @@ describe("isEqual()", () =>
     });
   });
 });
+
+describe("slice()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("One argument only", () =>
+    {
+      expect(TokenString.constructFromString("A B C   D   E").slice(0).isEqual(TokenString.constructFromString("A B C D E"))).toBe(true);
+      expect(TokenString.constructFromString("A B C D E").slice(3).isEqual(TokenString.constructFromString("D E"))).toBe(true);
+    });
+  });
+});
+
+describe("startsWith()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("Empty string", () =>
+    {
+      expect(TokenString.constructFromString("asdasd").startsWith(TokenString.constructFromString(""))).toBe(true);
+    });
+
+    test("Happy path", () =>
+    {
+      expect(TokenString.constructFromString("y a d d a D u d a d a b a").startsWith(TokenString.constructFromString("y"))).toBe(true);
+      expect(TokenString.constructFromString("y a d d a D u d a d a b a").startsWith(TokenString.constructFromString("y a"))).toBe(true);
+      expect(TokenString.constructFromString("y a d d a D u d a d a b a").startsWith(TokenString.constructFromString("y a d d a"))).toBe(true);
+
+      expect(TokenString.constructFromString("y a d d a D u d a d a b a").startsWith(TokenString.constructFromString("Y"))).toBe(false);
+      expect(TokenString.constructFromString("y a d d a D u d a d a b a").startsWith(TokenString.constructFromString("y a d a"))).toBe(false);
+      expect(TokenString.constructFromString("y a d d a D u d a d a b a").startsWith(TokenString.constructFromString("a d s a sd"))).toBe(false);
+      expect(TokenString.constructFromString("y a d d a D u d a d a b a").startsWith(TokenString.constructFromString("y a d d a D u d a d a b a a a"))).toBe(false);
+    });
+  });
+});
+
+describe("endsWith()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("Empty String", () =>
+    {
+      expect(TokenString.constructFromString("as da ds").endsWith(TokenString.constructFromString(""))).toBe(true);
+    });
+
+    test("Default", () =>
+    {
+      expect(TokenString.constructFromString("Prop -> Prop -> Individual").endsWith(TokenString.constructFromString("Individual"))).toBe(true);
+      expect(TokenString.constructFromString("Prop -> Prop -> Individual").endsWith(TokenString.constructFromString("Prop  -> Individual"))).toBe(true);
+      expect(TokenString.constructFromString("Prop -> Prop -> Individual").endsWith(TokenString.constructFromString("Prop -> Prop -> Individual"))).toBe(true);
+
+      expect(TokenString.constructFromString("Prop -> Prop -> Individual").endsWith(TokenString.constructFromString("Prop"))).toBe(false);
+      expect(TokenString.constructFromString("Prop -> Prop -> Individual").endsWith(TokenString.constructFromString("asd asd a sd"))).toBe(false);
+      expect(TokenString.constructFromString("Prop -> Prop -> Individual").endsWith(TokenString.constructFromString("Prop -> Prop -> Prop -> Individual"))).toBe(false);
+    });
+  });
+});

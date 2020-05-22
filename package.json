@@ -7,7 +7,7 @@
         }
     },
     "scripts": {
-        "test": "jest",
+        "test": "jest --runInBand",
         "build": "tsc -p .",
         "docs": "typedoc"
     },

@@ -3,7 +3,7 @@ import { Token } from "./Token";
 /**
  * Represents a token string that will be used for parsing.
  */
-export class TokenString extends Array<Token>
+export class TokenString
 {
   private static lex(string : string) : Array<Token>
   {
@@ -14,16 +14,24 @@ export class TokenString extends Array<Token>
     return tokenList;
   }
 
-  //WARNING It is not clear how exactly this works, but it does and helps
-  //immensely!
-  constructor(...args : Array<Token>)
+  constructor(tokenList : Array<Token>)
   {
-    super(...args);
+    this.tokenList = tokenList;
   }
 
   public static constructFromString(string : string) : TokenString
   {
-    return new TokenString(... TokenString.lex(string));
+    return new TokenString(TokenString.lex(string));
+  }
+
+  public getTokenList() : Array<Token>
+  {
+    return this.tokenList;
+  }
+
+  public tokenAt(index : number) : Token
+  {
+    return this.tokenList[index];
   }
 
   /**
@@ -32,7 +40,7 @@ export class TokenString extends Array<Token>
    */
   public toString() : string
   {
-    return this.reduce((string, token) => string += " " + token.toString(), "").trim();
+    return this.tokenList.reduce((string, token) => string += " " + token.toString(), "").trim();
   }
 
   /**
@@ -40,7 +48,7 @@ export class TokenString extends Array<Token>
    */
   public isEmpty() : boolean
   {
-    return this.length === 0;
+    return this.tokenList.length === 0;
   }
 
   public isEqual(other : TokenString) : boolean
@@ -51,6 +59,57 @@ export class TokenString extends Array<Token>
 
   public size() : number
   {
-    return this.length;
+    return this.tokenList.length;
   }
+
+  public slice(startIndex ? : number | undefined, endIndex ? : number | undefined) : TokenString
+  {
+    return new TokenString(this.tokenList.slice(startIndex, endIndex));
+  }
+
+  public startsWith(other : TokenString) : boolean
+  {
+    for(let index = 0; index < other.size(); index++)
+    {
+      if(index >= this.size())
+      {
+        return false;
+      }
+
+      if(!this.tokenAt(index).isEqual(other.tokenAt(index)))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  public endsWith(other : TokenString) : boolean
+  {
+    const zeroIndexBasedCompensation = 1;
+    for(let count = 0; count < other.size(); count++)
+    {
+      const thisIndex = this.size() - count - zeroIndexBasedCompensation;
+      const otherIndex = other.size() - count - zeroIndexBasedCompensation;
+      if(thisIndex < 0)
+      {
+        return false;
+      }
+
+      if(!this.tokenAt(thisIndex).isEqual(other.tokenAt(otherIndex)))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  public every(callbackfn : (value : Token, index : number, array : Array<Token>) => unknown, thisArg ? : TokenString/* This was "any" in the original declaration */) : boolean
+  {
+    return this.tokenList.every(callbackfn, thisArg);
+  }
+
+  private readonly tokenList : Array<Token>
 }

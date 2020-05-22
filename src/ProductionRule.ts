@@ -72,11 +72,11 @@ export class ProductionRule
   public everyTokenList() : Array<Token>
   {
     //Maybe use a hash table to speed up things
-    const tokenList = this.lhs.slice();
+    const tokenList = this.lhs.getTokenList().slice(); //Make copy
 
     for(const tokenString of this.rhs)
     {
-      tokenList.push(... tokenString);
+      tokenList.push(... tokenString.getTokenList());
     }
     
     return Utils.removeArrayDuplicates(tokenList, (token1, token2) => token1.isEqual(token2));
@@ -113,15 +113,14 @@ export class ProductionRule
   public isERule(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
-    return this.rhs.length === 1 &&
-           this.rhs[0].isEmpty();
+    return this.rhs.some(option => option.isEqual(TokenString.constructFromString("")));
   }
 
   public isContextFree(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
-    return this.lhs.length === 1 &&
-           tokenTable[this.lhs[0].toString()] === TokenSort.NonTerminal;
+    return this.lhs.size() === 1 &&
+           tokenTable[this.lhs.tokenAt(0).toString()] === TokenSort.NonTerminal;
   }
 
   public isRightRegular(tokenTable : TokenTable) : boolean
@@ -141,32 +140,88 @@ export class ProductionRule
   public isContextSensitive(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
-    //TODO
+    //Correct, but unoptimized version
     const lhs = this.lhs;
     for(const option of this.rhs)
     {
-      let leftPivotIndex = undefined;
-      for(let index = 0; index < lhs.length && index < option.length; index++)
+      let foundCorrectSubstitution = false;
+      for(let index = 0; index < lhs.size() && index < option.size(); index++)
       {
-        const currentLhsToken = lhs[index];
-        const currentOptionToken = option[index];
-        if(!currentLhsToken.isEqual(currentOptionToken))
+        const currentLhsToken = lhs.tokenAt(index);
+        if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
         {
-          if(tokenTable[currentLhsToken.toString()] !== TokenSort.NonTerminal)
+          const oneAfterPivotIndex = index + 1;
+          const leftContext = lhs.slice(0, index);
+          const rightContext = lhs.slice(oneAfterPivotIndex);
+          if(option.startsWith(leftContext) && 
+             option.endsWith(rightContext))
           {
-            return false;
-          }
-          else
-          {
-            leftPivotIndex = index;
+            foundCorrectSubstitution = true;
             break;
           }
         }
       }
-
-      let rightPivotIndex = undefined;
-      for(let count = 0; )
+      if(!foundCorrectSubstitution)
+      {
+        return false;
+      }
     }
+
+    return true && this.isMonotonic(tokenTable);
+
+    //Optimized Version But Not Correct Yet
+    // const lhs = this.lhs;
+    // const rhs = this.rhs;
+    // for(const option of rhs)
+    // {
+    //   //Must be monotonic
+    //   if(lhs.size() > option.size())
+    //   {
+    //     return false;
+    //   }
+
+    //   const nonTerminalIndexes = [];
+    //   let longestLeftContextSize = 0;
+    //   let longestRightContextSize = 0; 
+    //   for(let index = 0; index < lhs.size() - 1; index++)
+    //   {
+    //     const currentLhsToken = lhs.tokenAt(index);
+    //     const currentOptionToken = option.tokenAt(index);
+    //     if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
+    //     {
+    //       nonTerminalIndexes.push(index);
+    //     }
+
+    //     if(currentLhsToken.isEqual(currentOptionToken))
+    //     {
+    //       longestLeftContextSize++;
+    //     }
+    //     else
+    //     {
+    //       break;
+    //     }
+    //   }
+
+    //   const rightmostScannedTokenIndex = longestLeftContextSize;
+    //   for(let index = lhs.size() - 1; index > longestLeftContextSize; index--)
+    //   {
+    //     const currentLhsToken = lhs.tokenAt(index);
+    //     const currentOptionToken = option.tokenAt(index);
+    //     if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
+    //     {
+    //       nonTerminalIndexes.push(index);
+
+    //     }
+    //     if(currentLhsToken.isEqual(currentOptionToken))
+    //     {
+    //       longestRightContextSize++;
+    //     }
+    //     else
+    //     {
+    //       break;
+    //     }
+    //   }
+    // }
   }
 
   private readonly lhs : TokenString;
