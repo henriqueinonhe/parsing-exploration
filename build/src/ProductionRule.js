@@ -78,8 +78,7 @@ class ProductionRule {
     //FIXME!
     isERule(tokenTable) {
         this.checkValidityWithinContext(tokenTable);
-        return this.rhs.length === 1 &&
-            this.rhs[0].isEmpty();
+        return this.rhs.some(option => option.isEqual(TokenString_1.TokenString.constructFromString("")));
     }
     isContextFree(tokenTable) {
         this.checkValidityWithinContext(tokenTable);
@@ -98,27 +97,77 @@ class ProductionRule {
     }
     isContextSensitive(tokenTable) {
         this.checkValidityWithinContext(tokenTable);
-        //TODO
+        //Correct, but unoptimized version
         const lhs = this.lhs;
         for (const option of this.rhs) {
+            let foundCorrectSubstitution = false;
             for (let index = 0; index < lhs.size() && index < option.size(); index++) {
                 const currentLhsToken = lhs.tokenAt(index);
-                const currentOptionToken = option.tokenAt(index);
                 if (tokenTable[currentLhsToken.toString()] === TokenTable_1.TokenSort.NonTerminal) {
-                    if (option.startsWith(lhs.slice(0, index)) &&
-                        option.endsWith(lhs.slice(index + 1))) {
-                        //Found correct substitution
+                    const oneAfterPivotIndex = index + 1;
+                    const leftContext = lhs.slice(0, index);
+                    const rightContext = lhs.slice(oneAfterPivotIndex);
+                    if (option.startsWith(leftContext) &&
+                        option.endsWith(rightContext)) {
+                        foundCorrectSubstitution = true;
                         break;
                     }
                 }
-                else {
-                    if (!currentLhsToken.isEqual(currentOptionToken)) {
-                        return false;
-                    }
-                }
+            }
+            if (!foundCorrectSubstitution) {
+                return false;
             }
         }
-        return true;
+        return true && this.isMonotonic(tokenTable);
+        //Optimized Version But Not Correct Yet
+        // const lhs = this.lhs;
+        // const rhs = this.rhs;
+        // for(const option of rhs)
+        // {
+        //   //Must be monotonic
+        //   if(lhs.size() > option.size())
+        //   {
+        //     return false;
+        //   }
+        //   const nonTerminalIndexes = [];
+        //   let longestLeftContextSize = 0;
+        //   let longestRightContextSize = 0; 
+        //   for(let index = 0; index < lhs.size() - 1; index++)
+        //   {
+        //     const currentLhsToken = lhs.tokenAt(index);
+        //     const currentOptionToken = option.tokenAt(index);
+        //     if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
+        //     {
+        //       nonTerminalIndexes.push(index);
+        //     }
+        //     if(currentLhsToken.isEqual(currentOptionToken))
+        //     {
+        //       longestLeftContextSize++;
+        //     }
+        //     else
+        //     {
+        //       break;
+        //     }
+        //   }
+        //   const rightmostScannedTokenIndex = longestLeftContextSize;
+        //   for(let index = lhs.size() - 1; index > longestLeftContextSize; index--)
+        //   {
+        //     const currentLhsToken = lhs.tokenAt(index);
+        //     const currentOptionToken = option.tokenAt(index);
+        //     if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
+        //     {
+        //       nonTerminalIndexes.push(index);
+        //     }
+        //     if(currentLhsToken.isEqual(currentOptionToken))
+        //     {
+        //       longestRightContextSize++;
+        //     }
+        //     else
+        //     {
+        //       break;
+        //     }
+        //   }
+        // }
     }
 }
 exports.ProductionRule = ProductionRule;

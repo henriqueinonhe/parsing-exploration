@@ -1,10 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Grammar = void 0;
+exports.Grammar = exports.GrammarType = void 0;
 const Token_1 = require("./Token");
 const ProductionRule_1 = require("./ProductionRule");
 const Utils_1 = require("./Utils");
 const TokenTable_1 = require("./TokenTable");
+var GrammarType;
+(function (GrammarType) {
+    GrammarType[GrammarType["Type0"] = 0] = "Type0";
+    GrammarType[GrammarType["Type1"] = 1] = "Type1";
+    GrammarType[GrammarType["Type2"] = 2] = "Type2";
+    GrammarType[GrammarType["Type3"] = 3] = "Type3";
+})(GrammarType = exports.GrammarType || (exports.GrammarType = {}));
 class Grammar {
     constructor(nonTerminals, terminals, rules, startSymbol) {
         if (nonTerminals.length === 0) {
@@ -92,6 +99,35 @@ class Grammar {
     }
     getStartSymbol() {
         return this.startSymbol;
+    }
+    isRightRegular() {
+        return this.rules.every(rule => rule.isRightRegular(this.tokenTable));
+    }
+    isLeftRegular() {
+        return this.rules.every(rule => rule.isLeftRegular(this.tokenTable));
+    }
+    isContextFree() {
+        return this.rules.every(rule => rule.isContextFree(this.tokenTable));
+    }
+    isContextSensitive() {
+        return this.rules.every(rule => rule.isContextSensitive(this.tokenTable));
+    }
+    hasERules() {
+        return this.rules.some(rule => rule.isERule(this.tokenTable));
+    }
+    type() {
+        if (this.isRightRegular() || this.isLeftRegular()) {
+            return GrammarType.Type3;
+        }
+        else if (this.isContextFree()) {
+            return GrammarType.Type2;
+        }
+        else if (this.isContextSensitive()) {
+            return GrammarType.Type1;
+        }
+        else {
+            return GrammarType.Type0;
+        }
     }
 }
 exports.Grammar = Grammar;

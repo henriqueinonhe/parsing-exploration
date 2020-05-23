@@ -3,6 +3,13 @@ import { ProductionRule } from "./ProductionRule";
 import { Utils } from "./Utils";
 import { TokenTable, TokenSort } from "./TokenTable";
 
+export enum GrammarType
+{
+  Type0,
+  Type1,
+  Type2,
+  Type3
+}
 
 export class Grammar
 {
@@ -136,6 +143,51 @@ export class Grammar
   public getStartSymbol() : Token
   {
     return this.startSymbol;
+  }
+
+  public isRightRegular() : boolean
+  {
+    return this.rules.every(rule => rule.isRightRegular(this.tokenTable));
+  }
+
+  public isLeftRegular() : boolean
+  {
+    return this.rules.every(rule => rule.isLeftRegular(this.tokenTable));
+  }
+
+  public isContextFree() : boolean
+  {
+    return this.rules.every(rule => rule.isContextFree(this.tokenTable));
+  }
+
+  public isContextSensitive() : boolean
+  {
+    return this.rules.every(rule => rule.isContextSensitive(this.tokenTable));
+  }
+
+  public hasERules() : boolean
+  {
+    return this.rules.some(rule => rule.isERule(this.tokenTable));
+  }
+
+  public type() : GrammarType
+  {
+    if(this.isRightRegular() || this.isLeftRegular())
+    {
+      return GrammarType.Type3;
+    }
+    else if(this.isContextFree())
+    {
+      return GrammarType.Type2;
+    }
+    else if(this.isContextSensitive())
+    {
+      return GrammarType.Type1;
+    }
+    else
+    {
+      return GrammarType.Type0;
+    }
   }
 
   private readonly tokenTable : TokenTable;

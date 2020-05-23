@@ -102,3 +102,29 @@ describe("constructor", () =>
     });
   });
 }); 
+
+describe("isRightRegular()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["S", "A", "B"];
+      const terminals = ["a", "b"];
+      const rules = [
+        {lhs: "S", rhs: ["a S", "a", "A"]},
+        {lhs: "A", rhs: ["b A", "B"]},
+        {lhs: "B", rhs: ["b"]}
+      ];
+      const startSymbol = "S";
+      expect(Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).isRightRegular()).toBe(true);
+
+      const rules2 =  [
+        {lhs: "S", rhs: ["a S", "a", "A S"]}, //-> This line is different
+        {lhs: "A", rhs: ["b A", "B"]},
+        {lhs: "B", rhs: ["b"]}
+      ];
+      expect(Grammar.constructFromStrings(nonTerminals, terminals, rules2, startSymbol).isRightRegular()).toBe(false);
+    });
+  });
+});
