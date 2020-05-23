@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.listNonEmptyPartitions = exports.generatePartition = exports.advanceToNextDividersIndexList = exports.findPivotIndex = exports.permutationsWithRepetitionsCount = exports.combinationsCount = exports.factorial = void 0;
-function ungersEFreeRecognizer(grammar, sentence) {
-    return true;
-}
+exports.listPartitions = exports.generatePartition = exports.advanceToNextDividersIndexList = exports.findPivotIndex = exports.permutationsWithRepetitionsCount = exports.combinationsCount = exports.factorial = void 0;
 function factorial(num) {
     if (!Number.isInteger(num) || num < 0) {
         throw new Error("Factorial is only defined for integers >= 0!");
@@ -77,7 +74,7 @@ function generatePartition(elements, dividersIndexList) {
     return partition;
 }
 exports.generatePartition = generatePartition;
-function listNonEmptyPartitions(elements, numberOfGroups, allowEmptyGroups = false) {
+function listPartitions(elements, numberOfGroups, allowEmptyGroups = false) {
     //Pre Conditions
     if (elements.length == 0) {
         throw new Error("Elements array cannot be empty!");
@@ -100,8 +97,7 @@ function listNonEmptyPartitions(elements, numberOfGroups, allowEmptyGroups = fal
         const partitionList = [];
         const dividersIndexList = Array(numberOfDividers).fill(0);
         //Calculate Number of Partitions
-        const availableDividerPositions = numberOfElements + 1;
-        const numberOfPartitions = permutationsWithRepetitionsCount(availableDividerPositions + numberOfElements, numberOfElements, availableDividerPositions);
+        const numberOfPartitions = permutationsWithRepetitionsCount(numberOfDividers + numberOfElements, numberOfElements, numberOfDividers);
         //Generate Partitions
         partitionList.push(generatePartition(elements, dividersIndexList));
         for (let count = 2; count <= numberOfPartitions; count++) {
@@ -133,5 +129,5 @@ function listNonEmptyPartitions(elements, numberOfGroups, allowEmptyGroups = fal
         return partitionList;
     }
 }
-exports.listNonEmptyPartitions = listNonEmptyPartitions;
+exports.listPartitions = listPartitions;
 //# sourceMappingURL=Debug.js.map

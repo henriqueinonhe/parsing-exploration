@@ -1,11 +1,3 @@
-import { Grammar } from "./Grammar";
-import { TokenString } from "./TokenString";
-
-function ungersEFreeRecognizer(grammar : Grammar, sentence : TokenString) : boolean
-{
-  return true;
-}
-
 export function factorial(num : number) : number
 {
   if(!Number.isInteger(num) || num < 0)
@@ -101,7 +93,7 @@ export function generatePartition<T>(elements : Array<T>, dividersIndexList : Ar
   return partition;
 }
 
-export function listNonEmptyPartitions<T>(elements : Array<T>, numberOfGroups : number, allowEmptyGroups = false) : Array<Array<Array<T>>>
+export function listPartitions<T>(elements : Array<T>, numberOfGroups : number, allowEmptyGroups = false) : Array<Array<Array<T>>>
 {
   //Pre Conditions
   if(elements.length == 0)
@@ -177,3 +169,4 @@ export function listNonEmptyPartitions<T>(elements : Array<T>, numberOfGroups : 
     return partitionList;
   }
 }
+

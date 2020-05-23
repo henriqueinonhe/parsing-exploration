@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const Grammar_1 = require("../src/Grammar");
 const Token_1 = require("../src/Token");
 const TokenTable_1 = require("../src/TokenTable");
+const TokenString_1 = require("../src/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
         test("Non terminals list cannot be empty", () => {
@@ -100,6 +101,22 @@ describe("isRightRegular()", () => {
                 { lhs: "B", rhs: ["b"] }
             ];
             expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules2, startSymbol).isRightRegular()).toBe(false);
+        });
+    });
+});
+describe("queryRule()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            var _a;
+            const nonTerminals = ["S", "A", "B"];
+            const terminals = ["a", "b"];
+            const rules = [
+                { lhs: "S", rhs: ["a S", "a", "A"] },
+                { lhs: "A", rhs: ["b A", "B"] },
+                { lhs: "S B", rhs: ["b"] }
+            ];
+            const startSymbol = "S";
+            expect((_a = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString_1.TokenString.constructFromString("S B"))) === null || _a === void 0 ? void 0 : _a.getRhs()[0].toString()).toBe("b");
         });
     });
 });

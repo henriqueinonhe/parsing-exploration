@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Debug_1 = require("../src/Debug");
-Debug_1.listNonEmptyPartitions([0, 1, 2, 3, 4, 5], 3, true);
 describe("factorial()", () => {
     describe("Post Conditions", () => {
         test("", () => {
@@ -92,7 +91,7 @@ describe("generatePartition()", () => {
 describe("List Non Empty Partitions", () => {
     describe("Post Conditions", () => {
         test("Non empty groups", () => {
-            expect(Debug_1.listNonEmptyPartitions([0, 1, 2, 3, 4, 5, 6], 4)).toEqual([
+            expect(Debug_1.listPartitions([0, 1, 2, 3, 4, 5, 6], 4)).toEqual([
                 [[0], [1], [2], [3, 4, 5, 6]],
                 [[0], [1], [2, 3], [4, 5, 6]],
                 [[0], [1], [2, 3, 4], [5, 6]],
@@ -116,11 +115,12 @@ describe("List Non Empty Partitions", () => {
             ]);
         });
         test("With empty groups", () => {
-            expect(Debug_1.listNonEmptyPartitions([0, 1, 2, 3, 4, 5], 3, true)).toEqual([
+            expect(Debug_1.listPartitions([0, 1, 2, 3, 4, 5], 3, true)).toEqual([
                 [[], [], [0, 1, 2, 3, 4, 5]],
                 [[], [0], [1, 2, 3, 4, 5]],
                 [[], [0, 1], [2, 3, 4, 5]],
                 [[], [0, 1, 2], [3, 4, 5]],
+                [[], [0, 1, 2, 3], [4, 5]],
                 [[], [0, 1, 2, 3, 4], [5]],
                 [[], [0, 1, 2, 3, 4, 5], []],
                 [[0], [], [1, 2, 3, 4, 5]],
@@ -142,7 +142,8 @@ describe("List Non Empty Partitions", () => {
                 [[0, 1, 2, 3], [4], [5]],
                 [[0, 1, 2, 3], [4, 5], []],
                 [[0, 1, 2, 3, 4], [], [5]],
-                [[0, 1, 2, 3, 4], [5], []]
+                [[0, 1, 2, 3, 4], [5], []],
+                [[0, 1, 2, 3, 4, 5], [], []]
             ]);
         });
     });

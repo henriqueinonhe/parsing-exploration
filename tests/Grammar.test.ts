@@ -2,6 +2,7 @@ import { Grammar } from "../src/Grammar";
 import { Token } from "../src/Token";
 import { ProductionRule } from "../src/ProductionRule";
 import { TokenSort } from "../src/TokenTable";
+import { TokenString } from "../src/TokenString";
 
 describe("constructor", () =>
 {
@@ -125,6 +126,25 @@ describe("isRightRegular()", () =>
         {lhs: "B", rhs: ["b"]}
       ];
       expect(Grammar.constructFromStrings(nonTerminals, terminals, rules2, startSymbol).isRightRegular()).toBe(false);
+    });
+  });
+});
+
+describe("queryRule()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["S", "A", "B"];
+      const terminals = ["a", "b"];
+      const rules = [
+        {lhs: "S", rhs: ["a S", "a", "A"]},
+        {lhs: "A", rhs: ["b A", "B"]},
+        {lhs: "S B", rhs: ["b"]}
+      ];
+      const startSymbol = "S";
+      expect(Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString.constructFromString("S B"))?.getRhs()[0].toString()).toBe("b");
     });
   });
 });

@@ -129,6 +129,9 @@ class Grammar {
             return GrammarType.Type0;
         }
     }
+    queryRule(lhs) {
+        return this.rules.find(elem => elem.getLhs().isEqual(lhs));
+    }
 }
 exports.Grammar = Grammar;
 //# sourceMappingURL=Grammar.js.map

@@ -1,4 +1,4 @@
-import { factorial, findPivotIndex, advanceToNextDividersIndexList, generatePartition, listNonEmptyPartitions as listPartitions, permutationsWithRepetitionsCount, listNonEmptyPartitions } from "../src/Debug";
+import { factorial, findPivotIndex, advanceToNextDividersIndexList, generatePartition, listPartitions, permutationsWithRepetitionsCount } from "../src/Debug";
 
 describe("factorial()", () =>
 {
@@ -158,7 +158,7 @@ describe("List Non Empty Partitions", () =>
 
     test("With empty groups", () =>
     {
-      expect(listNonEmptyPartitions([0, 1, 2, 3, 4, 5], 3, true)).toEqual(
+      expect(listPartitions([0, 1, 2, 3, 4, 5], 3, true)).toEqual(
         [
           [[], [], [0, 1, 2, 3, 4, 5]],
           [[], [0], [1, 2, 3, 4, 5]],

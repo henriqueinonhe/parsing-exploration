@@ -2,6 +2,7 @@ import { Token } from "./Token";
 import { ProductionRule } from "./ProductionRule";
 import { Utils } from "./Utils";
 import { TokenTable, TokenSort } from "./TokenTable";
+import { TokenString } from "./TokenString";
 
 export enum GrammarType
 {
@@ -188,6 +189,11 @@ export class Grammar
     {
       return GrammarType.Type0;
     }
+  }
+
+  public queryRule(lhs : TokenString) : ProductionRule | undefined
+  {
+    return this.rules.find(elem => elem.getLhs().isEqual(lhs));
   }
 
   private readonly tokenTable : TokenTable;
