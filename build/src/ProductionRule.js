@@ -23,8 +23,8 @@ class ProductionRule {
         }
     }
     static constructFromString(lhs, rhs) {
-        const tokenStringLhs = TokenString_1.TokenString.constructFromString(lhs);
-        const tokenStringRhs = rhs.map(string => TokenString_1.TokenString.constructFromString(string));
+        const tokenStringLhs = TokenString_1.TokenString.fromString(lhs);
+        const tokenStringRhs = rhs.map(string => TokenString_1.TokenString.fromString(string));
         return new ProductionRule(tokenStringLhs, tokenStringRhs);
     }
     getLhs() {
@@ -78,7 +78,7 @@ class ProductionRule {
     //FIXME!
     isERule(tokenTable) {
         this.checkValidityWithinContext(tokenTable);
-        return this.rhs.some(option => option.isEqual(TokenString_1.TokenString.constructFromString("")));
+        return this.rhs.some(option => option.isEqual(TokenString_1.TokenString.fromString("")));
     }
     isContextFree(tokenTable) {
         this.checkValidityWithinContext(tokenTable);

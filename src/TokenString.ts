@@ -19,7 +19,7 @@ export class TokenString
     this.tokenList = tokenList;
   }
 
-  public static constructFromString(string : string) : TokenString
+  public static fromString(string : string) : TokenString
   {
     return new TokenString(TokenString.lex(string));
   }

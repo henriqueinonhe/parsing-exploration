@@ -15,7 +15,7 @@ class TokenString {
         const tokenList = noEmptyPartsSubstringList.map(substring => new Token_1.Token(substring));
         return tokenList;
     }
-    static constructFromString(string) {
+    static fromString(string) {
         return new TokenString(TokenString.lex(string));
     }
     getTokenList() {

@@ -144,7 +144,7 @@ describe("queryRule()", () =>
         {lhs: "S B", rhs: ["b"]}
       ];
       const startSymbol = "S";
-      expect(Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString.constructFromString("S B"))?.getRhs()[0].toString()).toBe("b");
+      expect(Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString.fromString("S B"))?.getRhs()[0].toString()).toBe("b");
     });
   });
 });

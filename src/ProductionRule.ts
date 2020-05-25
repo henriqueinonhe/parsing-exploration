@@ -31,10 +31,10 @@ export class ProductionRule
     this.rhs = rhsWithoutDuplicates;
   }
 
-  public static constructFromString(lhs : string, rhs : Array<string>) : ProductionRule
+  public static fromString(lhs : string, rhs : Array<string>) : ProductionRule
   {
-    const tokenStringLhs = TokenString.constructFromString(lhs);
-    const tokenStringRhs = rhs.map(string => TokenString.constructFromString(string));
+    const tokenStringLhs = TokenString.fromString(lhs);
+    const tokenStringRhs = rhs.map(string => TokenString.fromString(string));
     return new ProductionRule(tokenStringLhs, tokenStringRhs);
   }
 
@@ -113,7 +113,7 @@ export class ProductionRule
   public isERule(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
-    return this.rhs.some(option => option.isEqual(TokenString.constructFromString("")));
+    return this.rhs.some(option => option.isEqual(TokenString.fromString("")));
   }
 
   public isContextFree(tokenTable : TokenTable) : boolean

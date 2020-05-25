@@ -125,7 +125,7 @@ export class Grammar
   {
     const tokenizedNonTerminals = nonTerminals.map(string => new Token(string));
     const tokenizedTerminals = terminals.map(string => new Token(string));
-    const tokenizedRules = rules.map(rule => ProductionRule.constructFromString(rule.lhs, rule.rhs));
+    const tokenizedRules = rules.map(rule => ProductionRule.fromString(rule.lhs, rule.rhs));
     const tokenizedStartSymbol = new Token(startSymbol);
 
     return new Grammar(tokenizedNonTerminals, tokenizedTerminals, tokenizedRules, tokenizedStartSymbol);

@@ -18,16 +18,16 @@ describe("recgonizes()", () =>
       const grammar = Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol);
       const recognizer = new UngersEFreeRecognizer(grammar);
 
-      expect(recognizer.recognizes(TokenString.constructFromString("0"))).toBe(true);
-      expect(recognizer.recognizes(TokenString.constructFromString("( 7 + 4 )"))).toBe(true);
-      expect(recognizer.recognizes(TokenString.constructFromString("( ( 3 + 4 ) *  5 )"))).toBe(true);
+      expect(recognizer.recognizes(TokenString.fromString("0"))).toBe(true);
+      expect(recognizer.recognizes(TokenString.fromString("( 7 + 4 )"))).toBe(true);
+      expect(recognizer.recognizes(TokenString.fromString("( ( 3 + 4 ) *  5 )"))).toBe(true);
 
-      expect(recognizer.recognizes(TokenString.constructFromString("d"))).toBe(false);
-      expect(recognizer.recognizes(TokenString.constructFromString("( 7  4 )"))).toBe(false);
-      expect(recognizer.recognizes(TokenString.constructFromString("( ( 3 + 4 ) *  5 ) )"))).toBe(false);
-      expect(recognizer.recognizes(TokenString.constructFromString("2 + 3"))).toBe(false);
-      expect(recognizer.recognizes(TokenString.constructFromString("2 4 5"))).toBe(false);
-      expect(recognizer.recognizes(TokenString.constructFromString("5 * 0"))).toBe(false);
+      expect(recognizer.recognizes(TokenString.fromString("d"))).toBe(false);
+      expect(recognizer.recognizes(TokenString.fromString("( 7  4 )"))).toBe(false);
+      expect(recognizer.recognizes(TokenString.fromString("( ( 3 + 4 ) *  5 ) )"))).toBe(false);
+      expect(recognizer.recognizes(TokenString.fromString("2 + 3"))).toBe(false);
+      expect(recognizer.recognizes(TokenString.fromString("2 4 5"))).toBe(false);
+      expect(recognizer.recognizes(TokenString.fromString("5 * 0"))).toBe(false);
     });
   });
 }); 

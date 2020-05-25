@@ -21,7 +21,7 @@ class UngersEFreeRecognizer {
         const partitions = Debug_1.listPartitions(inputSubstring.getTokenList(), numberOfGroups);
         //Try to match the rest
         return partitions.some(partition => {
-            partition.every((inputSubstringTokenList, index) => {
+            return partition.every((inputSubstringTokenList, index) => {
                 return this.matchToken(new TokenString_1.TokenString([sententialForm.tokenAt(index)]), new TokenString_1.TokenString(inputSubstringTokenList));
             });
         });
