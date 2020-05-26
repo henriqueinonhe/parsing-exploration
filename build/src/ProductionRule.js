@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductionRule = void 0;
+exports.ProductionRuleParser = exports.ProductionRule = void 0;
 const TokenString_1 = require("./TokenString");
 const Utils_1 = require("./Utils");
 const TokenTable_1 = require("./TokenTable");
+const ParsingException_1 = require("./ParsingException");
 class ProductionRule {
     constructor(lhs, rhs) {
         ProductionRule.validateLhs(lhs);
@@ -22,10 +23,10 @@ class ProductionRule {
             throw new Error("Right hand side of rule cannot be empty!");
         }
     }
-    static constructFromString(lhs, rhs) {
-        const tokenStringLhs = TokenString_1.TokenString.fromString(lhs);
-        const tokenStringRhs = rhs.map(string => TokenString_1.TokenString.fromString(string));
-        return new ProductionRule(tokenStringLhs, tokenStringRhs);
+    static fromString(lhs, rhs) {
+        const tokenizedLhs = TokenString_1.TokenString.fromString(lhs);
+        const tokenizedRhs = rhs.map(string => TokenString_1.TokenString.fromString(string));
+        return new ProductionRule(tokenizedLhs, tokenizedRhs);
     }
     getLhs() {
         return this.lhs;
@@ -171,4 +172,109 @@ class ProductionRule {
     }
 }
 exports.ProductionRule = ProductionRule;
+class ProductionRuleParser {
+    // public static fromString(string : string) : ProductionRule
+    // {
+    //   const trimmedString = string.trim();
+    //   if(trimmedString[0] !== `"`)
+    //   {
+    //     throw new ParsingException(`The first character is expected to be a '"' (quotation mark) that encloses the rule's left hand side token string!`, 0, 0, trimmedString);
+    //   }
+    //   const [lhsString, lhsRightQuotationMarkIndex] = this.extractQuotationMarkEnclosedSubstring(0, trimmedString);
+    //   const rightArrowEndIndex = this.findRightArrowEndIndex(trimmedString, lhsRightQuotationMarkIndex + 1);
+    //   //This is a very complex endeavor!
+    //   let rhsStringList = [];
+    // }
+    // private static findQuotationMarkIndex(string : string, startIndex) : number
+    // {
+    // }
+    // private static findRightArrowEndIndex(string : string, startIndex : number) : number
+    // {
+    //   let index = startIndex;
+    //   while(true)
+    //   {
+    //     if(index === string.length)
+    //     {
+    //       throw new ParsingException(`String ended prematurely at the place where "->" was expected!`, index - 1, index - 1, string);
+    //     }
+    //     else if(string[index] === " ")
+    //     {
+    //       index++;
+    //     }
+    //     else if(string[index] === "-")
+    //     {
+    //       const rightArrowEndIndex = index + 1;
+    //       if(rightArrowEndIndex === string.length)
+    //       {
+    //         throw new ParsingException(`String ended prematurely at the place where "->" was expected!`, index, index, string);
+    //       }
+    //       else if(string[rightArrowEndIndex] === ">")
+    //       {
+    //         return rightArrowEndIndex;
+    //       }
+    //       else
+    //       {
+    //         throw new ParsingException(`Found "${string[index]}${string[rightArrowEndIndex]}" where a "->" was expected!`, index, rightArrowEndIndex, string);
+    //       }
+    //     }
+    //     else
+    //     {
+    //       throw new ParsingException(`Found "${string[index]}" where a "-" was expected!`, index, index, string);
+    //     }
+    //   }
+    // }
+    // private static extractQuotationMarkEnclosedSubstring(startIndex : number, string : string) : [string, number]
+    // {
+    //   if(string[startIndex] !== `"`)
+    //   {
+    //     throw new ParsingException(`Cannot find the substring enclosed by quotation mark because passed index (${startIndex}) does not correspond to a '"'!`, startIndex, startIndex, string);
+    //   }
+    //   try
+    //   {
+    //     // eslint-disable-next-line no-var
+    //     var [endIndex] = this.findSubstringBeginIndex(string, `"`, startIndex);
+    //   }
+    //   catch(error)
+    //   {
+    //     throw new ParsingException(`Reached end of string and did not find the matching '"'!`, startIndex, endIndex, string);
+    //   }
+    //   const oneAfterLeftQuotationMarkIndex = startIndex + 1;
+    //   const oneAfterRightQuotationMarkIndex = endIndex + 1;
+    //   return [string.slice(oneAfterLeftQuotationMarkIndex, endIndex), oneAfterRightQuotationMarkIndex];
+    // }
+    /**
+     * Returns the begin index of the first occurrence
+     * of the substring in the searched string or throws an exception
+     * if none was found.
+     *
+     * @param whereString
+     * @param findString
+     * @param startIndex
+     */
+    static findSubstringBeginIndex(whereString, findString, startIndex = 0) {
+        const matchedCharactersGoal = findString.length;
+        let matchedCharactersCount = 0;
+        let whereStringIndex = startIndex;
+        let findStringIndex = 0;
+        while (true) {
+            if (whereStringIndex === whereString.length) {
+                throw new ParsingException_1.ParsingException(`Couldn't find substring ${findString} from index ${startIndex}!`, startIndex, whereString.length - 1, whereString);
+            }
+            else if (whereString[whereStringIndex] === findString[findStringIndex]) {
+                matchedCharactersCount++;
+                if (matchedCharactersCount === matchedCharactersGoal) {
+                    const substringBeginIndex = whereStringIndex - findString.length + 1;
+                    return substringBeginIndex;
+                }
+                findStringIndex++;
+                whereStringIndex++;
+            }
+            else {
+                findStringIndex = 0;
+                whereStringIndex++;
+            }
+        }
+    }
+}
+exports.ProductionRuleParser = ProductionRuleParser;
 //# sourceMappingURL=ProductionRule.js.map

@@ -87,7 +87,7 @@ class Grammar {
     static constructFromStrings(nonTerminals, terminals, rules, startSymbol) {
         const tokenizedNonTerminals = nonTerminals.map(string => new Token_1.Token(string));
         const tokenizedTerminals = terminals.map(string => new Token_1.Token(string));
-        const tokenizedRules = rules.map(rule => ProductionRule_1.ProductionRule.constructFromString(rule.lhs, rule.rhs));
+        const tokenizedRules = rules.map(rule => ProductionRule_1.ProductionRule.fromString(rule.lhs, rule.rhs));
         const tokenizedStartSymbol = new Token_1.Token(startSymbol);
         return new Grammar(tokenizedNonTerminals, tokenizedTerminals, tokenizedRules, tokenizedStartSymbol);
     }

@@ -1,4 +1,4 @@
-import { ProductionRule } from "../src/ProductionRule";
+import { ProductionRule, ProductionRuleParser } from "../src/ProductionRule";
 import { TokenSort } from "../src/TokenTable";
 
 describe("constructor", () =>
@@ -229,6 +229,60 @@ describe("isContextSensitive()", () =>
       expect(ProductionRule.fromString("S", [""]).isContextSensitive(tokenTable)).toBe(false);
       expect(ProductionRule.fromString("A S b", ["b S A"]).isContextSensitive(tokenTable)).toBe(false);
       expect(ProductionRule.fromString("A S b", ["A b"]).isContextSensitive(tokenTable)).toBe(false);
+    });
+  });
+});
+
+describe("ProductionRuleParser", () =>
+{
+  describe("[private] findSubstringIndex()", () =>
+  {
+    describe("Pre Conditions()", () =>
+    {
+      test("Substring must be present within searched string", () =>
+      {
+        expect(() => {ProductionRuleParser["findSubstringBeginIndex"]("Dobs dubs alsmdasadn asd", "frakets");}).toThrow("Couldn't find");
+        expect(() => {ProductionRuleParser["findSubstringBeginIndex"]("Dobs dubs alsmdasadn asd", "Dobs", 1);}).toThrow("Couldn't find");
+        expect(() => {ProductionRuleParser["findSubstringBeginIndex"]("Dobs dubs alsmdasadn asd", "dubs", 10);}).toThrow("Couldn't find");
+      });
+    });
+
+    describe("Post Conditions", () =>
+    {
+      test("Search from the beginning", () =>
+      {
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs", "Lorem")).toBe(0);
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs", "em")).toBe(3);
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs", "sum")).toBe(8);
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs", " dobs")).toBe(16);
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs", "rem Ipsum dubs dobs")).toBe(2);
+      });
+
+      test("Whole string", () =>
+      {
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs", "Lorem Ipsum dubs dobs")).toBe(0);
+      });
+
+      test("More than one occurrence", () =>
+      {
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs dubs dubs dobs", "dubs")).toBe(12);
+      });
+
+      test("Start index != 0", () =>
+      {
+        expect(ProductionRuleParser["findSubstringBeginIndex"]("Lorem Ipsum dubs dobs dubs dubs dobs", "dubs", 14)).toBe(22);
+      });
+    });
+  });
+
+  describe("[private] findRightArrowBeginIndex()", () =>
+  {
+    describe("Pre Conditions", () =>
+    {
+      test("Right arrow absent", () =>
+      {
+        // expect(() => {ProductionRuleParser["findRightArrowBeginIndex"](`"<expr>" asdas  a d,djald | ||| | asdas`, 9);}).toThrow(`String ended prematurely`);
+      });
     });
   });
 });

@@ -24,6 +24,15 @@ export class UngersEFreeRecognizer
     {
       return false;
     }
+    else if(!this.matchSententialFormBeginning(sententialForm, inputSubstring) ||
+            !this.matchSententialFormEnd(sententialForm, inputSubstring))
+    {
+      return false;
+    }
+    else if(!this.matchSenentialFormTerminals(sententialForm, inputSubstring))
+    {
+      return false;
+    }
 
     const partitions = listPartitions(inputSubstring.getTokenList(), numberOfGroups);
 
@@ -57,6 +66,86 @@ export class UngersEFreeRecognizer
         return rhs.some(option => this.matchSententialForm(option, inputSubstring));
       }
     }
+  }
+
+  private matchSententialFormBeginning(sententialForm : TokenString, inputSubstring : TokenString) : boolean
+  {
+    const tokenTable = this.grammar.getTokenTable();
+    let index = 0;
+    while(index < sententialForm.size() &&
+          tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
+    {
+      index++;
+    }
+
+    return inputSubstring.startsWith(sententialForm.slice(0, index));
+  }
+
+  private matchSententialFormEnd(sententialForm : TokenString, inputSubstring : TokenString) : boolean
+  {
+    const tokenTable = this.grammar.getTokenTable();
+    let index = sententialForm.size() - 1;
+    while(index >= 0 &&
+          tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
+    {
+      index--;
+    }
+
+    return inputSubstring.endsWith(sententialForm.slice(index + 1));
+  }
+
+  private matchSenentialFormTerminals(sententialForm : TokenString, inputSubstring : TokenString) : boolean
+  {
+    const tokenTable = this.grammar.getTokenTable();
+    const sententialFormTerminalCountTable : {[key : string] : number} = {};
+    for(let index = 0; index < sententialForm.size(); index++)
+    {
+      const currentToken = sententialForm.tokenAt(index);
+      if(tokenTable[currentToken.toString()] === TokenSort.Terminal)
+      {
+        const currentTerminalCount = sententialFormTerminalCountTable[currentToken.toString()];
+        if(currentTerminalCount === undefined)
+        {
+          sententialFormTerminalCountTable[currentToken.toString()] = 1;
+        }
+        else
+        {
+          sententialFormTerminalCountTable[currentToken.toString()]++;
+        }
+      }
+    }
+
+    const inputSubstringTerminalCountTable : {[key : string] : number} = {};
+    for(let index = 0; index < inputSubstring.size(); index++)
+    {
+      const currentToken = inputSubstring.tokenAt(index);
+      if(tokenTable[currentToken.toString()] === TokenSort.Terminal)
+      {
+        const currentTerminalCount = inputSubstringTerminalCountTable[currentToken.toString()];
+        if(currentTerminalCount === undefined)
+        {
+          inputSubstringTerminalCountTable[currentToken.toString()] = 1;
+        }
+        else
+        {
+          inputSubstringTerminalCountTable[currentToken.toString()]++;
+        }
+      }
+    }
+
+    for(const currentSententialFormTerminalString in sententialFormTerminalCountTable)
+    {
+      const currentSententialFormTerminalCount = sententialFormTerminalCountTable[currentSententialFormTerminalString];
+      const currentInputSubstringTerminalCount = inputSubstringTerminalCountTable[currentSententialFormTerminalString];
+
+      if(currentInputSubstringTerminalCount === undefined ||
+         currentSententialFormTerminalCount > currentInputSubstringTerminalCount)
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   private grammar : Grammar;

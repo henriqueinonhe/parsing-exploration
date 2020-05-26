@@ -2,6 +2,7 @@ import { TokenString } from "./TokenString";
 import { Token } from "./Token";
 import { Utils } from "./Utils";
 import { TokenTable, TokenSort } from "./TokenTable";
+import { ParsingException } from "./ParsingException";
 
 export class ProductionRule
 {
@@ -33,11 +34,11 @@ export class ProductionRule
 
   public static fromString(lhs : string, rhs : Array<string>) : ProductionRule
   {
-    const tokenStringLhs = TokenString.fromString(lhs);
-    const tokenStringRhs = rhs.map(string => TokenString.fromString(string));
-    return new ProductionRule(tokenStringLhs, tokenStringRhs);
+    const tokenizedLhs = TokenString.fromString(lhs);
+    const tokenizedRhs = rhs.map(string => TokenString.fromString(string));
+    return new ProductionRule(tokenizedLhs, tokenizedRhs);
   }
-
+  
   public getLhs() : TokenString
   {
     return this.lhs;
@@ -227,3 +228,126 @@ export class ProductionRule
   private readonly lhs : TokenString;
   private readonly rhs : Array<TokenString>;
 }
+
+export class ProductionRuleParser
+{
+  // public static fromString(string : string) : ProductionRule
+  // {
+  //   const trimmedString = string.trim();
+    
+  //   if(trimmedString[0] !== `"`)
+  //   {
+  //     throw new ParsingException(`The first character is expected to be a '"' (quotation mark) that encloses the rule's left hand side token string!`, 0, 0, trimmedString);
+  //   }
+
+  //   const [lhsString, lhsRightQuotationMarkIndex] = this.extractQuotationMarkEnclosedSubstring(0, trimmedString);
+  //   const rightArrowEndIndex = this.findRightArrowEndIndex(trimmedString, lhsRightQuotationMarkIndex + 1);
+  
+  //   //This is a very complex endeavor!
+  //   let rhsStringList = [];
+    
+
+    
+  // }
+
+  // private static findQuotationMarkIndex(string : string, startIndex) : number
+  // {
+
+  // }
+
+  /**
+   * Finds the right arrow that separates
+   * the rule's left and right hand sides begin index.
+   * 
+   * It is expected that this right arrow
+   * is found right after the left hand side
+   * "group", with possibly whitespace in the between.
+   * 
+   * Throws exception if it finds anything other than
+   * whitespace before the right arrow or if
+   * the right arrow is could not be found at all.
+   * 
+   * @param string 
+   * @param startIndex 
+   */
+  private static findRightArrowBeginIndex(string : string, startIndex : number) : number
+  {
+    let index = startIndex;
+    while(true)
+    {
+      if(index === string.length)
+      {
+        throw new ParsingException(`String ended prematurely at the place where "->" was expected!`, index - 1, index - 1, string);
+      }
+      else if(string[index] === " ")
+      {
+        index++;
+      }
+      else if(string[index] === "-")
+      {
+        const rightArrowEndIndex = index + 1;
+        if(rightArrowEndIndex === string.length)
+        {
+          throw new ParsingException(`String ended prematurely at the place where "->" was expected!`, index, index, string);
+        }
+        else if(string[rightArrowEndIndex] === ">")
+        {
+          return index;
+        }
+        else
+        {
+          throw new ParsingException(`Found "${string[index]}${string[rightArrowEndIndex]}" where a "->" was expected!`, index, rightArrowEndIndex, string);
+        }
+      }
+      else
+      {
+        throw new ParsingException(`Found "${string[index]}" where a "-" was expected!`, index, index, string);
+      }
+    }
+  }
+
+  /**
+   * Returns the begin index of the first occurrence
+   * of the substring in the searched string or throws an exception
+   * if none was found.
+   * 
+   * @param whereString String in which the substring will be searched
+   * @param findString Substring to be searched for
+   * @param startIndex Index from which the search will begin in whereString
+   */
+  private static findSubstringBeginIndex(whereString : string, findString : string, startIndex = 0) : number
+  {
+    const matchedCharactersGoal = findString.length;
+    let matchedCharactersCount = 0;
+
+    let whereStringIndex = startIndex;
+    let findStringIndex = 0;
+    while(true)
+    {
+      if(whereStringIndex === whereString.length)
+      {
+        throw new ParsingException(`Couldn't find substring ${findString} from index ${startIndex}!`, startIndex, whereString.length - 1, whereString);
+      }
+      else if(whereString[whereStringIndex] === findString[findStringIndex])
+      {
+        matchedCharactersCount++;
+        if(matchedCharactersCount === matchedCharactersGoal)
+        {
+          const substringBeginIndex = whereStringIndex - findString.length + 1;
+          return substringBeginIndex;
+        }
+
+        findStringIndex++;
+        whereStringIndex++;
+      }
+      else
+      {
+        findStringIndex = 0;
+        matchedCharactersCount = 0;
+        whereStringIndex++;
+      }
+    }
+  }
+}
+
+

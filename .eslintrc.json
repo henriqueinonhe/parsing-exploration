@@ -81,6 +81,10 @@
             "warn",
             "consistent"
         ],
+        "no-constant-condition": [
+            "warn",
+            {"checkLoops": false}
+        ],
         "@typescript-eslint/type-annotation-spacing": [
             "warn",
             {
