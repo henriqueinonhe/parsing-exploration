@@ -12,7 +12,7 @@ describe("constructor", () =>
   });
 });
 
-describe("Adjacency matrix", () =>
+describe("Adjacency matrix and transitive closure matrix", () =>
 {
   test("", () =>
   {
@@ -29,7 +29,9 @@ describe("Adjacency matrix", () =>
     const grammar = Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol);
     const analyzer = new ContextFreeGrammarAnalyzer(grammar);
     const adjacencyMatrix = analyzer.getTokenAdjacencyMatrix();
+    const transitiveClosureMatrix = analyzer.getTokenTransitiveClosureMatrix();
 
+    //Adjacency matrix
     expect(adjacencyMatrix["<expr>"]["<expr>"]).toBe(false);
     expect(adjacencyMatrix["<expr>"]["<prim>"]).toBe(true);
     expect(adjacencyMatrix["<expr>"]["<comp>"]).toBe(true);
@@ -211,5 +213,188 @@ describe("Adjacency matrix", () =>
     expect(adjacencyMatrix[")"]["("]).toBe(false);
     expect(adjacencyMatrix[")"][")"]).toBe(false);
     expect(adjacencyMatrix[")"][","]).toBe(false);
+
+    //Transitive Closure Matrix
+    expect(transitiveClosureMatrix["<expr>"]["<expr>"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["<prim>"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["<comp>"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["<more>"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["<prod>"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["i"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["o"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["->"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["["]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["]"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"]["("]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"][")"]).toBe(true);
+    expect(transitiveClosureMatrix["<expr>"][","]).toBe(true);
+
+    expect(transitiveClosureMatrix["<prim>"]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["i"]).toBe(true);
+    expect(transitiveClosureMatrix["<prim>"]["o"]).toBe(true);
+    expect(transitiveClosureMatrix["<prim>"]["->"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["["]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["]"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"]["("]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"][")"]).toBe(false);
+    expect(transitiveClosureMatrix["<prim>"][","]).toBe(false);
+
+    expect(transitiveClosureMatrix["<comp>"]["<expr>"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["<prim>"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["<comp>"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["<more>"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["<prod>"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["i"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["o"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["->"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["["]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["]"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"]["("]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"][")"]).toBe(true);
+    expect(transitiveClosureMatrix["<comp>"][","]).toBe(true);
+
+    expect(transitiveClosureMatrix["<more>"]["<expr>"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["<prim>"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["<comp>"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["<more>"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["<prod>"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["i"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["o"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["->"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["["]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["]"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"]["("]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"][")"]).toBe(true);
+    expect(transitiveClosureMatrix["<more>"][","]).toBe(true);
+
+    expect(transitiveClosureMatrix["<prod>"]["<expr>"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["<prim>"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["<comp>"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["<more>"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["<prod>"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["i"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["o"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["->"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["["]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["]"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"]["("]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"][")"]).toBe(true);
+    expect(transitiveClosureMatrix["<prod>"][","]).toBe(true);
+
+    expect(transitiveClosureMatrix["i"]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["i"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["o"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["->"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["["]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["]"]).toBe(false);
+    expect(transitiveClosureMatrix["i"]["("]).toBe(false);
+    expect(transitiveClosureMatrix["i"][")"]).toBe(false);
+    expect(transitiveClosureMatrix["i"][","]).toBe(false);
+
+    expect(transitiveClosureMatrix["o"]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["i"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["o"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["->"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["["]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["]"]).toBe(false);
+    expect(transitiveClosureMatrix["o"]["("]).toBe(false);
+    expect(transitiveClosureMatrix["o"][")"]).toBe(false);
+    expect(transitiveClosureMatrix["o"][","]).toBe(false);
+
+    expect(transitiveClosureMatrix[","]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["i"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["o"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["->"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["["]).toBe(false);
+    expect(transitiveClosureMatrix[","]["]"]).toBe(false);
+    expect(transitiveClosureMatrix[","]["("]).toBe(false);
+    expect(transitiveClosureMatrix[","][")"]).toBe(false);
+    expect(transitiveClosureMatrix[","][","]).toBe(false);
+
+    expect(transitiveClosureMatrix["->"]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["i"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["o"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["->"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["["]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["]"]).toBe(false);
+    expect(transitiveClosureMatrix["->"]["("]).toBe(false);
+    expect(transitiveClosureMatrix["->"][")"]).toBe(false);
+    expect(transitiveClosureMatrix["->"][","]).toBe(false);
+
+    expect(transitiveClosureMatrix["["]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["i"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["o"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["->"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["["]).toBe(false);
+    expect(transitiveClosureMatrix["["]["]"]).toBe(false);
+    expect(transitiveClosureMatrix["["]["("]).toBe(false);
+    expect(transitiveClosureMatrix["["][")"]).toBe(false);
+    expect(transitiveClosureMatrix["["][","]).toBe(false);
+
+    expect(transitiveClosureMatrix["]"]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["i"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["o"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["->"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["["]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["]"]).toBe(false);
+    expect(transitiveClosureMatrix["]"]["("]).toBe(false);
+    expect(transitiveClosureMatrix["]"][")"]).toBe(false);
+    expect(transitiveClosureMatrix["]"][","]).toBe(false);
+
+    expect(transitiveClosureMatrix["("]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["i"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["o"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["->"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["["]).toBe(false);
+    expect(transitiveClosureMatrix["("]["]"]).toBe(false);
+    expect(transitiveClosureMatrix["("]["("]).toBe(false);
+    expect(transitiveClosureMatrix["("][")"]).toBe(false);
+    expect(transitiveClosureMatrix["("][","]).toBe(false);
+
+    expect(transitiveClosureMatrix[")"]["<expr>"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["<prim>"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["<comp>"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["<more>"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["<prod>"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["i"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["o"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["->"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["["]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["]"]).toBe(false);
+    expect(transitiveClosureMatrix[")"]["("]).toBe(false);
+    expect(transitiveClosureMatrix[")"][")"]).toBe(false);
+    expect(transitiveClosureMatrix[")"][","]).toBe(false);
   });
 });
