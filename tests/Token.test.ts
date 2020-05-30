@@ -11,6 +11,8 @@ describe("constructor", () =>
       expect(() => {new Token("     ");}).toThrow("Invalid token string!");
       expect(() => {new Token("");}).toThrow("Invalid token string!");
       expect(() => {new Token("\t");}).toThrow("Invalid token string!");
+      expect(() => {new Token("dads\"dasdasd");}).toThrow("Invalid token string!");
+      expect(() => {new Token("\"");}).toThrow("Invalid token string!");
 
       expect(() => {new Token("Asd");}).not.toThrow();
       expect(() => {new Token(";");}).not.toThrow();

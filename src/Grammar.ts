@@ -1,3 +1,10 @@
+/**
+ * File Status
+ * Refactoring: PENDING
+ * Documentation: PENDING
+ * Testing: PENDING
+ */
+
 import { Token } from "./Token";
 import { ProductionRule } from "./ProductionRule";
 import { Utils } from "./Utils";

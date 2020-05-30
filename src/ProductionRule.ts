@@ -1,11 +1,35 @@
+/**
+ * File Status
+ * Refactoring: PENDING
+ * Documentation: DONE
+ * Testing: DONE
+ * 
+ */
+
 import { TokenString } from "./TokenString";
 import { Token } from "./Token";
 import { Utils } from "./Utils";
 import { TokenTable, TokenSort } from "./TokenTable";
 import { ParsingException } from "./ParsingException";
 
+/**
+ * Represents a production rule that will
+ * be incorporated by a grammar.
+ * 
+ * Production rules are composed by a left hand side
+ * and a right hand side, where the left hand side
+ * represents the [[TokenString]] to be substituted and
+ * the right hand side represents the [[TokenString]] 
+ * options that will substitute the left hand side string.
+ */
 export class ProductionRule
 {
+  /**
+   * Enforces class invariant.
+   * The only lhs restriction is that it cannot be empty.
+   * 
+   * @param lhs 
+   */
   private static validateLhs(lhs : TokenString) : void
   {
     if(lhs.isEmpty())
@@ -14,6 +38,13 @@ export class ProductionRule
     }
   }
 
+  /**
+   * Enforces class invariant.
+   * The only rhs restriction is that it cannot be empty,
+   * that is, it must contain at least one option.
+   * 
+   * @param rhs 
+   */
   private static validateRhs(rhs : Array<TokenString>) : void
   {
     if(rhs.length === 0)
@@ -32,6 +63,14 @@ export class ProductionRule
     this.rhs = rhsWithoutDuplicates;
   }
 
+  /**
+   * Alternative constructor that uses strings
+   * to build the ProductionRule, instead of
+   * [[TokenString]]s.
+   * 
+   * @param lhs 
+   * @param rhs 
+   */
   public static fromString(lhs : string, rhs : Array<string>) : ProductionRule
   {
     const tokenizedLhs = TokenString.fromString(lhs);
@@ -39,16 +78,33 @@ export class ProductionRule
     return new ProductionRule(tokenizedLhs, tokenizedRhs);
   }
   
+  /**
+   * Returns left hand side [[TokenString]].
+   */
   public getLhs() : TokenString
   {
     return this.lhs;
   }
 
+  /**
+   * Returns right hand side [[TokenString]] array.
+   */
   public getRhs() : Array<TokenString>
   {
     return this.rhs;
   }
 
+  /**
+   * Given a [[TokenTable]] as a contexts,
+   * check the validity of the production rule,
+   * that is, every token that occurs in
+   * the productionrule must be present in the
+   * table either as a terminal or as a non terminal.
+   * 
+   * Throws an exception listing the missing tokens.
+   * 
+   * @param tokenTable 
+   */
   public checkValidityWithinContext(tokenTable : TokenTable) : void
   {
     const missingTokens = [] as Array<Token>;
@@ -68,7 +124,7 @@ export class ProductionRule
 
   /**
    * Returns a list without duplicates of every token present 
-   * in lhs and rhs token lists.
+   * in lhs and rhs token strings.
    */
   public everyTokenList() : Array<Token>
   {
@@ -83,6 +139,14 @@ export class ProductionRule
     return Utils.removeArrayDuplicates(tokenList, (token1, token2) => token1.isEqual(token2));
   }
 
+  /**
+   * Merge rules with the same left hand side such
+   * that the right hand side of both rules are fused
+   * together like set union, that is, if there are duplicates
+   * only a single instance is present in the merged rule.
+   * 
+   * @param other 
+   */
   public mergeRule(other : ProductionRule) : ProductionRule
   {
     if(!this.getLhs().isEqual(other.getLhs()))
@@ -104,19 +168,37 @@ export class ProductionRule
     return new ProductionRule(this.getLhs(), mergedRhs);
   }
 
+  /**
+   * Returns whether the rule is monotonic, that is, 
+   * if the size of all options in the right hand side is
+   * greater or equal than the size of the left hand side.
+   * 
+   * @param tokenTable 
+   */
   public isMonotonic(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     return this.rhs.every(option => option.size() >= this.lhs.size());
   }
 
-  //FIXME!
+  /**
+   * Returns whether any of the right hand side
+   * options is an empty string.
+   * 
+   * @param tokenTable 
+   */
   public isERule(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     return this.rhs.some(option => option.isEqual(TokenString.fromString("")));
   }
 
+  /**
+   * Returns whether the rule is context free, that is,
+   * its left hand side consists of a single token.
+   * 
+   * @param tokenTable 
+   */
   public isContextFree(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
@@ -124,6 +206,15 @@ export class ProductionRule
            tokenTable[this.lhs.tokenAt(0).toString()] === TokenSort.NonTerminal;
   }
 
+  /**
+   * Returns whether the rule is right regular, that is,
+   * the left hand side consists of a single token
+   * and every right hand side option is composed
+   * solely by terminals and optionally a single non terminal
+   * that occurs at the end of the string.
+   * 
+   * @param tokenTable 
+   */
   public isRightRegular(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
@@ -131,6 +222,15 @@ export class ProductionRule
            this.rhs.every(option => option.slice(0, -1).every(token => tokenTable[token.toString()] === TokenSort.Terminal));
   }
 
+  /**
+   * Returns whether the rule is left regular, that is,
+   * the left hand side consists of a single token
+   * and every right hand side option is composed
+   * solely by terminals and optionally a single non terminal
+   * that occurs at the beginning of the string.
+   * 
+   * @param tokenTable 
+   */
   public isLeftRegular(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
@@ -138,6 +238,20 @@ export class ProductionRule
            this.rhs.every(option => option.slice(1).every(token => tokenTable[token.toString()] === TokenSort.Terminal));
   }
 
+  /**
+   * Returns whether the rule is context sensitive,
+   * that is, the left hand side consists of 
+   * a possibly empty sequence of terminals/non terminals
+   * followed by a mandatory non terminal and then again
+   * followed by another possibly empty sequence of 
+   * terminals/non terminals, where every option 
+   * of the right hand side consists of the same 
+   * sequences that "sandwich" the mandatory non terminal
+   * and this mandatory non terminal substituted by
+   * anything other than the empty string (must be monotonic).
+   * 
+   * @param tokenTable 
+   */
   public isContextSensitive(tokenTable : TokenTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
@@ -169,66 +283,13 @@ export class ProductionRule
     }
 
     return true && this.isMonotonic(tokenTable);
-
-    //Optimized Version But Not Correct Yet
-    // const lhs = this.lhs;
-    // const rhs = this.rhs;
-    // for(const option of rhs)
-    // {
-    //   //Must be monotonic
-    //   if(lhs.size() > option.size())
-    //   {
-    //     return false;
-    //   }
-
-    //   const nonTerminalIndexes = [];
-    //   let longestLeftContextSize = 0;
-    //   let longestRightContextSize = 0; 
-    //   for(let index = 0; index < lhs.size() - 1; index++)
-    //   {
-    //     const currentLhsToken = lhs.tokenAt(index);
-    //     const currentOptionToken = option.tokenAt(index);
-    //     if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
-    //     {
-    //       nonTerminalIndexes.push(index);
-    //     }
-
-    //     if(currentLhsToken.isEqual(currentOptionToken))
-    //     {
-    //       longestLeftContextSize++;
-    //     }
-    //     else
-    //     {
-    //       break;
-    //     }
-    //   }
-
-    //   const rightmostScannedTokenIndex = longestLeftContextSize;
-    //   for(let index = lhs.size() - 1; index > longestLeftContextSize; index--)
-    //   {
-    //     const currentLhsToken = lhs.tokenAt(index);
-    //     const currentOptionToken = option.tokenAt(index);
-    //     if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
-    //     {
-    //       nonTerminalIndexes.push(index);
-
-    //     }
-    //     if(currentLhsToken.isEqual(currentOptionToken))
-    //     {
-    //       longestRightContextSize++;
-    //     }
-    //     else
-    //     {
-    //       break;
-    //     }
-    //   }
-    // }
   }
 
   private readonly lhs : TokenString;
   private readonly rhs : Array<TokenString>;
 }
 
+//This is not crucial right now so it will be postponed
 export class ProductionRuleParser
 {
   // public static fromString(string : string) : ProductionRule
@@ -240,11 +301,7 @@ export class ProductionRuleParser
   //     throw new ParsingException(`The first character is expected to be a '"' (quotation mark) that encloses the rule's left hand side token string!`, 0, 0, trimmedString);
   //   }
 
-  //   const [lhsString, lhsRightQuotationMarkIndex] = this.extractQuotationMarkEnclosedSubstring(0, trimmedString);
-  //   const rightArrowEndIndex = this.findRightArrowEndIndex(trimmedString, lhsRightQuotationMarkIndex + 1);
-  
-  //   //This is a very complex endeavor!
-  //   let rhsStringList = [];
+  //   const lhsRightQuotationMarkIndex = ProductionRuleParser.findSubstringBeginIndex(string, "\"", 1)
     
 
     

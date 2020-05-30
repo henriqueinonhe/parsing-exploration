@@ -1,16 +1,34 @@
 /**
- * Represents a Token that will compose a TokenString.
+ * File Status
+ * Refactoring: DONE
+ * Documentation: DONE
+ * Testing: DONE
+ */
+
+/**
+ * Represents a token that is used to compose
+ * [[TokenString]]s and that is treated as the 
+ * smallest lexical element in a parsing environment.
+ * 
+ * A token encapsulates a string and 
+ * accepts any sequence of characters
+ * that doesn't contain whitespaces or double quotation
+ * marks.
+ * 
  */
 export class Token
 {
   /**
-   * Valiates token string, making sure it is not a whitespace character.
+   * Validates token string.
+   * It accepts as a string any sequence of
+   * characters that doesn't contain whitespaces 
+   * or double quotation marks.
    * 
    * @param tokenString 
    */
   private static validateTokenString(tokenString : string) : void
   {
-    const validTokenStringRegex = /^\S+$/;
+    const validTokenStringRegex = /^[^\s"]+$/;
     if(!validTokenStringRegex.test(tokenString))
     {
       throw new Error("Invalid token string!");
@@ -23,11 +41,19 @@ export class Token
     this.tokenString = tokenString;
   }
 
+  /**
+   * Returns encapsulated string.
+   */
   public toString() : string
   {
     return this.tokenString;
   }
 
+  /**
+   * Deep equality check.
+   * 
+   * @param other 
+   */
   public isEqual(other : Token) : boolean
   {
     return other instanceof Token &&
