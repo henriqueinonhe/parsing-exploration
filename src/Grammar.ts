@@ -1,8 +1,8 @@
 /**
  * File Status
- * Refactoring: PENDING
- * Documentation: PENDING
- * Testing: PENDING
+ * Refactoring: DONE
+ * Documentation: DONE
+ * Testing: DONE
  */
 
 import { Token } from "./Token";
@@ -11,6 +11,18 @@ import { Utils } from "./Utils";
 import { TokenTable, TokenSort } from "./TokenTable";
 import { TokenString } from "./TokenString";
 
+/**
+ * Represents the grammar type in the Chomsky
+ * Hierarchy.
+ * 
+ * The type indicates the most restrict
+ * grammar class it belongs to.
+ * 
+ * Type 0 -> Unrestricted Grammar
+ * Type 1 -> Context Sensitive
+ * Type 2 -> Context Free
+ * Type 3 -> Regular
+ */
 export enum GrammarType
 {
   Type0,
@@ -19,8 +31,20 @@ export enum GrammarType
   Type3
 }
 
+/**
+ * Represents a grammar, ready to be used
+ * by parsers.
+ */
 export class Grammar
 {
+  /**
+   * Given a list of terminals and non terminals,
+   * checks whether the lists are disjunct, that is,
+   * both lists have no common elements.
+   * 
+   * @param nonTerminals 
+   * @param terminals 
+   */
   private static checkNonTerminalsAndTerminalsAreDisjunct(nonTerminals : Array<Token>, terminals : Array<Token>) : void
   {
     const duplicates = [];
@@ -39,6 +63,14 @@ export class Grammar
     }
   }
 
+  /**
+   * Checks whether every token that occurs in each of
+   * the [[ProductionRule]]s are present (declared either as a terminal
+   * or a non terminal) in the [[TokenTable]].
+   * 
+   * @param tokenTable 
+   * @param rules 
+   */
   private static checkTokensInRulesAreInTokenTable(tokenTable : TokenTable, rules : Array<ProductionRule>) : void
   {
     const everyTokenInProductionRules = rules.reduce<Array<Token>>((tokenList, rule) => tokenList.concat(rule.everyTokenList()), []);
@@ -61,6 +93,13 @@ export class Grammar
     }
   }
 
+  /**
+   * Initializes token table from non terminals and terminals
+   * token lists.
+   * 
+   * @param nonTerminals 
+   * @param terminals 
+   */
   private static initializeTokenTable(nonTerminals : Array<Token>, terminals : Array<Token>) : TokenTable
   {
     const tokenTable  = {} as TokenTable;
@@ -77,6 +116,13 @@ export class Grammar
     return tokenTable;
   }
 
+  /**
+   * Checks whether the start symbol is
+   * present (declared) in the [[TokenTable]].
+   * 
+   * @param tokenTable 
+   * @param startSymbol 
+   */
   private static checkStartSymbolIsInTable(tokenTable : TokenTable, startSymbol : Token) : void
   {
     if(tokenTable[startSymbol.toString()] === undefined)
@@ -85,6 +131,14 @@ export class Grammar
     }
   }
   
+  /**
+   * Merge rules, so if there are any
+   * rules with the same left hand side,
+   * their right hand sides are merged
+   * together.
+   * 
+   * @param rules 
+   */
   private static mergeRules(rules : Array<ProductionRule>) : Array<ProductionRule>
   {
     const mergedRules = [] as Array<ProductionRule>;
@@ -105,20 +159,8 @@ export class Grammar
     return mergedRules;
   }
 
-  constructor(nonTerminals : Array<Token>, terminals : Array<Token>, rules : Array<ProductionRule>, startSymbol : Token)
+  constructor(tokenTable : TokenTable, rules : Array<ProductionRule>, startSymbol : Token)
   {
-    if(nonTerminals.length === 0)
-    {
-      throw new Error("Non terminals list is empty!");
-    }
-
-    if(terminals.length === 0)
-    {
-      throw new Error("Terminals list is empty!");
-    }
-
-    Grammar.checkNonTerminalsAndTerminalsAreDisjunct(nonTerminals, terminals);
-    const tokenTable = Grammar.initializeTokenTable(nonTerminals, terminals);
     Grammar.checkTokensInRulesAreInTokenTable(tokenTable, rules);
     Grammar.checkStartSymbolIsInTable(tokenTable, startSymbol);
     const mergedRules = Grammar.mergeRules(rules);
@@ -128,56 +170,99 @@ export class Grammar
     this.startSymbol = startSymbol;
   }
 
+  /**
+   * Alternative constructor using strings.
+   * 
+   * @param nonTerminals 
+   * @param terminals 
+   * @param rules 
+   * @param startSymbol 
+   */
   public static constructFromStrings(nonTerminals : Array<string>, terminals : Array<string>, rules : Array<{lhs : string; rhs : Array<string>}>, startSymbol : string) : Grammar
   {
     const tokenizedNonTerminals = nonTerminals.map(string => new Token(string));
     const tokenizedTerminals = terminals.map(string => new Token(string));
+    Grammar.checkNonTerminalsAndTerminalsAreDisjunct(tokenizedNonTerminals, tokenizedTerminals);
+    const tokenTable = Grammar.initializeTokenTable(tokenizedNonTerminals, tokenizedTerminals);
     const tokenizedRules = rules.map(rule => ProductionRule.fromString(rule.lhs, rule.rhs));
     const tokenizedStartSymbol = new Token(startSymbol);
 
-    return new Grammar(tokenizedNonTerminals, tokenizedTerminals, tokenizedRules, tokenizedStartSymbol);
+    return new Grammar(tokenTable, tokenizedRules, tokenizedStartSymbol);
   }
 
+  /**
+   * Returns token table.
+   */
   public getTokenTable() : TokenTable
   {
     return this.tokenTable;
   }
 
+  /**
+   * Returns production rule list.
+   */
   public getRules() : Array<ProductionRule>
   {
     return this.rules;
   }
 
+  /**
+   * Returns start symbol.
+   */
   public getStartSymbol() : Token
   {
     return this.startSymbol;
   }
 
+  /**
+   * Returns whether every production rule in the 
+   * grammar is right regular.
+   */
   public isRightRegular() : boolean
   {
     return this.rules.every(rule => rule.isRightRegular(this.tokenTable));
   }
 
+  /**
+   * Returns whether every procution rule in the 
+   * grammar is left regular.
+   */
   public isLeftRegular() : boolean
   {
     return this.rules.every(rule => rule.isLeftRegular(this.tokenTable));
   }
 
+  /**
+   * Returns whether every production rule
+   * in the grammar is context free.
+   */
   public isContextFree() : boolean
   {
     return this.rules.every(rule => rule.isContextFree(this.tokenTable));
   }
 
+  /**
+   * Returns whether every production rule 
+   * in the grammar is context sensitive.
+   * 
+   */
   public isContextSensitive() : boolean
   {
     return this.rules.every(rule => rule.isContextSensitive(this.tokenTable));
   }
 
+  /**
+   * Returns whether the grammar
+   * has any E rules.
+   */
   public hasERules() : boolean
   {
     return this.rules.some(rule => rule.isERule(this.tokenTable));
   }
 
+  /**
+   * Returns the grammar type.
+   */
   public type() : GrammarType
   {
     if(this.isRightRegular() || this.isLeftRegular())
@@ -198,9 +283,46 @@ export class Grammar
     }
   }
 
+  /**
+   * Returns the [[ProductionRule]] whose left hand side
+   * corresponds to the string passed.
+   * 
+   * If there is no such rule, returns undefined.
+   * 
+   * @param lhs 
+   */
   public queryRule(lhs : TokenString) : ProductionRule | undefined
   {
     return this.rules.find(elem => elem.getLhs().isEqual(lhs));
+  }
+
+  /**
+   * Returns whether the grammar has 
+   * Chomsky Normal Form, that is, let "A", "B"
+   * and "C" be non terminals, "a" a terminal, "E" 
+   * the empty string and "S" the start symbol.
+   * 
+   * All production rules must have the form:
+   * 
+   * A -> BC
+   * A -> a
+   * S -> E
+   */
+  public hasChomskyNormalForm() : boolean
+  {
+    const tokenTable = this.tokenTable;
+    const startSymbol = this.startSymbol;
+    return this.rules.every(rule =>
+    {
+      return rule.getLhs().size() === 1 &&
+             tokenTable[rule.getLhs().tokenAt(0).toString()] === TokenSort.NonTerminal &&
+             rule.getRhs().every(option => 
+             {
+               return (option.size() === 2 && option.every(token => tokenTable[token.toString()]   === TokenSort.NonTerminal)) || 
+                      (option.size() === 1 && tokenTable[option.tokenAt(0).toString()] === TokenSort.Terminal) ||
+                      (rule.getLhs().tokenAt(0).isEqual(startSymbol) && option.isEqual(TokenString.fromString("")));
+             });
+    });
   }
 
   private readonly tokenTable : TokenTable;

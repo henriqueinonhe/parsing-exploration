@@ -1,7 +1,7 @@
 import { Grammar } from "./Grammar";
 import { TokenString } from "./TokenString";
-import { listPartitions } from "./Debug";
 import { TokenSort } from "./TokenTable";
+import { Utils } from "./Utils";
 
 export class UngersEFreeRecognizer
 {
@@ -34,7 +34,7 @@ export class UngersEFreeRecognizer
       return false;
     }
 
-    const partitions = listPartitions(inputSubstring.getTokenList(), numberOfGroups);
+    const partitions = Utils.listPartitions(inputSubstring.getTokenList(), numberOfGroups);
 
     //Try to match the rest
     return partitions.some(partition =>

@@ -1,6 +1,4 @@
 import { Grammar } from "../src/Grammar";
-import { Token } from "../src/Token";
-import { ProductionRule } from "../src/ProductionRule";
 import { TokenSort } from "../src/TokenTable";
 import { TokenString } from "../src/TokenString";
 
@@ -8,24 +6,6 @@ describe("constructor", () =>
 {
   describe("Pre Conditions", () =>
   {
-    test("Non terminals list cannot be empty", () =>
-    {
-      const nonTerminals = [] as Array<Token>;
-      const terminals = [new Token("A")];
-      const rules = [] as Array<ProductionRule>;
-      const startSymbol = new Token("A");
-      expect(() => {new Grammar(nonTerminals, terminals, rules, startSymbol);}).toThrow("Non terminals list is empty!");
-    });
-
-    test("Terminals list cannot be empty", () =>
-    {
-      const nonTerminals = [new Token("A")];
-      const terminals = [] as Array<Token>;
-      const rules = [] as Array<ProductionRule>;
-      const startSymbol = new Token("A");
-      expect(() => {new Grammar(nonTerminals, terminals, rules, startSymbol);}).toThrow("Terminals list is empty!");
-    });
-
     test("Terminals and non terminals must be disjunct", () =>
     {
       expect(() => {Grammar.constructFromStrings(["A", "B", "C"], ["a", "B", "c"], [], "A");}).toThrow(`Tokens "B" appear both as terminals and non terminals!`);
@@ -145,6 +125,35 @@ describe("queryRule()", () =>
       ];
       const startSymbol = "S";
       expect(Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString.fromString("S B"))?.getRhs()[0].toString()).toBe("b");
+    });
+  });
+});
+
+describe("hasChomskyNormalForm()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["S", "A", "B", "C"];
+      const terminals = ["a", "b", "c"];
+      const rules1 = [
+        {lhs: "S", rhs: ["A A", "S A", "a", ""]},
+        {lhs: "A", rhs: ["A B", "a"]},
+        {lhs: "B", rhs: ["b", "B C"]},
+        {lhs: "C", rhs: ["c"]}
+      ];
+      const startSymbol = "S";
+      expect(Grammar.constructFromStrings(nonTerminals, terminals, rules1, startSymbol).hasChomskyNormalForm()).toBe(true);
+
+      const rules2 = [
+        {lhs: "S", rhs: ["A A", "S A", "a"]},
+        {lhs: "A", rhs: ["A B", "a", ""]}, //-> Empty String associated with a non terminal that is not the start symbol
+        {lhs: "B", rhs: ["b", "B C"]},
+        {lhs: "C", rhs: ["c"]}
+      ];
+
+      expect(Grammar.constructFromStrings(nonTerminals, terminals, rules2, startSymbol).hasChomskyNormalForm()).toBe(false);
     });
   });
 });

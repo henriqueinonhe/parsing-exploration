@@ -1,25 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Grammar_1 = require("../src/Grammar");
-const Token_1 = require("../src/Token");
 const TokenTable_1 = require("../src/TokenTable");
 const TokenString_1 = require("../src/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
-        test("Non terminals list cannot be empty", () => {
-            const nonTerminals = [];
-            const terminals = [new Token_1.Token("A")];
-            const rules = [];
-            const startSymbol = new Token_1.Token("A");
-            expect(() => { new Grammar_1.Grammar(nonTerminals, terminals, rules, startSymbol); }).toThrow("Non terminals list is empty!");
-        });
-        test("Terminals list cannot be empty", () => {
-            const nonTerminals = [new Token_1.Token("A")];
-            const terminals = [];
-            const rules = [];
-            const startSymbol = new Token_1.Token("A");
-            expect(() => { new Grammar_1.Grammar(nonTerminals, terminals, rules, startSymbol); }).toThrow("Terminals list is empty!");
-        });
         test("Terminals and non terminals must be disjunct", () => {
             expect(() => { Grammar_1.Grammar.constructFromStrings(["A", "B", "C"], ["a", "B", "c"], [], "A"); }).toThrow(`Tokens "B" appear both as terminals and non terminals!`);
             expect(() => { Grammar_1.Grammar.constructFromStrings(["A", "B", "C"], ["A", "b", "C"], [], "A"); }).toThrow(`Tokens "A", "C" appear both as terminals and non terminals!`);
@@ -117,6 +102,29 @@ describe("queryRule()", () => {
             ];
             const startSymbol = "S";
             expect((_a = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString_1.TokenString.fromString("S B"))) === null || _a === void 0 ? void 0 : _a.getRhs()[0].toString()).toBe("b");
+        });
+    });
+});
+describe("hasChomskyNormalForm()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            const nonTerminals = ["S", "A", "B", "C"];
+            const terminals = ["a", "b", "c"];
+            const rules1 = [
+                { lhs: "S", rhs: ["A A", "S A", "a", ""] },
+                { lhs: "A", rhs: ["A B", "a"] },
+                { lhs: "B", rhs: ["b", "B C"] },
+                { lhs: "C", rhs: ["c"] }
+            ];
+            const startSymbol = "S";
+            expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules1, startSymbol).hasChomskyNormalForm()).toBe(true);
+            const rules2 = [
+                { lhs: "S", rhs: ["A A", "S A", "a"] },
+                { lhs: "A", rhs: ["A B", "a", ""] },
+                { lhs: "B", rhs: ["b", "B C"] },
+                { lhs: "C", rhs: ["c"] }
+            ];
+            expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules2, startSymbol).hasChomskyNormalForm()).toBe(false);
         });
     });
 });

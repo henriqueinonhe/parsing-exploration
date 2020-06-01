@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UngersEFreeRecognizer = void 0;
 const TokenString_1 = require("./TokenString");
-const Debug_1 = require("./Debug");
 const TokenTable_1 = require("./TokenTable");
+const Utils_1 = require("./Utils");
 class UngersEFreeRecognizer {
     constructor(grammar) {
         this.grammar = grammar;
@@ -18,7 +18,14 @@ class UngersEFreeRecognizer {
         if (numberOfGroups > inputSubstring.size()) {
             return false;
         }
-        const partitions = Debug_1.listPartitions(inputSubstring.getTokenList(), numberOfGroups);
+        else if (!this.matchSententialFormBeginning(sententialForm, inputSubstring) ||
+            !this.matchSententialFormEnd(sententialForm, inputSubstring)) {
+            return false;
+        }
+        else if (!this.matchSenentialFormTerminals(sententialForm, inputSubstring)) {
+            return false;
+        }
+        const partitions = Utils_1.Utils.listPartitions(inputSubstring.getTokenList(), numberOfGroups);
         //Try to match the rest
         return partitions.some(partition => {
             return partition.every((inputSubstringTokenList, index) => {
@@ -41,6 +48,62 @@ class UngersEFreeRecognizer {
                 return rhs.some(option => this.matchSententialForm(option, inputSubstring));
             }
         }
+    }
+    matchSententialFormBeginning(sententialForm, inputSubstring) {
+        const tokenTable = this.grammar.getTokenTable();
+        let index = 0;
+        while (index < sententialForm.size() &&
+            tokenTable[sententialForm.tokenAt(index).toString()] === TokenTable_1.TokenSort.Terminal) {
+            index++;
+        }
+        return inputSubstring.startsWith(sententialForm.slice(0, index));
+    }
+    matchSententialFormEnd(sententialForm, inputSubstring) {
+        const tokenTable = this.grammar.getTokenTable();
+        let index = sententialForm.size() - 1;
+        while (index >= 0 &&
+            tokenTable[sententialForm.tokenAt(index).toString()] === TokenTable_1.TokenSort.Terminal) {
+            index--;
+        }
+        return inputSubstring.endsWith(sententialForm.slice(index + 1));
+    }
+    matchSenentialFormTerminals(sententialForm, inputSubstring) {
+        const tokenTable = this.grammar.getTokenTable();
+        const sententialFormTerminalCountTable = {};
+        for (let index = 0; index < sententialForm.size(); index++) {
+            const currentToken = sententialForm.tokenAt(index);
+            if (tokenTable[currentToken.toString()] === TokenTable_1.TokenSort.Terminal) {
+                const currentTerminalCount = sententialFormTerminalCountTable[currentToken.toString()];
+                if (currentTerminalCount === undefined) {
+                    sententialFormTerminalCountTable[currentToken.toString()] = 1;
+                }
+                else {
+                    sententialFormTerminalCountTable[currentToken.toString()]++;
+                }
+            }
+        }
+        const inputSubstringTerminalCountTable = {};
+        for (let index = 0; index < inputSubstring.size(); index++) {
+            const currentToken = inputSubstring.tokenAt(index);
+            if (tokenTable[currentToken.toString()] === TokenTable_1.TokenSort.Terminal) {
+                const currentTerminalCount = inputSubstringTerminalCountTable[currentToken.toString()];
+                if (currentTerminalCount === undefined) {
+                    inputSubstringTerminalCountTable[currentToken.toString()] = 1;
+                }
+                else {
+                    inputSubstringTerminalCountTable[currentToken.toString()]++;
+                }
+            }
+        }
+        for (const currentSententialFormTerminalString in sententialFormTerminalCountTable) {
+            const currentSententialFormTerminalCount = sententialFormTerminalCountTable[currentSententialFormTerminalString];
+            const currentInputSubstringTerminalCount = inputSubstringTerminalCountTable[currentSententialFormTerminalString];
+            if (currentInputSubstringTerminalCount === undefined ||
+                currentSententialFormTerminalCount > currentInputSubstringTerminalCount) {
+                return false;
+            }
+        }
+        return true;
     }
 }
 exports.UngersEFreeRecognizer = UngersEFreeRecognizer;
