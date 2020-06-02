@@ -1,5 +1,6 @@
 import { ProductionRule, ProductionRuleParser } from "../src/ProductionRule";
 import { TokenSort } from "../src/TokenTable";
+import { TokenString } from "../src/TokenString";
 
 describe("constructor", () =>
 {
@@ -283,6 +284,29 @@ describe("ProductionRuleParser", () =>
       {
         // expect(() => {ProductionRuleParser["findRightArrowBeginIndex"](`"<expr>" asdas  a d,djald | ||| | asdas`, 9);}).toThrow(`String ended prematurely`);
       });
+    });
+  });
+});
+
+describe("clone()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("actually clones", () =>
+    {
+      const original = ProductionRule.fromString("Number", ["Real", "Integer"]);
+      const clone = original.clone();
+      expect(clone.getLhs().toString()).toBe("Number");
+      expect(clone.getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["Real", "Integer"]);
+    });
+    
+    test("Modifying clone doesn't affect original", () =>
+    {
+      const original = ProductionRule.fromString("Number", ["Real", "Integer"]);
+      const clone = original.clone();
+      clone["lhs"] = TokenString.fromString("Dobs");
+      expect(clone.getLhs().toString()).toBe("Dobs");
+      expect(original.getLhs().toString()).toBe("Number");
     });
   });
 });

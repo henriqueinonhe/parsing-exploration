@@ -128,4 +128,31 @@ describe("hasChomskyNormalForm()", () => {
         });
     });
 });
+describe("getStartingRule()", () => {
+    describe("Post Conditions", () => {
+        test("Happy Path", () => {
+            var _a;
+            const nonTerminals = ["S", "A", "B"];
+            const terminals = ["a", "b"];
+            const rules = [
+                { lhs: "S", rhs: ["a S", "a", "A"] },
+                { lhs: "A", rhs: ["b A", "B"] },
+                { lhs: "S B", rhs: ["b"] }
+            ];
+            const startSymbol = "S";
+            expect((_a = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).getStartingRule()) === null || _a === void 0 ? void 0 : _a.getLhs().toString()).toBe("S");
+        });
+        test("No starting rule", () => {
+            var _a;
+            const nonTerminals = ["S", "A", "B"];
+            const terminals = ["a", "b"];
+            const rules = [
+                { lhs: "A", rhs: ["b A", "B"] },
+                { lhs: "S B", rhs: ["b"] }
+            ];
+            const startSymbol = "S";
+            expect((_a = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).getStartingRule()) === null || _a === void 0 ? void 0 : _a.getLhs().toString()).toBe(undefined);
+        });
+    });
+});
 //# sourceMappingURL=Grammar.test.js.map

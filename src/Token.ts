@@ -1,8 +1,8 @@
 /**
  * File Status
- * Refactoring: DONE
- * Documentation: DONE
- * Testing: DONE
+ * Refactoring: HIGH
+ * Documentation: HIGH
+ * Testing: HIGH
  */
 
 /**
@@ -60,5 +60,13 @@ export class Token
            this.toString() === other.toString();
   }
   
+  /**
+   * Deep copy.
+   */
+  public clone() : Token
+  {
+    return new Token(this.toString());
+  }
+
   private readonly tokenString : string;
 }

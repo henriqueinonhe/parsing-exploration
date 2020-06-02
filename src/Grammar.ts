@@ -325,6 +325,24 @@ export class Grammar
     });
   }
 
+  /**
+     * Returns the rule whose left hand side
+     * corresponds to the starting symbol, if there is any
+     * and undefined otherwise.
+     */
+  public getStartingRule() : ProductionRule | undefined
+  {
+    return this.getRules().find(rule => rule.getLhs().tokenAt(0).isEqual(this.getStartSymbol()) && rule.getLhs().size() === 1);
+  }
+
+  /**
+   * Deep copy
+   */
+  public clone() : Grammar
+  {
+    
+  }
+
   private readonly tokenTable : TokenTable;
   private readonly rules : Array<ProductionRule>;
   private readonly startSymbol : Token;

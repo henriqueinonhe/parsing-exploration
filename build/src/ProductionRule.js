@@ -1,9 +1,9 @@
 "use strict";
 /**
  * File Status
- * Refactoring: PENDING
- * Documentation: DONE
- * Testing: DONE
+ * Refactoring: MEDIUM
+ * Documentation: HIGH
+ * Testing: HIGH
  *
  */
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -233,6 +233,14 @@ class ProductionRule {
             }
         }
         return true && this.isMonotonic(tokenTable);
+    }
+    /**
+     * Deep copy.
+     */
+    clone() {
+        const lhs = this.lhs.toString();
+        const rhs = this.rhs.map(tokenString => tokenString.toString());
+        return ProductionRule.fromString(lhs, rhs);
     }
 }
 exports.ProductionRule = ProductionRule;

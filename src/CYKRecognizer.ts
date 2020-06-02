@@ -1,5 +1,4 @@
 import { Grammar } from "./Grammar";
-import { Token } from "./Token";
 import { TokenString } from "./TokenString";
 import { Utils } from "./Utils";
 

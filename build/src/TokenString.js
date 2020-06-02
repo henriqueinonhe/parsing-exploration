@@ -1,9 +1,9 @@
 "use strict";
 /**
  * File Status
- * Refactoring: DONE
- * Documentation: DONE
- * Testing: DONE
+ * Refactoring: HIGH
+ * Documentation: HIGH
+ * Testing: HIGH
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TokenString = void 0;
@@ -145,6 +145,37 @@ class TokenString {
      */
     every(callbackfn, thisArg /* This was "any" in the original declaration */) {
         return this.tokenList.every(callbackfn, thisArg);
+    }
+    /**
+     * TokenString equivalent of JS's array
+     * reduce.
+     *
+     * @param callbackfn
+     * @param initialValue
+     */
+    reduce(callbackfn, initialValue) {
+        return this.tokenList.reduce(callbackfn, initialValue);
+    }
+    /**
+     * Deep copy.
+     */
+    clone() {
+        return TokenString.fromString(this.toString());
+    }
+    /**
+     * Checks whether a given tokenString is a substring
+     * of this from a given index.
+     *
+     * @param tokenString
+     * @param startIndex
+     */
+    includes(tokenString, startIndex = 0) {
+        for (let index = startIndex; index < this.size(); index++) {
+            if (this.slice(index, index + tokenString.size()).isEqual(tokenString)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 exports.TokenString = TokenString;

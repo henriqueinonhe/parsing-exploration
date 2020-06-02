@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const TokenString_1 = require("../src/TokenString");
+const Token_1 = require("../src/Token");
 describe("toString()", () => {
     describe("Post Conditions", () => {
         test("", () => {
@@ -63,6 +64,32 @@ describe("endsWith()", () => {
             expect(TokenString_1.TokenString.fromString("Prop -> Prop -> Individual").endsWith(TokenString_1.TokenString.fromString("Prop"))).toBe(false);
             expect(TokenString_1.TokenString.fromString("Prop -> Prop -> Individual").endsWith(TokenString_1.TokenString.fromString("asd asd a sd"))).toBe(false);
             expect(TokenString_1.TokenString.fromString("Prop -> Prop -> Individual").endsWith(TokenString_1.TokenString.fromString("Prop -> Prop -> Prop -> Individual"))).toBe(false);
+        });
+    });
+});
+describe("clone()", () => {
+    describe("Post Conditions", () => {
+        test("Modifying clone doesn't affect original", () => {
+            const original = TokenString_1.TokenString.fromString("A B C D");
+            const clone = original.clone();
+            clone.getTokenList()[0] = new Token_1.Token("DOBS");
+            expect(clone.toString()).toBe("DOBS B C D");
+            expect(original.toString()).toBe("A B C D");
+        });
+    });
+});
+describe("includes()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            expect(TokenString_1.TokenString.fromString("y a d d a D u d a d a b a").includes(TokenString_1.TokenString.fromString("y"))).toBe(true);
+            expect(TokenString_1.TokenString.fromString("y a d d a D u d a d a b a").includes(TokenString_1.TokenString.fromString("y a"))).toBe(true);
+            expect(TokenString_1.TokenString.fromString("y a d d a D u d a d a b a").includes(TokenString_1.TokenString.fromString("y a d d a"))).toBe(true);
+            expect(TokenString_1.TokenString.fromString("Prop -> Prop -> Individual").includes(TokenString_1.TokenString.fromString("Individual"))).toBe(true);
+            expect(TokenString_1.TokenString.fromString("Prop -> Prop -> Individual").includes(TokenString_1.TokenString.fromString("Prop  -> Individual"))).toBe(true);
+            expect(TokenString_1.TokenString.fromString("Prop -> Prop -> Individual").includes(TokenString_1.TokenString.fromString("Prop -> Prop -> Individual"))).toBe(true);
+            expect(TokenString_1.TokenString.fromString("A A B B A A").includes(TokenString_1.TokenString.fromString("A B B A"))).toBe(true);
+            expect(TokenString_1.TokenString.fromString("y a d d a D u d a d a b a").includes(TokenString_1.TokenString.fromString("a y"))).toBe(false);
+            expect(TokenString_1.TokenString.fromString("y a d d a D u d a d a b a").includes(TokenString_1.TokenString.fromString("d a a a"))).toBe(false);
         });
     });
 });

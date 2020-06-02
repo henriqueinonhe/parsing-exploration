@@ -37,3 +37,14 @@ describe("constructor", () =>
     });
   }); 
 });
+
+describe("clone()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      expect(new Token("Dobs").clone().toString()).toBe("Dobs");
+    });
+  });
+});

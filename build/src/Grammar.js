@@ -261,6 +261,14 @@ class Grammar {
                 });
         });
     }
+    /**
+       * Returns the rule whose left hand side
+       * corresponds to the starting symbol, if there is any
+       * and undefined otherwise.
+       */
+    getStartingRule() {
+        return this.getRules().find(rule => rule.getLhs().tokenAt(0).isEqual(this.getStartSymbol()) && rule.getLhs().size() === 1);
+    }
 }
 exports.Grammar = Grammar;
 //# sourceMappingURL=Grammar.js.map

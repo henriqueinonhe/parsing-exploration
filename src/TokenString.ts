@@ -1,8 +1,8 @@
 /**
  * File Status
- * Refactoring: DONE
- * Documentation: DONE
- * Testing: DONE
+ * Refactoring: HIGH
+ * Documentation: HIGH
+ * Testing: HIGH
  */
 
 import { Token } from "./Token";
@@ -181,6 +181,48 @@ export class TokenString
   public every(callbackfn : (value : Token, index : number, array : Array<Token>) => unknown, thisArg ? : TokenString/* This was "any" in the original declaration */) : boolean
   {
     return this.tokenList.every(callbackfn, thisArg);
+    
+  }
+
+  /**
+   * TokenString equivalent of JS's array
+   * reduce.
+   * 
+   * @param callbackfn 
+   * @param initialValue 
+   */
+  public reduce<T>(callbackfn : (previousValue : T, currentValue : Token, currentIndex : number, array : Token[]) => T, initialValue : T) : T
+  {
+    return this.tokenList.reduce<T>(callbackfn, initialValue);
+  }
+
+  
+  /**
+   * Deep copy.
+   */
+  public clone() : TokenString
+  {
+    return TokenString.fromString(this.toString());
+  }
+
+  /**
+   * Checks whether a given tokenString is a substring
+   * of this from a given index.
+   * 
+   * @param tokenString 
+   * @param startIndex 
+   */
+  public includes(tokenString : TokenString, startIndex = 0) : boolean
+  {
+    for(let index = startIndex; index < this.size(); index++)
+    {
+      if(this.slice(index, index + tokenString.size()).isEqual(tokenString))
+      {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   private readonly tokenList : Array<Token>

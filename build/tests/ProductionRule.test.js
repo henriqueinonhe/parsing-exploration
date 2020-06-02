@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const ProductionRule_1 = require("../src/ProductionRule");
 const TokenTable_1 = require("../src/TokenTable");
+const TokenString_1 = require("../src/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
         test("Lhs must not be empty", () => {
@@ -219,6 +220,23 @@ describe("ProductionRuleParser", () => {
             test("Right arrow absent", () => {
                 // expect(() => {ProductionRuleParser["findRightArrowBeginIndex"](`"<expr>" asdas  a d,djald | ||| | asdas`, 9);}).toThrow(`String ended prematurely`);
             });
+        });
+    });
+});
+describe("clone()", () => {
+    describe("Post Conditions", () => {
+        test("actually clones", () => {
+            const original = ProductionRule_1.ProductionRule.fromString("Number", ["Real", "Integer"]);
+            const clone = original.clone();
+            expect(clone.getLhs().toString()).toBe("Number");
+            expect(clone.getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["Real", "Integer"]);
+        });
+        test("Modifying clone doesn't affect original", () => {
+            const original = ProductionRule_1.ProductionRule.fromString("Number", ["Real", "Integer"]);
+            const clone = original.clone();
+            clone["lhs"] = TokenString_1.TokenString.fromString("Dobs");
+            expect(clone.getLhs().toString()).toBe("Dobs");
+            expect(original.getLhs().toString()).toBe("Number");
         });
     });
 });

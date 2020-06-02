@@ -19,3 +19,8 @@ const grammar = Grammar.constructFromStrings(nonTerminals, terminals, rules, sta
 const recognizer = new CYKRecognizer(grammar);
 
 recognizer.buildTable(TokenString.fromString("3 2 . 5 e + 1"));
+
+test("", () =>
+{
+
+});

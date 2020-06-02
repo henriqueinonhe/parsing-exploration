@@ -1,9 +1,9 @@
 "use strict";
 /**
  * File Status
- * Refactoring: DONE
- * Documentation: DONE
- * Testing: DONE
+ * Refactoring: HIGH
+ * Documentation: HIGH
+ * Testing: HIGH
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Token = void 0;
@@ -51,6 +51,12 @@ class Token {
     isEqual(other) {
         return other instanceof Token &&
             this.toString() === other.toString();
+    }
+    /**
+     * Deep copy.
+     */
+    clone() {
+        return new Token(this.toString());
     }
 }
 exports.Token = Token;

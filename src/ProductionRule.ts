@@ -1,8 +1,8 @@
 /**
  * File Status
- * Refactoring: PENDING
- * Documentation: DONE
- * Testing: DONE
+ * Refactoring: MEDIUM
+ * Documentation: HIGH
+ * Testing: HIGH
  * 
  */
 
@@ -285,8 +285,18 @@ export class ProductionRule
     return true && this.isMonotonic(tokenTable);
   }
 
-  private readonly lhs : TokenString;
-  private readonly rhs : Array<TokenString>;
+  /**
+   * Deep copy.
+   */
+  public clone() : ProductionRule
+  {
+    const lhs = this.lhs.toString();
+    const rhs = this.rhs.map(tokenString => tokenString.toString());
+    return ProductionRule.fromString(lhs, rhs);
+  }
+
+  private lhs : TokenString;
+  private rhs : Array<TokenString>;
 }
 
 //This is not crucial right now so it will be postponed
