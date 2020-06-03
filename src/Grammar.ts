@@ -178,7 +178,7 @@ export class Grammar
    * @param rules 
    * @param startSymbol 
    */
-  public static constructFromStrings(nonTerminals : Array<string>, terminals : Array<string>, rules : Array<{lhs : string; rhs : Array<string>}>, startSymbol : string) : Grammar
+  public static fromStrings(nonTerminals : Array<string>, terminals : Array<string>, rules : Array<{lhs : string; rhs : Array<string>}>, startSymbol : string) : Grammar
   {
     const tokenizedNonTerminals = nonTerminals.map(string => new Token(string));
     const tokenizedTerminals = terminals.map(string => new Token(string));
@@ -340,7 +340,38 @@ export class Grammar
    */
   public clone() : Grammar
   {
-    
+    //Clone Token Table
+    const newTokenTable : TokenTable = {};
+    for(const token in this.tokenTable)
+    {
+      newTokenTable[token] = this.tokenTable[token];
+    }
+
+    //Clone Production Rules
+    const newProductionRules = this.rules.map(rule => rule.clone());
+
+    //Clone Start Symbol
+    const newStartSymbol = this.startSymbol.clone();
+
+    return new Grammar(newTokenTable, newProductionRules, newStartSymbol);
+  }
+
+  public isEqual(other : Grammar) : boolean
+  {
+    //Comparing Token Table
+    let tokenTableIsEqual = false;
+    for(const token in this.tokenTable)
+    {
+      if(this.tokenTable[token] !== other.getTokenTable()[token])
+      {
+        tokenTableIsEqual = true;
+      }
+    }
+
+    return other instanceof Grammar &&
+           tokenTableIsEqual &&
+           this.rules.every((rule, index) => rule.isEqual(other.getRules()[index])) &&
+           this.startSymbol.isEqual(other.getStartSymbol());
   }
 
   private readonly tokenTable : TokenTable;

@@ -15,7 +15,7 @@ const rules = [
   {lhs: "Empty", rhs: [""]}
 ];
 const startSymbol = "Number";
-const grammar = Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol);
+const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
 const recognizer = new CYKRecognizer(grammar);
 
 recognizer.buildTable(TokenString.fromString("3 2 . 5 e + 1"));

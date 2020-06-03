@@ -48,12 +48,7 @@ export class GrammarTransformer
       const newOptions = [];
       for(const option of rule.getRhs())
       {
-        const isUnitRule = option.isEqual(eRuleLhs);
-        if(isUnitRule)
-        {
-          newOptions.push(TokenString.fromString(""));
-        }
-        else if(option.includes(eRuleLhs)) //Rule has the form xAy, where x and y are strings of tokens and either x or y is non empty (at least one of them) and A is the E rule lhs non terminal
+        if(option.includes(eRuleLhs)) //Rule has the form xAy, where x and y are strings of tokens and either x or y is non empty (at least one of them) and A is the E rule lhs non terminal
         {
           newOptions.push(...GrammarTransformer.generateNonUnitRuleOptions(eRuleLhs, option));
         }

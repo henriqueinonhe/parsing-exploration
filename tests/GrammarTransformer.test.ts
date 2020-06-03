@@ -174,7 +174,7 @@ describe("substituteERuleLhsOccurrencesInRules()", () =>
       expect(rules[1].getLhs().toString()).toBe("C");
 
       expect(rules[0].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A a A", "b", "a", "A a", "a A", "A a A"]);
-      expect(rules[1].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A", "c", ""]);
+      expect(rules[1].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A", "c", "", "A"]);
     });
   });
 });

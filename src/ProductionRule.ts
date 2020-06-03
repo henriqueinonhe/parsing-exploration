@@ -295,6 +295,17 @@ export class ProductionRule
     return ProductionRule.fromString(lhs, rhs);
   }
 
+  /**
+   * Deep Equality
+   * @param other 
+   */
+  public isEqual(other : ProductionRule) : boolean
+  {
+    return other instanceof ProductionRule &&
+           this.lhs.isEqual(other.getLhs()) &&
+           this.getRhs().every((option, index) => option.isEqual(other.getRhs()[index]));
+  }
+
   private lhs : TokenString;
   private rhs : Array<TokenString>;
 }
@@ -415,6 +426,8 @@ export class ProductionRuleParser
       }
     }
   }
+
+  
 }
 
 

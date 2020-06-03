@@ -310,3 +310,14 @@ describe("clone()", () =>
     });
   });
 });
+
+describe("isEqual()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      expect(ProductionRule.fromString("S", ["A", "A S", "A S A"]).isEqual(ProductionRule.fromString("S", ["A", "A S", "A S A"]))).toBe(true);
+    });
+  });
+});

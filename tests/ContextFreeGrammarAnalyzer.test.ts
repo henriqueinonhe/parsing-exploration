@@ -26,7 +26,7 @@ describe("Adjacency matrix and transitive closure matrix", () =>
       {lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"]}
     ];
     const startSymbol = "<expr>";
-    const grammar = Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol);
+    const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
     const analyzer = new ContextFreeGrammarAnalyzer(grammar);
     const adjacencyMatrix = analyzer.getTokenAdjacencyMatrix();
     const transitiveClosureMatrix = analyzer.getTokenTransitiveClosureMatrix();
