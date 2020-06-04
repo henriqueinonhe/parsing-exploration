@@ -2,14 +2,56 @@ import { Grammar } from "./Grammar";
 import { TokenString } from "./TokenString";
 import { ProductionRule } from "./ProductionRule";
 import { Token } from "./Token";
+import { ContextFreeGrammarAnalyzer } from "./ContextFreeGrammarAnalyzer";
+import { TokenTable } from "./TokenTable";
 
 export class GrammarTransformer
 {
-  public static removeERules(grammar : Grammar) : void //FIXME!
+  public static cleanGrammar(grammar : Grammar) : Grammar
+  {
+    const analyzer = new ContextFreeGrammarAnalyzer(grammar);
+    const unreachableTokens = analyzer.computeUnreachableTokens();
+
+    const tokenTable = grammar.getTokenTable();
+    const rules = grammar.getRules();
+    const startSymbol = grammar.getStartSymbol();
+    
+    GrammarTransformer.removeUnusedTokensFromTable(tokenTable, unreachableTokens);
+    GrammarTransformer.removeUnusedRules(rules, unreachableTokens);
+
+    return new Grammar(tokenTable, rules, startSymbol);
+  }
+
+  private static removeUnusedTokensFromTable(tokenTable : TokenTable, unusedTokens : Array<string>) : void
+  {
+    for(const token in tokenTable)
+    {
+      if(unusedTokens.includes(token))
+      {
+        delete tokenTable[token];
+      }
+    }
+  }
+
+  private static removeUnusedRules(rules : Array<ProductionRule>, unreachableTokens : Array<string>) : void
+  {
+    const newRules = [] as Array<ProductionRule>;
+    for(const rule of rules)
+    {
+      if(!unreachableTokens.includes(rule.getLhs().toString()))
+      {
+        newRules.push(rule);
+      }
+    }
+    rules = newRules;
+    //FIXME!
+  }
+
+  public static removeERules(grammar : Grammar) : Grammar
   {
     const tokenTable = grammar.getTokenTable();
+    const newRules = grammar.getRules();
     const startSymbol = grammar.getStartSymbol();
-    const newRules = grammar.getRules().map(rule => rule.clone());
 
     let eRulesNoMore = false;
     do
@@ -33,12 +75,14 @@ export class GrammarTransformer
 
     } while(!eRulesNoMore);
 
-    //Construct grammar
+    //Construct and clean grammar
+    const eFreeGrammar = new Grammar(tokenTable, newRules, startSymbol);
+    return GrammarTransformer.cleanGrammar(eFreeGrammar);
   }
 
   private static removeEmptyStringFromRule(rule : ProductionRule) : void
   {
-    rule.getRhs().filter(tokenString => !tokenString.isEmpty());
+    rule.setRhs(rule.getRhs().filter(tokenString => !tokenString.isEmpty()));
   }
 
   private static substituteERuleLhsOccurrencesInRules(rules : Array<ProductionRule>, eRuleLhs : TokenString) : void
@@ -53,7 +97,9 @@ export class GrammarTransformer
           newOptions.push(...GrammarTransformer.generateNonUnitRuleOptions(eRuleLhs, option));
         }
       }
-      rule.getRhs().push(...newOptions);
+      const newRhs = [...rule.getRhs()];
+      newRhs.push(...newOptions);
+      rule.setRhs(newRhs);
     }
   }
 

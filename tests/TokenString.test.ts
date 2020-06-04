@@ -100,13 +100,11 @@ describe("clone()", () =>
 {
   describe("Post Conditions", () =>
   {
-    test("Modifying clone doesn't affect original", () =>
+    test("Clones correctly", () =>
     {
       const original = TokenString.fromString("A B C D");
       const clone = original.clone();
-      clone.getTokenList()[0] = new Token("DOBS");
-      expect(clone.toString()).toBe("DOBS B C D");
-      expect(original.toString()).toBe("A B C D");
+      expect(clone.toString()).toBe("A B C D");
     });
   });
 });

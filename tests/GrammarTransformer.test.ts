@@ -2,12 +2,8 @@ import { GrammarTransformer } from "../src/GrammarTransformer";
 import { Token } from "../src/Token";
 import { TokenString } from "../src/TokenString";
 import { ProductionRule } from "../src/ProductionRule";
-
-const rules = [
-  ProductionRule.fromString("B", ["A a A", "b"]),
-  ProductionRule.fromString("C", ["A", "c"])
-];
-GrammarTransformer["substituteERuleLhsOccurrencesInRules"](rules, TokenString.fromString("A"));
+import { Grammar } from "../src/Grammar";
+import { TokenSort } from "../src/TokenTable";
 
 describe("advanceToNextIndicator()", () =>
 {
@@ -175,6 +171,37 @@ describe("substituteERuleLhsOccurrencesInRules()", () =>
 
       expect(rules[0].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A a A", "b", "a", "A a", "a A", "A a A"]);
       expect(rules[1].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A", "c", "", "A"]);
+    });
+  });
+});
+
+describe("cleanGrammar()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["S", "A", "B", "C"];
+      const terminals = ["a", "b", "c", "d"];
+      const rules = [
+        {lhs: "S", rhs: ["A", "A S"]},
+        {lhs: "A", rhs: ["a", "B"]},
+        {lhs: "B", rhs: ["b"]},
+        {lhs: "C", rhs: ["c"]}
+      ];
+      const startSymbol = "S";
+      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+      const cleanedGrammar = GrammarTransformer.cleanGrammar(grammar);
+
+      expect(cleanedGrammar.getTokenTable()["S"]).toBe(TokenSort.NonTerminal);
+      expect(cleanedGrammar.getTokenTable()["A"]).toBe(TokenSort.NonTerminal);
+      expect(cleanedGrammar.getTokenTable()["B"]).toBe(TokenSort.NonTerminal);
+      expect(cleanedGrammar.getTokenTable()["a"]).toBe(TokenSort.Terminal);
+      expect(cleanedGrammar.getTokenTable()["b"]).toBe(TokenSort.Terminal);
+      expect(cleanedGrammar.getTokenTable()["c"]).toBe(undefined);
+      expect(cleanedGrammar.getTokenTable()["d"]).toBe(undefined);
+
+      expect(cleanedGrammar.getRules().length).toBe(3);
     });
   });
 });

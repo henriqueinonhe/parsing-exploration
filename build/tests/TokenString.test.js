@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const TokenString_1 = require("../src/TokenString");
-const Token_1 = require("../src/Token");
 describe("toString()", () => {
     describe("Post Conditions", () => {
         test("", () => {
@@ -69,12 +68,10 @@ describe("endsWith()", () => {
 });
 describe("clone()", () => {
     describe("Post Conditions", () => {
-        test("Modifying clone doesn't affect original", () => {
+        test("Clones correctly", () => {
             const original = TokenString_1.TokenString.fromString("A B C D");
             const clone = original.clone();
-            clone.getTokenList()[0] = new Token_1.Token("DOBS");
-            expect(clone.toString()).toBe("DOBS B C D");
-            expect(original.toString()).toBe("A B C D");
+            expect(clone.toString()).toBe("A B C D");
         });
     });
 });

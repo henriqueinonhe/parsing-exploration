@@ -7,6 +7,7 @@
 
 import { Token } from "./Token";
 import { validateIndex } from "./LogosUtils";
+import { Utils } from "./Utils";
 
 /**
  * Represents a sequence of tokens.
@@ -53,22 +54,22 @@ export class TokenString
   }
 
   /**
-   * Returns internal token list.
+   * Returns internal token list by value.
    */
   public getTokenList() : Array<Token>
   {
-    return this.tokenList;
+    return Utils.cloneArray(this.tokenList);
   }
 
   /**
-   * Returns token at a given index.
+   * Returns token at a given index by value.
    * 
    * @param index 
    */
   public tokenAt(index : number) : Token
   {
     validateIndex(index, "index", this.tokenList.length, "tokenList");
-    return this.tokenList[index];
+    return this.tokenList[index].clone();
   }
 
   /**
@@ -202,7 +203,7 @@ export class TokenString
    */
   public clone() : TokenString
   {
-    return TokenString.fromString(this.toString());
+    return new TokenString(Utils.cloneArray(this.tokenList));
   }
 
   /**

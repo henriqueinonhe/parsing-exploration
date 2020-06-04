@@ -240,4 +240,11 @@ describe("clone()", () => {
         });
     });
 });
+describe("isEqual()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A", "A S", "A S A"]).isEqual(ProductionRule_1.ProductionRule.fromString("S", ["A", "A S", "A S A"]))).toBe(true);
+        });
+    });
+});
 //# sourceMappingURL=ProductionRule.test.js.map

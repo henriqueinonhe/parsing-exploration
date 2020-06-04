@@ -6,8 +6,8 @@ const TokenString_1 = require("../src/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
         test("Terminals and non terminals must be disjunct", () => {
-            expect(() => { Grammar_1.Grammar.constructFromStrings(["A", "B", "C"], ["a", "B", "c"], [], "A"); }).toThrow(`Tokens "B" appear both as terminals and non terminals!`);
-            expect(() => { Grammar_1.Grammar.constructFromStrings(["A", "B", "C"], ["A", "b", "C"], [], "A"); }).toThrow(`Tokens "A", "C" appear both as terminals and non terminals!`);
+            expect(() => { Grammar_1.Grammar.fromStrings(["A", "B", "C"], ["a", "B", "c"], [], "A"); }).toThrow(`Tokens "B" appear both as terminals and non terminals!`);
+            expect(() => { Grammar_1.Grammar.fromStrings(["A", "B", "C"], ["A", "b", "C"], [], "A"); }).toThrow(`Tokens "A", "C" appear both as terminals and non terminals!`);
         });
         test("Every token that occurs in production rules must also be present in the token table", () => {
             const nonTerminals = ["<expr>", "<prim>", "<comp>"];
@@ -20,7 +20,7 @@ describe("constructor", () => {
                 { lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"] }
             ];
             const startSymbol = "<expr>";
-            expect(() => { Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol); }).toThrow(`The following tokens were found in production rules but are not declared either as non terminals or terminals: "(", ")", "<prod>", "[", "<more>", "]", ","!`);
+            expect(() => { Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol); }).toThrow(`The following tokens were found in production rules but are not declared either as non terminals or terminals: "(", ")", "<prod>", "[", "<more>", "]", ","!`);
         });
         test("Start symbol must be present in the token table", () => {
             const nonTerminals = ["<expr>", "<prim>", "<comp>", "<more>", "<prod>"];
@@ -33,7 +33,7 @@ describe("constructor", () => {
                 { lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"] }
             ];
             const startSymbol = "<COMP>";
-            expect(() => { Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol); }).toThrow(`Start symbol "${startSymbol.toString()}" is not present in the token table!`);
+            expect(() => { Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol); }).toThrow(`Start symbol "${startSymbol.toString()}" is not present in the token table!`);
         });
     });
     describe("Post Conditions", () => {
@@ -48,7 +48,7 @@ describe("constructor", () => {
                 { lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"] }
             ];
             const startSymbol = "<expr>";
-            const tokenTable = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).getTokenTable();
+            const tokenTable = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenTable();
             for (const nonTerminal of nonTerminals) {
                 expect(tokenTable[nonTerminal]).toBe(TokenTable_1.TokenSort.NonTerminal);
             }
@@ -64,7 +64,7 @@ describe("constructor", () => {
                 { lhs: "S", rhs: ["a S"] }
             ];
             const startSymbol = "S";
-            expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).getRules().map(rule => { return { lhs: rule.getLhs().toString(), rhs: rule.getRhs().map(elem => elem.toString()) }; })).toStrictEqual([{ lhs: "S", rhs: ["a S", "a"] }]);
+            expect(Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getRules().map(rule => { return { lhs: rule.getLhs().toString(), rhs: rule.getRhs().map(elem => elem.toString()) }; })).toStrictEqual([{ lhs: "S", rhs: ["a S", "a"] }]);
         });
     });
 });
@@ -79,13 +79,13 @@ describe("isRightRegular()", () => {
                 { lhs: "B", rhs: ["b"] }
             ];
             const startSymbol = "S";
-            expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).isRightRegular()).toBe(true);
+            expect(Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).isRightRegular()).toBe(true);
             const rules2 = [
                 { lhs: "S", rhs: ["a S", "a", "A S"] },
                 { lhs: "A", rhs: ["b A", "B"] },
                 { lhs: "B", rhs: ["b"] }
             ];
-            expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules2, startSymbol).isRightRegular()).toBe(false);
+            expect(Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules2, startSymbol).isRightRegular()).toBe(false);
         });
     });
 });
@@ -101,7 +101,7 @@ describe("queryRule()", () => {
                 { lhs: "S B", rhs: ["b"] }
             ];
             const startSymbol = "S";
-            expect((_a = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString_1.TokenString.fromString("S B"))) === null || _a === void 0 ? void 0 : _a.getRhs()[0].toString()).toBe("b");
+            expect((_a = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).queryRule(TokenString_1.TokenString.fromString("S B"))) === null || _a === void 0 ? void 0 : _a.getRhs()[0].toString()).toBe("b");
         });
     });
 });
@@ -117,14 +117,14 @@ describe("hasChomskyNormalForm()", () => {
                 { lhs: "C", rhs: ["c"] }
             ];
             const startSymbol = "S";
-            expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules1, startSymbol).hasChomskyNormalForm()).toBe(true);
+            expect(Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules1, startSymbol).hasChomskyNormalForm()).toBe(true);
             const rules2 = [
                 { lhs: "S", rhs: ["A A", "S A", "a"] },
                 { lhs: "A", rhs: ["A B", "a", ""] },
                 { lhs: "B", rhs: ["b", "B C"] },
                 { lhs: "C", rhs: ["c"] }
             ];
-            expect(Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules2, startSymbol).hasChomskyNormalForm()).toBe(false);
+            expect(Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules2, startSymbol).hasChomskyNormalForm()).toBe(false);
         });
     });
 });
@@ -140,7 +140,7 @@ describe("getStartingRule()", () => {
                 { lhs: "S B", rhs: ["b"] }
             ];
             const startSymbol = "S";
-            expect((_a = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).getStartingRule()) === null || _a === void 0 ? void 0 : _a.getLhs().toString()).toBe("S");
+            expect((_a = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getStartingRule()) === null || _a === void 0 ? void 0 : _a.getLhs().toString()).toBe("S");
         });
         test("No starting rule", () => {
             var _a;
@@ -151,7 +151,57 @@ describe("getStartingRule()", () => {
                 { lhs: "S B", rhs: ["b"] }
             ];
             const startSymbol = "S";
-            expect((_a = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol).getStartingRule()) === null || _a === void 0 ? void 0 : _a.getLhs().toString()).toBe(undefined);
+            expect((_a = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getStartingRule()) === null || _a === void 0 ? void 0 : _a.getLhs().toString()).toBe(undefined);
+        });
+    });
+});
+describe("isEqual()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            const nonTerminals = ["S", "A", "B", "C"];
+            const terminals = ["a", "b", "c"];
+            const rules = [
+                { lhs: "S", rhs: ["A A", "S A", "a", ""] },
+                { lhs: "A", rhs: ["A B", "a"] },
+                { lhs: "B", rhs: ["b", "B C"] },
+                { lhs: "C", rhs: ["c"] }
+            ];
+            const startSymbol = "S";
+            expect(Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).isEqual(Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol)));
+        });
+    });
+});
+describe("clone()", () => {
+    describe("Post Conditions", () => {
+        test("Cloned correctly", () => {
+            const nonTerminals = ["S", "A", "B", "C"];
+            const terminals = ["a", "b", "c"];
+            const rules = [
+                { lhs: "S", rhs: ["A A", "S A", "a", ""] },
+                { lhs: "A", rhs: ["A B", "a"] },
+                { lhs: "B", rhs: ["b", "B C"] },
+                { lhs: "C", rhs: ["c"] }
+            ];
+            const startSymbol = "S";
+            const original = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+            const clone = original.clone();
+            expect(original.isEqual(clone));
+            expect(clone.isEqual(original));
+        });
+        test("Modifying clone doesn't affect original", () => {
+            const nonTerminals = ["S", "A", "B", "C"];
+            const terminals = ["a", "b", "c"];
+            const rules = [
+                { lhs: "S", rhs: ["A A", "S A", "a", ""] },
+                { lhs: "A", rhs: ["A B", "a"] },
+                { lhs: "B", rhs: ["b", "B C"] },
+                { lhs: "C", rhs: ["c"] }
+            ];
+            const startSymbol = "S";
+            const original = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+            const clone = original.clone();
+            clone.getTokenTable()["S"] = TokenTable_1.TokenSort.Terminal;
+            expect(original.getTokenTable()["S"]).toBe(TokenTable_1.TokenSort.NonTerminal);
         });
     });
 });

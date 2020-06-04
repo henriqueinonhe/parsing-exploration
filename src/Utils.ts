@@ -185,5 +185,14 @@ export class Utils
     }
   }
 
+  //Testing still
+  public static cloneArray<T>(arr : Array<Cloneable<T>>) : Array<T>
+  {
+    return arr.map(elem => elem.clone());
+  }
+}
 
+export interface Cloneable<T>
+{
+  clone() : T;
 }

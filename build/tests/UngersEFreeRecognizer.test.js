@@ -13,7 +13,7 @@ describe("recgonizes()", () => {
                 { lhs: "<digit>", rhs: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"] }
             ];
             const startSymbol = "<expr>";
-            const grammar = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol);
+            const grammar = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
             const recognizer = new UngersEFreeRecognizer_1.UngersEFreeRecognizer(grammar);
             expect(recognizer.recognizes(TokenString_1.TokenString.fromString("0"))).toBe(true);
             expect(recognizer.recognizes(TokenString_1.TokenString.fromString("( 7 + 4 )"))).toBe(true);
@@ -43,7 +43,7 @@ describe("recgonizes()", () => {
                 { lhs: "<digit>", rhs: ["0", "1"] }
             ];
             const startSymbol = "<expr>";
-            const grammar = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol);
+            const grammar = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
             const recognizer = new UngersEFreeRecognizer_1.UngersEFreeRecognizer(grammar);
             expect(recognizer.recognizes(TokenString_1.TokenString.fromString("1 + 1"))).toBe(true);
             expect(recognizer.recognizes(TokenString_1.TokenString.fromString("1 + 1 + 0"))).toBe(true);
@@ -57,7 +57,7 @@ describe("recgonizes()", () => {
                 { lhs: "A", rhs: ["S"] }
             ];
             const startSymbol = "S";
-            const grammar = Grammar_1.Grammar.constructFromStrings(nonTerminals, terminals, rules, startSymbol);
+            const grammar = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
             const recognizer = new UngersEFreeRecognizer_1.UngersEFreeRecognizer(grammar);
             //Stack overflow as expected!
             //expect(recognizer.recognizes(TokenString.fromString("a a"))).toBe(true); 

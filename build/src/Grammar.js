@@ -145,7 +145,7 @@ class Grammar {
      * @param rules
      * @param startSymbol
      */
-    static constructFromStrings(nonTerminals, terminals, rules, startSymbol) {
+    static fromStrings(nonTerminals, terminals, rules, startSymbol) {
         const tokenizedNonTerminals = nonTerminals.map(string => new Token_1.Token(string));
         const tokenizedTerminals = terminals.map(string => new Token_1.Token(string));
         Grammar.checkNonTerminalsAndTerminalsAreDisjunct(tokenizedNonTerminals, tokenizedTerminals);
@@ -155,22 +155,26 @@ class Grammar {
         return new Grammar(tokenTable, tokenizedRules, tokenizedStartSymbol);
     }
     /**
-     * Returns token table.
+     * Returns token table by value.
      */
     getTokenTable() {
-        return this.tokenTable;
+        const newTokenTable = {};
+        for (const token in this.tokenTable) {
+            newTokenTable[token] = this.tokenTable[token];
+        }
+        return newTokenTable;
     }
     /**
-     * Returns production rule list.
+     * Returns production rule list by value.
      */
     getRules() {
-        return this.rules;
+        return Utils_1.Utils.cloneArray(this.rules);
     }
     /**
-     * Returns start symbol.
+     * Returns start symbol by value.
      */
     getStartSymbol() {
-        return this.startSymbol;
+        return this.startSymbol.clone();
     }
     /**
      * Returns whether every production rule in the
@@ -234,7 +238,8 @@ class Grammar {
      * @param lhs
      */
     queryRule(lhs) {
-        return this.rules.find(elem => elem.getLhs().isEqual(lhs));
+        var _a;
+        return (_a = this.rules.find(elem => elem.getLhs().isEqual(lhs))) === null || _a === void 0 ? void 0 : _a.clone();
     }
     /**
      * Returns whether the grammar has
@@ -267,7 +272,36 @@ class Grammar {
        * and undefined otherwise.
        */
     getStartingRule() {
-        return this.getRules().find(rule => rule.getLhs().tokenAt(0).isEqual(this.getStartSymbol()) && rule.getLhs().size() === 1);
+        var _a;
+        return (_a = this.getRules().find(rule => rule.getLhs().tokenAt(0).isEqual(this.getStartSymbol()) && rule.getLhs().size() === 1)) === null || _a === void 0 ? void 0 : _a.clone();
+    }
+    /**
+     * Deep copy
+     */
+    clone() {
+        //Clone Token Table
+        const newTokenTable = {};
+        for (const token in this.tokenTable) {
+            newTokenTable[token] = this.tokenTable[token];
+        }
+        //Clone Production Rules
+        const newProductionRules = this.rules.map(rule => rule.clone());
+        //Clone Start Symbol
+        const newStartSymbol = this.startSymbol.clone();
+        return new Grammar(newTokenTable, newProductionRules, newStartSymbol);
+    }
+    isEqual(other) {
+        //Comparing Token Table
+        let tokenTableIsEqual = false;
+        for (const token in this.tokenTable) {
+            if (this.tokenTable[token] !== other.getTokenTable()[token]) {
+                tokenTableIsEqual = true;
+            }
+        }
+        return other instanceof Grammar &&
+            tokenTableIsEqual &&
+            this.rules.every((rule, index) => rule.isEqual(other.getRules()[index])) &&
+            this.startSymbol.isEqual(other.getStartSymbol());
     }
 }
 exports.Grammar = Grammar;

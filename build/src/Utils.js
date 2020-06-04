@@ -133,6 +133,10 @@ class Utils {
             return partitionList;
         }
     }
+    //Testing still
+    static cloneArray(arr) {
+        return arr.map(elem => elem.clone());
+    }
 }
 exports.Utils = Utils;
 //# sourceMappingURL=Utils.js.map

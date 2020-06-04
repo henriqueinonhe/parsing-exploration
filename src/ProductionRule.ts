@@ -79,19 +79,40 @@ export class ProductionRule
   }
   
   /**
-   * Returns left hand side [[TokenString]].
+   * Returns left hand side [[TokenString]] by value.
    */
   public getLhs() : TokenString
   {
-    return this.lhs;
+    return this.lhs.clone();
   }
 
   /**
-   * Returns right hand side [[TokenString]] array.
+   * Sets left hand side [[TokenString]].
+   * @param lhs 
+   */
+  public setLhs(lhs : TokenString) : void
+  {
+    ProductionRule.validateLhs(lhs);
+    this.lhs = lhs;
+  }
+
+  /**
+   * Returns right hand side [[TokenString]] array by value.
    */
   public getRhs() : Array<TokenString>
   {
-    return this.rhs;
+    return Utils.cloneArray(this.rhs);
+  }
+
+  /**
+   * Sets right hand side [[TokenString]] array.
+   * @param rhs 
+   */
+  public setRhs(rhs : Array<TokenString>) : void
+  {
+    ProductionRule.validateRhs(rhs);
+    Utils.removeArrayDuplicates(rhs, (tokenString1, tokenString2) => tokenString1.isEqual(tokenString2));
+    this.rhs = rhs;
   }
 
   /**
@@ -129,8 +150,7 @@ export class ProductionRule
   public everyTokenList() : Array<Token>
   {
     //Maybe use a hash table to speed up things
-    const tokenList = this.lhs.getTokenList().slice(); //Make copy
-
+    const tokenList = this.lhs.getTokenList(); 
     for(const tokenString of this.rhs)
     {
       tokenList.push(... tokenString.getTokenList());

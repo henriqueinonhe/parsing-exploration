@@ -67,16 +67,33 @@ class ProductionRule {
         return new ProductionRule(tokenizedLhs, tokenizedRhs);
     }
     /**
-     * Returns left hand side [[TokenString]].
+     * Returns left hand side [[TokenString]] by value.
      */
     getLhs() {
-        return this.lhs;
+        return this.lhs.clone();
     }
     /**
-     * Returns right hand side [[TokenString]] array.
+     * Sets left hand side [[TokenString]].
+     * @param lhs
+     */
+    setLhs(lhs) {
+        ProductionRule.validateLhs(lhs);
+        this.lhs = lhs;
+    }
+    /**
+     * Returns right hand side [[TokenString]] array by value.
      */
     getRhs() {
-        return this.rhs;
+        return Utils_1.Utils.cloneArray(this.rhs);
+    }
+    /**
+     * Sets right hand side [[TokenString]] array.
+     * @param rhs
+     */
+    setRhs(rhs) {
+        ProductionRule.validateRhs(rhs);
+        Utils_1.Utils.removeArrayDuplicates(rhs, (tokenString1, tokenString2) => tokenString1.isEqual(tokenString2));
+        this.rhs = rhs;
     }
     /**
      * Given a [[TokenTable]] as a contexts,
@@ -106,7 +123,7 @@ class ProductionRule {
      */
     everyTokenList() {
         //Maybe use a hash table to speed up things
-        const tokenList = this.lhs.getTokenList().slice(); //Make copy
+        const tokenList = this.lhs.getTokenList();
         for (const tokenString of this.rhs) {
             tokenList.push(...tokenString.getTokenList());
         }
@@ -241,6 +258,15 @@ class ProductionRule {
         const lhs = this.lhs.toString();
         const rhs = this.rhs.map(tokenString => tokenString.toString());
         return ProductionRule.fromString(lhs, rhs);
+    }
+    /**
+     * Deep Equality
+     * @param other
+     */
+    isEqual(other) {
+        return other instanceof ProductionRule &&
+            this.lhs.isEqual(other.getLhs()) &&
+            this.getRhs().every((option, index) => option.isEqual(other.getRhs()[index]));
     }
 }
 exports.ProductionRule = ProductionRule;

@@ -191,27 +191,32 @@ export class Grammar
   }
 
   /**
-   * Returns token table.
+   * Returns token table by value.
    */
   public getTokenTable() : TokenTable
   {
-    return this.tokenTable;
+    const newTokenTable = {} as TokenTable;
+    for(const token in this.tokenTable)
+    {
+      newTokenTable[token] = this.tokenTable[token];
+    }
+    return newTokenTable;
   }
 
   /**
-   * Returns production rule list.
+   * Returns production rule list by value.
    */
   public getRules() : Array<ProductionRule>
   {
-    return this.rules;
+    return Utils.cloneArray(this.rules);
   }
 
   /**
-   * Returns start symbol.
+   * Returns start symbol by value.
    */
   public getStartSymbol() : Token
   {
-    return this.startSymbol;
+    return this.startSymbol.clone();
   }
 
   /**
@@ -293,7 +298,7 @@ export class Grammar
    */
   public queryRule(lhs : TokenString) : ProductionRule | undefined
   {
-    return this.rules.find(elem => elem.getLhs().isEqual(lhs));
+    return this.rules.find(elem => elem.getLhs().isEqual(lhs))?.clone();
   }
 
   /**
@@ -332,7 +337,7 @@ export class Grammar
      */
   public getStartingRule() : ProductionRule | undefined
   {
-    return this.getRules().find(rule => rule.getLhs().tokenAt(0).isEqual(this.getStartSymbol()) && rule.getLhs().size() === 1);
+    return this.getRules().find(rule => rule.getLhs().tokenAt(0).isEqual(this.getStartSymbol()) && rule.getLhs().size() === 1)?.clone();
   }
 
   /**

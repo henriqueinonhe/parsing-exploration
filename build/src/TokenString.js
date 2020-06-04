@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TokenString = void 0;
 const Token_1 = require("./Token");
 const LogosUtils_1 = require("./LogosUtils");
+const Utils_1 = require("./Utils");
 /**
  * Represents a sequence of tokens.
  *
@@ -46,19 +47,19 @@ class TokenString {
         return new TokenString(TokenString.lex(string));
     }
     /**
-     * Returns internal token list.
+     * Returns internal token list by value.
      */
     getTokenList() {
-        return this.tokenList;
+        return Utils_1.Utils.cloneArray(this.tokenList);
     }
     /**
-     * Returns token at a given index.
+     * Returns token at a given index by value.
      *
      * @param index
      */
     tokenAt(index) {
         LogosUtils_1.validateIndex(index, "index", this.tokenList.length, "tokenList");
-        return this.tokenList[index];
+        return this.tokenList[index].clone();
     }
     /**
      * Returns string representation of the token list.
@@ -160,7 +161,7 @@ class TokenString {
      * Deep copy.
      */
     clone() {
-        return TokenString.fromString(this.toString());
+        return new TokenString(Utils_1.Utils.cloneArray(this.tokenList));
     }
     /**
      * Checks whether a given tokenString is a substring

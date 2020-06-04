@@ -398,3 +398,22 @@ describe("Adjacency matrix and transitive closure matrix", () =>
     expect(transitiveClosureMatrix[")"][","]).toBe(false);
   });
 });
+
+describe("computeUnreachableTokens()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    const nonTerminals = ["S", "A", "B", "C"];
+    const terminals = ["a", "b", "c", "d"];
+    const rules = [
+      {lhs: "S", rhs: ["A", "A S"]},
+      {lhs: "A", rhs: ["a", "B"]},
+      {lhs: "B", rhs: ["b"]},
+      {lhs: "C", rhs: ["c"]}
+    ];
+    const startSymbol = "S";
+    const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+    const analyzer = new ContextFreeGrammarAnalyzer(grammar);
+    expect(analyzer.computeUnreachableTokens()).toStrictEqual(["C", "c", "d"]);
+  });
+}); 
