@@ -149,13 +149,13 @@ describe("generateNonUnitRuleOptionTokenString()", () =>
   });
 });
 
-describe("generateNonUnitRuleOptions()", () =>
+describe("generateERuleSubstitutionOptions()", () =>
 {
   describe("Post Conditions", () =>
   {
     test("", () =>
     {
-      expect(GrammarTransformer["generateNonUnitRuleOptions"](TokenString.fromString("A"), TokenString.fromString("A a A")).map(tokenString => tokenString.toString())).toStrictEqual([
+      expect(GrammarTransformer["generateERuleSubstitutionOptions"](TokenString.fromString("A"), TokenString.fromString("A a A")).map(tokenString => tokenString.toString())).toStrictEqual([
         "a",
         "A a",
         "a A",
@@ -180,8 +180,8 @@ describe("substituteERuleLhsOccurrencesInRules()", () =>
       expect(rules[0].getLhs().toString()).toBe("B");
       expect(rules[1].getLhs().toString()).toBe("C");
 
-      expect(rules[0].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A a A", "b", "a", "A a", "a A", "A a A"]);
-      expect(rules[1].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A", "c", "", "A"]);
+      expect(rules[0].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A a A", "b", "a", "A a", "a A"]);
+      expect(rules[1].getRhs().map(tokenString => tokenString.toString())).toStrictEqual(["A", "c", ""]);
     });
   });
 });
@@ -234,9 +234,9 @@ describe("removeERules()", () =>
       const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
       const eFreeGrammar = GrammarTransformer.removeERules(grammar);
 
-      // expect(eFreeGrammar.getRules()[0].getRhs().map(option => option.toString())).toStrictEqual(["L a M", "a M", "L a", "a"]);
-      // expect(eFreeGrammar.getRules()[1].getRhs().map(option => option.toString())).toStrictEqual(["L M", "L"]);
-      // expect(eFreeGrammar.getRules()[2].getRhs().map(option => option.toString())).toStrictEqual(["M M"]);
+      expect(eFreeGrammar.getRules()[0].getRhs().map(option => option.toString())).toStrictEqual(["L a M", "a M", "L a", "a"]);
+      expect(eFreeGrammar.getRules()[1].getRhs().map(option => option.toString())).toStrictEqual(["L M", "M", "L"]);
+      expect(eFreeGrammar.getRules()[2].getRhs().map(option => option.toString())).toStrictEqual(["M M", "M"]);
     });
   });
 });

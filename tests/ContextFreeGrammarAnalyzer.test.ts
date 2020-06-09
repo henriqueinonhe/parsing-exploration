@@ -29,7 +29,7 @@ describe("Adjacency matrix and transitive closure matrix", () =>
     const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
     const analyzer = new ContextFreeGrammarAnalyzer(grammar);
     const adjacencyMatrix = analyzer.getTokenAdjacencyMatrix();
-    const transitiveClosureMatrix = analyzer.getTokenTransitiveClosureMatrix();
+    const transitiveClosureMatrix = analyzer.getTokenReachabilityMatrix();
 
     //Adjacency matrix
     expect(adjacencyMatrix["<expr>"]["<expr>"]).toBe(false);
@@ -417,3 +417,51 @@ describe("computeUnreachableTokens()", () =>
     expect(analyzer.computeUnreachableTokens()).toStrictEqual(["C", "c", "d"]);
   });
 }); 
+
+describe("computeUndefinedNonTerminals()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["S", "A", "B", "C"];
+      const terminals = ["a", "b", "c"];
+      const rules = [
+        {lhs: "S", rhs: ["A", "A B"]},
+        {lhs: "A", rhs: ["a"]},
+        {lhs: "B", rhs: ["B"]},
+        {lhs: "C", rhs: ["c"]}
+      ];
+      const startSymbol = "S";
+      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+      const analyzer = new ContextFreeGrammarAnalyzer(grammar);
+
+      expect(analyzer.computeUndefinedNonTerminals()).toStrictEqual([]);
+
+      const rules2 = [
+        {lhs: "S", rhs: ["A", "A B"]},
+        {lhs: "C", rhs: ["c"]}
+      ];
+      const grammar2 = Grammar.fromStrings(nonTerminals, terminals, rules2, startSymbol);
+      const analyzer2 = new ContextFreeGrammarAnalyzer(grammar2);
+
+      expect(analyzer2.computeUndefinedNonTerminals()).toStrictEqual(["A", "B"]);
+    });
+  });
+});
+
+describe("tokenIsUnproductive()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    const nonTerminals = ["S", "A", "B", "C"];
+    const terminals = ["a", "b", "c"];
+    const rules = [
+      {lhs: "S", rhs: ["A", "A B"]},
+      {lhs: "A", rhs: ["a"]},
+      {lhs: "B", rhs: ["B"]},
+      {lhs: "C", rhs: ["c"]}
+    ];
+    const startSymbol = "S";
+  });
+});

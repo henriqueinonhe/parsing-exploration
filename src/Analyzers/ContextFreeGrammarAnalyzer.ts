@@ -1,4 +1,6 @@
 import { Grammar } from "../Core/Grammar";
+import { TokenSort } from "../Core/TokenTable";
+import { TokenString } from "../Core/TokenString";
 
 export class ContextFreeGrammarAnalyzer
 {
@@ -15,7 +17,7 @@ export class ContextFreeGrammarAnalyzer
     ContextFreeGrammarAnalyzer.validateGrammar(grammar);
     this.grammar = grammar;
     this.tokenAdjacencyMatrix = ContextFreeGrammarAnalyzer.buildAdjacencyMatrix(grammar);
-    this.tokenTransitiveClosureMatrix = ContextFreeGrammarAnalyzer.buildTransitiveClosureMatrix(grammar, this.tokenAdjacencyMatrix);
+    this.tokenReachabilityMatrix = ContextFreeGrammarAnalyzer.buildReachabilityMatrix(grammar, this.tokenAdjacencyMatrix);
   }
 
   private static initializeTokenMatrix(grammar : Grammar) : TokenMatrix
@@ -60,11 +62,11 @@ export class ContextFreeGrammarAnalyzer
     return this.tokenAdjacencyMatrix;
   }
 
-  private static buildTransitiveClosureMatrix(grammar : Grammar, adjacencyMatrix : TokenMatrix) : TokenMatrix
+  private static buildReachabilityMatrix(grammar : Grammar, adjacencyMatrix : TokenMatrix) : TokenMatrix
   {
     //Floyd Warshall Algorithm
 
-    //Initialize Transitive Closure Matrix
+    //Initialize Reachability Matrix
     const transitiveClosureMatrix : TokenMatrix = ContextFreeGrammarAnalyzer.initializeTokenMatrix(grammar);
     for(const row in adjacencyMatrix)
     {
@@ -93,16 +95,16 @@ export class ContextFreeGrammarAnalyzer
     return transitiveClosureMatrix;
   }
 
-  public getTokenTransitiveClosureMatrix() : TokenMatrix
+  public getTokenReachabilityMatrix() : TokenMatrix
   {
-    return this.tokenTransitiveClosureMatrix;
+    return this.tokenReachabilityMatrix;
   }
 
   public grammarIsRecursive() : boolean
   {
-    for(const token in this.tokenTransitiveClosureMatrix)
+    for(const token in this.tokenReachabilityMatrix)
     {
-      if(this.tokenTransitiveClosureMatrix[token][token] === true)
+      if(this.tokenReachabilityMatrix[token][token] === true)
       {
         return true;
       }
@@ -114,10 +116,10 @@ export class ContextFreeGrammarAnalyzer
   {
     const startSymbol = this.grammar.getStartSymbol().toString();
     const unreachableTokens = [];
-    for(const arrivalToken in this.tokenTransitiveClosureMatrix)
+    for(const arrivalToken in this.tokenReachabilityMatrix)
     {
       if(startSymbol !== arrivalToken && 
-        !this.tokenTransitiveClosureMatrix[startSymbol][arrivalToken])
+        !this.tokenReachabilityMatrix[startSymbol][arrivalToken])
       {
         unreachableTokens.push(arrivalToken);
       }
@@ -129,9 +131,9 @@ export class ContextFreeGrammarAnalyzer
   public computeRecursiveTokens() : Array<string>
   {
     const recursiveTokens = [];
-    for(const token in this.tokenTransitiveClosureMatrix)
+    for(const token in this.tokenReachabilityMatrix)
     {
-      if(this.tokenTransitiveClosureMatrix[token][token])
+      if(this.tokenReachabilityMatrix[token][token])
       {
         recursiveTokens.push(token);
       }
@@ -140,9 +142,62 @@ export class ContextFreeGrammarAnalyzer
     return recursiveTokens;
   }
 
+  public computeUndefinedNonTerminals() : Array<string>
+  {
+    const nonTerminals = this.grammar.listNonTerminals().map(nonTerminal => nonTerminal.toString());
+    const rules = this.grammar.getRules();
+    return nonTerminals.filter(nonTerminal => rules.every(rule => rule.getLhs().toString() !== nonTerminal));
+  }
+
+  public computeNonProductiveNonTerminals() : Array<string>
+  {
+    const tokenTable = this.grammar.getTokenTable();
+    const nonTerminals = this.grammar.listNonTerminals().map(nonTerminal => nonTerminal.toString());
+    const nonTerminalsTable : {[nonTerminal : string] : string} = {};
+
+    //Compute
+    let noUnclassifiedNonTerminalsLeft = true;
+    do
+    {
+      for(const nonTerminal in nonTerminalsTable)
+      {
+        if(nonTerminalsTable[nonTerminal] !== undefined)
+        {
+          //Try to Analyze
+          const tokenizedNonTerminal = TokenString.fromString(nonTerminal);
+          const nonTerminalCorrespondingRule = this.grammar.queryRule(tokenizedNonTerminal);
+          
+          //Unreachable Non Terminals are Non Productive as well
+          if(nonTerminalCorrespondingRule === undefined)
+          {
+            nonTerminalsTable[nonTerminal] = "NonProductive";
+          }
+          else
+          {
+            //Core Part
+            for(const option of nonTerminalCorrespondingRule.getRhs())
+            {
+              for(const token of option.getTokenList())
+              {
+                if(nonTerminalsTable[token.toString()] === "NonProductive")
+                {
+                  nonTerminalsTable[nonTerminal] = "NonProductive";
+                }
+              }
+            }
+          }
+        }
+        else //Already Classified Rules
+        {
+          continue;
+        }
+      }
+    } while(!noUnclassifiedNonTerminalsLeft);
+  } 
+
   private readonly grammar : Grammar;
   private readonly tokenAdjacencyMatrix : TokenMatrix;
-  private readonly tokenTransitiveClosureMatrix : TokenMatrix;
+  private readonly tokenReachabilityMatrix : TokenMatrix;
 }
 
 interface TokenMatrix

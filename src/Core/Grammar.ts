@@ -379,6 +379,35 @@ export class Grammar
            this.startSymbol.isEqual(other.getStartSymbol());
   }
 
+  public listTerminals() : Array<Token>
+  {
+    const terminals = [];
+    for(const token in this.tokenTable)
+    {
+      if(this.tokenTable[token] === TokenSort.Terminal)
+      {
+        terminals.push(new Token(token));
+      }
+    }
+
+    return terminals;
+  }
+
+  public listNonTerminals() : Array<Token>
+  {
+    const nonTerminals = [];
+    for(const token in this.tokenTable)
+    {
+      if(this.tokenTable[token] === TokenSort.NonTerminal)
+      {
+        nonTerminals.push(new Token(token));
+      }
+    }
+
+    return nonTerminals;
+  }
+
+
   private readonly tokenTable : TokenTable;
   private readonly rules : Array<ProductionRule>;
   private readonly startSymbol : Token;

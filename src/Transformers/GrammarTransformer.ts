@@ -4,6 +4,7 @@ import { ProductionRule } from "../Core/ProductionRule";
 import { Token } from "../Core/Token";
 import { ContextFreeGrammarAnalyzer } from "../Analyzers/ContextFreeGrammarAnalyzer";
 import { TokenTable } from "../Core/TokenTable";
+import { Utils } from "../Core/Utils";
 
 export class GrammarTransformer
 {
@@ -26,6 +27,7 @@ export class GrammarTransformer
     const cleanedTokenTable = GrammarTransformer.removeUnusedTokensFromTable(tokenTable, unreachableTokens);
     const cleanedRules = GrammarTransformer.removeUnusedRules(rules, unreachableTokens);
 
+    //Maybe should also remove unused options...
     return new Grammar(cleanedTokenTable, cleanedRules, startSymbol);
   }
 
@@ -93,7 +95,7 @@ export class GrammarTransformer
         {
           GrammarTransformer.substituteERuleLhsOccurrencesInRules(newRules, rule.getLhs());
           
-          const isStartingRule = !rule.getLhs().tokenAt(0).isEqual(startSymbol);
+          const isStartingRule = rule.getLhs().tokenAt(0).isEqual(startSymbol);
           if(!isStartingRule)
           {
             eRulesNoMore = false;
@@ -124,17 +126,18 @@ export class GrammarTransformer
       {
         if(option.includes(eRuleLhs)) 
         {
-          newOptions.push(...GrammarTransformer.generateNonUnitRuleOptions(eRuleLhs, option));
+          newOptions.push(...GrammarTransformer.generateERuleSubstitutionOptions(eRuleLhs, option));
         }
       }
       const newRhs = [...rule.getRhs()];
       newRhs.push(...newOptions);
-      rule.setRhs(newRhs);
+      const newRhsWithoutDuplicates = Utils.removeArrayDuplicates(newRhs, (option1, option2) => option1.isEqual(option2));
+      rule.setRhs(newRhsWithoutDuplicates);
 
     }
   }
 
-  private static generateNonUnitRuleOptions(eRuleLhs : TokenString, option : TokenString) : Array<TokenString>
+  private static generateERuleSubstitutionOptions(eRuleLhs : TokenString, option : TokenString) : Array<TokenString>
   {
     const newOptions = [];
     const eRuleLhsNonTerminal = eRuleLhs.tokenAt(0);

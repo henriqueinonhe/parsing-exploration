@@ -252,3 +252,49 @@ describe("clone()", () =>
     });
   });
 });
+
+describe("listTerminals()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["<expr>", "<prim>", "<comp>", "<more>", "<prod>"];
+      const terminals = ["i", "o", "->", "[", "]", "(", ")", ","];
+      const rules = [
+        {lhs: "<expr>", rhs: ["<prim>", "<comp>"]},
+        {lhs: "<prim>", rhs: ["i", "o"]},
+        {lhs: "<comp>", rhs: ["<prim> -> <prim>", "( <comp> ) -> <prim>", "<prim> -> ( <comp> )", "( <comp> ) -> ( <comp> )", "<prod> -> <prim>", "<prod> -> ( <comp> )"]},
+        {lhs: "<prod>", rhs: ["[ <expr> <more> ]"]},
+        {lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"]}
+      ];
+      const startSymbol = "<expr>";
+      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+
+      expect(grammar.listTerminals().map(token => token.toString())).toStrictEqual(terminals);
+    });
+  });
+});
+
+describe("listNonTerminals()", () => 
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["<expr>", "<prim>", "<comp>", "<more>", "<prod>"];
+      const terminals = ["i", "o", "->", "[", "]", "(", ")", ","];
+      const rules = [
+        {lhs: "<expr>", rhs: ["<prim>", "<comp>"]},
+        {lhs: "<prim>", rhs: ["i", "o"]},
+        {lhs: "<comp>", rhs: ["<prim> -> <prim>", "( <comp> ) -> <prim>", "<prim> -> ( <comp> )", "( <comp> ) -> ( <comp> )", "<prod> -> <prim>", "<prod> -> ( <comp> )"]},
+        {lhs: "<prod>", rhs: ["[ <expr> <more> ]"]},
+        {lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"]}
+      ];
+      const startSymbol = "<expr>";
+      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+
+      expect(grammar.listNonTerminals().map(token => token.toString())).toStrictEqual(nonTerminals);
+    });
+  });
+});
