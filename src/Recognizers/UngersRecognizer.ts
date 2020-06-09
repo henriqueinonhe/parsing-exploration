@@ -3,6 +3,13 @@ import { TokenString } from "../Core/TokenString";
 import { TokenSort } from "../Core/TokenTable";
 import { Utils } from "../Core/Utils";
 
+enum MatchTableEntryValue
+{
+  Match,
+  NoMatch,
+  Trying
+}
+
 /**
  * General undirectional context free
  * recognizer.
@@ -19,11 +26,19 @@ export class UngersRecognizer
 
   public recognizes(inputString : TokenString) : boolean
   {
+    //Initialize Match Table
+    const tokenTable = this.grammar.getTokenTable();
+    const matchTable = {} as MatchTable;
+    for(const token in tokenTable)
+    {
+      matchTable[token] = {};
+    }
+
     const startSymbol = this.grammar.getStartSymbol();
-    return this.matchSentence(new TokenString([startSymbol]), inputString);
+    return this.matchSentence(new TokenString([startSymbol]), inputString, matchTable);
   }
   
-  private matchSentence(matchSentence : TokenString, inputSubstring : TokenString) : boolean
+  private matchSentence(matchSentence : TokenString, inputSubstring : TokenString, matchTable : MatchTable) : boolean
   {
     //Try to prune tree as much as possible with some
     //checks.
@@ -50,29 +65,52 @@ export class UngersRecognizer
     {
       return partition.every((inputSubstringTokenList, index) => 
       {
-        return this.matchToken(new TokenString([matchSentence.tokenAt(index)]), new TokenString(inputSubstringTokenList));
+        return this.matchToken(new TokenString([matchSentence.tokenAt(index)]), new TokenString(inputSubstringTokenList), matchTable);
       });
     });
   }
 
-  private matchToken(token : TokenString, inputSubstring : TokenString) : boolean
+  private matchToken(token : TokenString, inputSubstring : TokenString, matchTable : MatchTable) : boolean
   {
     const tokenTable = this.grammar.getTokenTable();
     if(tokenTable[token.toString()] === TokenSort.Terminal)
     {
       return token.isEqual(inputSubstring);
     }
-    else
+    else //Non Terminal
     {
-      const correspondingRule = this.grammar.queryRule(token);
-      if(correspondingRule === undefined)
+      const matchTableEntryValue = matchTable[token.toString()][inputSubstring.toString()];
+      if(matchTableEntryValue === undefined)
+      {
+        const correspondingRule = this.grammar.queryRule(token);
+        if(correspondingRule === undefined)
+        {
+          matchTable[token.toString()][inputSubstring.toString()] = MatchTableEntryValue.NoMatch;
+          return false;
+        }
+        else
+        {
+          matchTable[token.toString()][inputSubstring.toString()] = MatchTableEntryValue.Trying;
+          const rhs = correspondingRule.getRhs();
+          const anyOptionMatch = rhs.some(option => this.matchSentence(option, inputSubstring, matchTable));
+          
+          matchTable[token.toString()][inputSubstring.toString()] = anyOptionMatch ? MatchTableEntryValue.Match : MatchTableEntryValue.NoMatch;
+          return anyOptionMatch;
+        }
+      }
+      else if(matchTableEntryValue === MatchTableEntryValue.Match)
+      {
+        return true;
+      }
+      else if(matchTableEntryValue === MatchTableEntryValue.NoMatch)
       {
         return false;
       }
-      else
+      else //if (matchTableEntryValue === MatchTableEntryValue.Trying)
       {
-        const rhs = correspondingRule.getRhs();
-        return rhs.some(option => this.matchSentence(option, inputSubstring));
+        //This addresses loops and E rules
+        matchTable[token.toString()][inputSubstring.toString()] = MatchTableEntryValue.NoMatch;
+        return false;
       }
     }
   }
@@ -158,4 +196,11 @@ export class UngersRecognizer
   }
 
   private grammar : Grammar;
+}
+
+
+
+interface MatchTable 
+{
+  [token : string] : {[tokenString : string] : MatchTableEntryValue};
 }
