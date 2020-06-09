@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const ProductionRule_1 = require("../src/ProductionRule");
-const TokenTable_1 = require("../src/TokenTable");
-const TokenString_1 = require("../src/TokenString");
+const ProductionRule_1 = require("../src/Core/ProductionRule");
+const TokenTable_1 = require("../src/Core/TokenTable");
+const TokenString_1 = require("../src/Core/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
         test("Lhs must not be empty", () => {

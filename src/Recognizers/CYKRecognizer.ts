@@ -1,6 +1,6 @@
-import { Grammar } from "./Grammar";
-import { TokenString } from "./TokenString";
-import { Utils } from "./Utils";
+import { Grammar } from "../Core/Grammar";
+import { TokenString } from "../Core/TokenString";
+import { Utils } from "../Core/Utils";
 
 export class CYKRecognizer
 {

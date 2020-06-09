@@ -1,4 +1,4 @@
-import { Token } from "../src/Token";
+import { Token } from "../src/Core/Token";
 
 describe("constructor", () =>
 {

@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Grammar_1 = require("../src/Grammar");
-const TokenTable_1 = require("../src/TokenTable");
-const TokenString_1 = require("../src/TokenString");
+const Grammar_1 = require("../src/Core/Grammar");
+const TokenTable_1 = require("../src/Core/TokenTable");
+const TokenString_1 = require("../src/Core/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
         test("Terminals and non terminals must be disjunct", () => {

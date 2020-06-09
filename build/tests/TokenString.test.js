@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const TokenString_1 = require("../src/TokenString");
+const TokenString_1 = require("../src/Core/TokenString");
 describe("toString()", () => {
     describe("Post Conditions", () => {
         test("", () => {

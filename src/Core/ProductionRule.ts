@@ -93,7 +93,7 @@ export class ProductionRule
   public setLhs(lhs : TokenString) : void
   {
     ProductionRule.validateLhs(lhs);
-    this.lhs = lhs;
+    this.lhs = lhs.clone();
   }
 
   /**
@@ -112,7 +112,7 @@ export class ProductionRule
   {
     ProductionRule.validateRhs(rhs);
     Utils.removeArrayDuplicates(rhs, (tokenString1, tokenString2) => tokenString1.isEqual(tokenString2));
-    this.rhs = rhs;
+    this.rhs = Utils.cloneArray(rhs);
   }
 
   /**

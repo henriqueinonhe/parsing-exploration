@@ -1,6 +1,6 @@
-import { Grammar } from "../src/Grammar";
-import { TokenSort } from "../src/TokenTable";
-import { TokenString } from "../src/TokenString";
+import { Grammar } from "../src/Core/Grammar";
+import { TokenSort } from "../src/Core/TokenTable";
+import { TokenString } from "../src/Core/TokenString";
 
 describe("constructor", () =>
 {

@@ -1,6 +1,6 @@
-import { ProductionRule, ProductionRuleParser } from "../src/ProductionRule";
-import { TokenSort } from "../src/TokenTable";
-import { TokenString } from "../src/TokenString";
+import { ProductionRule, ProductionRuleParser } from "../src/Core/ProductionRule";
+import { TokenSort } from "../src/Core/TokenTable";
+import { TokenString } from "../src/Core/TokenString";
 
 describe("constructor", () =>
 {

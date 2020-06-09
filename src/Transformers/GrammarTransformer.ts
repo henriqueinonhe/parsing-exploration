@@ -1,12 +1,19 @@
-import { Grammar } from "./Grammar";
-import { TokenString } from "./TokenString";
-import { ProductionRule } from "./ProductionRule";
-import { Token } from "./Token";
-import { ContextFreeGrammarAnalyzer } from "./ContextFreeGrammarAnalyzer";
-import { TokenTable } from "./TokenTable";
+import { Grammar } from "../Core/Grammar";
+import { TokenString } from "../Core/TokenString";
+import { ProductionRule } from "../Core/ProductionRule";
+import { Token } from "../Core/Token";
+import { ContextFreeGrammarAnalyzer } from "../Analyzers/ContextFreeGrammarAnalyzer";
+import { TokenTable } from "../Core/TokenTable";
 
 export class GrammarTransformer
 {
+  /**
+   * Returns a new grammar where unreachable tokens
+   * are removed from the token table and unused rules
+   * are also removed. Doesn't modify original.
+   * 
+   * @param grammar 
+   */
   public static cleanGrammar(grammar : Grammar) : Grammar
   {
     const analyzer = new ContextFreeGrammarAnalyzer(grammar);
@@ -16,24 +23,41 @@ export class GrammarTransformer
     const rules = grammar.getRules();
     const startSymbol = grammar.getStartSymbol();
     
-    GrammarTransformer.removeUnusedTokensFromTable(tokenTable, unreachableTokens);
-    GrammarTransformer.removeUnusedRules(rules, unreachableTokens);
+    const cleanedTokenTable = GrammarTransformer.removeUnusedTokensFromTable(tokenTable, unreachableTokens);
+    const cleanedRules = GrammarTransformer.removeUnusedRules(rules, unreachableTokens);
 
-    return new Grammar(tokenTable, rules, startSymbol);
+    return new Grammar(cleanedTokenTable, cleanedRules, startSymbol);
   }
 
-  private static removeUnusedTokensFromTable(tokenTable : TokenTable, unusedTokens : Array<string>) : void
+  /**
+   * Returns a token table copy with unreachable tokens 
+   * removed. Doesn't modify original.
+   * 
+   * @param tokenTable 
+   * @param unusedTokens 
+   */
+  private static removeUnusedTokensFromTable(tokenTable : TokenTable, unusedTokens : Array<string>) : TokenTable
   {
+    const newTokenTable = {} as TokenTable;
+
     for(const token in tokenTable)
     {
-      if(unusedTokens.includes(token))
+      if(!unusedTokens.includes(token))
       {
-        delete tokenTable[token];
+        newTokenTable[token] = tokenTable[token];
       }
     }
+    return newTokenTable;
   }
 
-  private static removeUnusedRules(rules : Array<ProductionRule>, unreachableTokens : Array<string>) : void
+  /**
+   * Returns a list of rules with unused rules
+   * removed. Doesn't modify original.
+   * 
+   * @param rules 
+   * @param unreachableTokens 
+   */
+  private static removeUnusedRules(rules : Array<ProductionRule>, unreachableTokens : Array<string>) : Array<ProductionRule>
   {
     const newRules = [] as Array<ProductionRule>;
     for(const rule of rules)
@@ -43,10 +67,15 @@ export class GrammarTransformer
         newRules.push(rule);
       }
     }
-    rules = newRules;
-    //FIXME!
+    return newRules;
   }
 
+  /**
+   * Returns a new grammar with all E rules removed,
+   * but preserving weak grammar equivalence. Doesn't modify original.
+   * 
+   * @param grammar 
+   */
   public static removeERules(grammar : Grammar) : Grammar
   {
     const tokenTable = grammar.getTokenTable();
@@ -62,9 +91,9 @@ export class GrammarTransformer
       {
         if(rule.isERule(tokenTable)) 
         {
-          const isStartingRule = !rule.getLhs().tokenAt(0).isEqual(startSymbol);
           GrammarTransformer.substituteERuleLhsOccurrencesInRules(newRules, rule.getLhs());
-
+          
+          const isStartingRule = !rule.getLhs().tokenAt(0).isEqual(startSymbol);
           if(!isStartingRule)
           {
             eRulesNoMore = false;
@@ -90,9 +119,10 @@ export class GrammarTransformer
     for(const rule of rules)
     {
       const newOptions = [];
+
       for(const option of rule.getRhs())
       {
-        if(option.includes(eRuleLhs)) //Rule has the form xAy, where x and y are strings of tokens and either x or y is non empty (at least one of them) and A is the E rule lhs non terminal
+        if(option.includes(eRuleLhs)) 
         {
           newOptions.push(...GrammarTransformer.generateNonUnitRuleOptions(eRuleLhs, option));
         }
@@ -100,6 +130,7 @@ export class GrammarTransformer
       const newRhs = [...rule.getRhs()];
       newRhs.push(...newOptions);
       rule.setRhs(newRhs);
+
     }
   }
 

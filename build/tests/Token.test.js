@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Token_1 = require("../src/Token");
+const Token_1 = require("../src/Core/Token");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
         test("Token string validation", () => {

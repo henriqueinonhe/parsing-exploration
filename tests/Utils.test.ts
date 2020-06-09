@@ -1,4 +1,4 @@
-import { Utils } from "../src/Utils";
+import { Utils } from "../src/Core/Utils";
 
 describe("factorial()", () =>
 {

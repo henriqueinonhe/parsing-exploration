@@ -1,6 +1,0 @@
-- Refactor All classes
-- Implement ProductionRuleParser
-- Implement generator for strings and sentential forms from grammars by derivation depth
-- Implement context free grammars graphs and connectivity analysis
-- Implement Ungers parser versions with and without optimizations, find a way to benchmark them (Just maybe)
-- Implement forest retrieval in Ungers parser

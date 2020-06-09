@@ -1,6 +1,6 @@
-import { Grammar } from "../src/Grammar";
-import { UngersEFreeRecognizer } from "../src/UngersEFreeRecognizer";
-import { TokenString } from "../src/TokenString";
+import { Grammar } from "../src/Core/Grammar";
+import { UngersEFreeRecognizer } from "../src/Recognizers/UngersEFreeRecognizer";
+import { TokenString } from "../src/Core/TokenString";
 
 describe("recgonizes()", () =>
 {

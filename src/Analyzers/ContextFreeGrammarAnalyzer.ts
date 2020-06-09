@@ -1,4 +1,4 @@
-import { Grammar } from "./Grammar";
+import { Grammar } from "../Core/Grammar";
 
 export class ContextFreeGrammarAnalyzer
 {

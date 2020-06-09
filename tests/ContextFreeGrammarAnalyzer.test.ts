@@ -1,5 +1,5 @@
-import { Grammar } from "../src/Grammar";
-import { ContextFreeGrammarAnalyzer } from "../src/ContextFreeGrammarAnalyzer";
+import { Grammar } from "../src/Core/Grammar";
+import { ContextFreeGrammarAnalyzer } from "../src/Analyzers/ContextFreeGrammarAnalyzer";
 
 describe("constructor", () =>
 {

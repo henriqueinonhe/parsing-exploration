@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const Grammar_1 = require("../src/Grammar");
-const UngersEFreeRecognizer_1 = require("../src/UngersEFreeRecognizer");
-const TokenString_1 = require("../src/TokenString");
+const Grammar_1 = require("../src/Core/Grammar");
+const UngersEFreeRecognizer_1 = require("../src/Recognizers/UngersEFreeRecognizer");
+const TokenString_1 = require("../src/Core/TokenString");
 describe("recgonizes()", () => {
     describe("Post Conditions", () => {
         test("", () => {

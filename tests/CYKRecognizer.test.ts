@@ -1,6 +1,6 @@
-import { Grammar } from "../src/Grammar";
-import { CYKRecognizer } from "../src/CYKRecognizer";
-import { TokenString } from "../src/TokenString";
+import { Grammar } from "../src/Core/Grammar";
+import { CYKRecognizer } from "../src/Recognizers/CYKRecognizer";
+import { TokenString } from "../src/Core/TokenString";
 
 const nonTerminals = ["Number", "Integer", "Real", "Fraction", "Scale", "Digit", "Sign", "Empty"];
 const terminals = [".", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "+", "-", "e"];

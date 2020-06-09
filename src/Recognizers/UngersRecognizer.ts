@@ -1,9 +1,16 @@
-import { Grammar } from "./Grammar";
-import { TokenString } from "./TokenString";
-import { TokenSort } from "./TokenTable";
-import { Utils } from "./Utils";
+import { Grammar } from "../Core/Grammar";
+import { TokenString } from "../Core/TokenString";
+import { TokenSort } from "../Core/TokenTable";
+import { Utils } from "../Core/Utils";
 
-export class UngersEFreeRecognizer
+/**
+ * General undirectional context free
+ * recognizer.
+ * Works on any context free grammar, without
+ * constraints.
+ * 
+ */
+export class UngersRecognizer
 {
   constructor(grammar : Grammar)
   {
@@ -13,35 +20,37 @@ export class UngersEFreeRecognizer
   public recognizes(inputString : TokenString) : boolean
   {
     const startSymbol = this.grammar.getStartSymbol();
-    return this.matchSententialForm(new TokenString([startSymbol]), inputString);
+    return this.matchSentence(new TokenString([startSymbol]), inputString);
   }
   
-  private matchSententialForm(sententialForm : TokenString, inputSubstring : TokenString) : boolean
+  private matchSentence(matchSentence : TokenString, inputSubstring : TokenString) : boolean
   {
-    //Generate partitions over sentential form tokens
-    const numberOfGroups = sententialForm.size();
+    //Try to prune tree as much as possible with some
+    //checks.
+    const numberOfGroups = matchSentence.size();
     if(numberOfGroups > inputSubstring.size())
     {
       return false;
     }
-    else if(!this.matchSententialFormBeginning(sententialForm, inputSubstring) ||
-            !this.matchSententialFormEnd(sententialForm, inputSubstring))
+    else if(!this.matchSentenceBeginning(matchSentence, inputSubstring) ||
+    !this.matchSentenceEnd(matchSentence, inputSubstring))
     {
       return false;
     }
-    else if(!this.matchSenentialFormTerminals(sententialForm, inputSubstring))
+    else if(!this.matchSentenceTerminals(matchSentence, inputSubstring))
     {
       return false;
     }
-
-    const partitions = Utils.listPartitions(inputSubstring.getTokenList(), numberOfGroups);
+    
+    //Generate partitions over sentence tokens
+    const partitions = Utils.listPartitions(inputSubstring.getTokenList(), numberOfGroups, true);
 
     //Try to match the rest
     return partitions.some(partition =>
     {
       return partition.every((inputSubstringTokenList, index) => 
       {
-        return this.matchToken(new TokenString([sententialForm.tokenAt(index)]), new TokenString(inputSubstringTokenList));
+        return this.matchToken(new TokenString([matchSentence.tokenAt(index)]), new TokenString(inputSubstringTokenList));
       });
     });
   }
@@ -63,44 +72,44 @@ export class UngersEFreeRecognizer
       else
       {
         const rhs = correspondingRule.getRhs();
-        return rhs.some(option => this.matchSententialForm(option, inputSubstring));
+        return rhs.some(option => this.matchSentence(option, inputSubstring));
       }
     }
   }
 
-  private matchSententialFormBeginning(sententialForm : TokenString, inputSubstring : TokenString) : boolean
+  private matchSentenceBeginning(sentence : TokenString, inputSubstring : TokenString) : boolean
   {
     const tokenTable = this.grammar.getTokenTable();
     let index = 0;
-    while(index < sententialForm.size() &&
-          tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
+    while(index < sentence.size() &&
+          tokenTable[sentence.tokenAt(index).toString()] === TokenSort.Terminal)
     {
       index++;
     }
 
-    return inputSubstring.startsWith(sententialForm.slice(0, index));
+    return inputSubstring.startsWith(sentence.slice(0, index));
   }
 
-  private matchSententialFormEnd(sententialForm : TokenString, inputSubstring : TokenString) : boolean
+  private matchSentenceEnd(sentence : TokenString, inputSubstring : TokenString) : boolean
   {
     const tokenTable = this.grammar.getTokenTable();
-    let index = sententialForm.size() - 1;
+    let index = sentence.size() - 1;
     while(index >= 0 &&
-          tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
+          tokenTable[sentence.tokenAt(index).toString()] === TokenSort.Terminal)
     {
       index--;
     }
 
-    return inputSubstring.endsWith(sententialForm.slice(index + 1));
+    return inputSubstring.endsWith(sentence.slice(index + 1));
   }
 
-  private matchSenentialFormTerminals(sententialForm : TokenString, inputSubstring : TokenString) : boolean
+  private matchSentenceTerminals(sentence : TokenString, inputSubstring : TokenString) : boolean
   {
     const tokenTable = this.grammar.getTokenTable();
     const sententialFormTerminalCountTable : {[key : string] : number} = {};
-    for(let index = 0; index < sententialForm.size(); index++)
+    for(let index = 0; index < sentence.size(); index++)
     {
-      const currentToken = sententialForm.tokenAt(index);
+      const currentToken = sentence.tokenAt(index);
       if(tokenTable[currentToken.toString()] === TokenSort.Terminal)
       {
         const currentTerminalCount = sententialFormTerminalCountTable[currentToken.toString()];

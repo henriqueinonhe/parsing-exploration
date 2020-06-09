@@ -78,7 +78,7 @@ class ProductionRule {
      */
     setLhs(lhs) {
         ProductionRule.validateLhs(lhs);
-        this.lhs = lhs;
+        this.lhs = lhs.clone();
     }
     /**
      * Returns right hand side [[TokenString]] array by value.
@@ -93,7 +93,7 @@ class ProductionRule {
     setRhs(rhs) {
         ProductionRule.validateRhs(rhs);
         Utils_1.Utils.removeArrayDuplicates(rhs, (tokenString1, tokenString2) => tokenString1.isEqual(tokenString2));
-        this.rhs = rhs;
+        this.rhs = Utils_1.Utils.cloneArray(rhs);
     }
     /**
      * Given a [[TokenTable]] as a contexts,
