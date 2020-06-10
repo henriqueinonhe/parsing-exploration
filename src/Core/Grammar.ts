@@ -8,7 +8,7 @@
 import { Token } from "./Token";
 import { ProductionRule } from "./ProductionRule";
 import { Utils } from "./Utils";
-import { TokenTable, TokenSort } from "./TokenTable";
+import { TokenSortTable, TokenSort } from "./TokenSortTable";
 import { TokenString } from "./TokenString";
 
 /**
@@ -71,7 +71,7 @@ export class Grammar
    * @param tokenTable 
    * @param rules 
    */
-  private static checkTokensInRulesAreInTokenTable(tokenTable : TokenTable, rules : Array<ProductionRule>) : void
+  private static checkTokensInRulesAreInTokenTable(tokenTable : TokenSortTable, rules : Array<ProductionRule>) : void
   {
     const everyTokenInProductionRules = rules.reduce<Array<Token>>((tokenList, rule) => tokenList.concat(rule.everyTokenList()), []);
 
@@ -100,9 +100,9 @@ export class Grammar
    * @param nonTerminals 
    * @param terminals 
    */
-  private static initializeTokenTable(nonTerminals : Array<Token>, terminals : Array<Token>) : TokenTable
+  private static initializeTokenTable(nonTerminals : Array<Token>, terminals : Array<Token>) : TokenSortTable
   {
-    const tokenTable  = {} as TokenTable;
+    const tokenTable  = {} as TokenSortTable;
     for(const nonTerminal of nonTerminals)
     {
       tokenTable[nonTerminal.toString()] = TokenSort.NonTerminal;
@@ -123,7 +123,7 @@ export class Grammar
    * @param tokenTable 
    * @param startSymbol 
    */
-  private static checkStartSymbolIsInTable(tokenTable : TokenTable, startSymbol : Token) : void
+  private static checkStartSymbolIsInTable(tokenTable : TokenSortTable, startSymbol : Token) : void
   {
     if(tokenTable[startSymbol.toString()] === undefined)
     {
@@ -159,13 +159,13 @@ export class Grammar
     return mergedRules;
   }
 
-  constructor(tokenTable : TokenTable, rules : Array<ProductionRule>, startSymbol : Token)
+  constructor(tokenTable : TokenSortTable, rules : Array<ProductionRule>, startSymbol : Token)
   {
     Grammar.checkTokensInRulesAreInTokenTable(tokenTable, rules);
     Grammar.checkStartSymbolIsInTable(tokenTable, startSymbol);
     const mergedRules = Grammar.mergeRules(rules);
 
-    this.tokenTable = tokenTable;
+    this.tokenSortTable = tokenTable;
     this.rules = mergedRules;
     this.startSymbol = startSymbol;
   }
@@ -193,12 +193,12 @@ export class Grammar
   /**
    * Returns token table by value.
    */
-  public getTokenTable() : TokenTable
+  public getTokenSortTable() : TokenSortTable
   {
-    const newTokenTable = {} as TokenTable;
-    for(const token in this.tokenTable)
+    const newTokenTable = {} as TokenSortTable;
+    for(const token in this.tokenSortTable)
     {
-      newTokenTable[token] = this.tokenTable[token];
+      newTokenTable[token] = this.tokenSortTable[token];
     }
     return newTokenTable;
   }
@@ -225,7 +225,7 @@ export class Grammar
    */
   public isRightRegular() : boolean
   {
-    return this.rules.every(rule => rule.isRightRegular(this.tokenTable));
+    return this.rules.every(rule => rule.isRightRegular(this.tokenSortTable));
   }
 
   /**
@@ -234,7 +234,7 @@ export class Grammar
    */
   public isLeftRegular() : boolean
   {
-    return this.rules.every(rule => rule.isLeftRegular(this.tokenTable));
+    return this.rules.every(rule => rule.isLeftRegular(this.tokenSortTable));
   }
 
   /**
@@ -243,7 +243,7 @@ export class Grammar
    */
   public isContextFree() : boolean
   {
-    return this.rules.every(rule => rule.isContextFree(this.tokenTable));
+    return this.rules.every(rule => rule.isContextFree(this.tokenSortTable));
   }
 
   /**
@@ -253,7 +253,7 @@ export class Grammar
    */
   public isContextSensitive() : boolean
   {
-    return this.rules.every(rule => rule.isContextSensitive(this.tokenTable));
+    return this.rules.every(rule => rule.isContextSensitive(this.tokenSortTable));
   }
 
   /**
@@ -262,7 +262,7 @@ export class Grammar
    */
   public hasERules() : boolean
   {
-    return this.rules.some(rule => rule.isERule(this.tokenTable));
+    return this.rules.some(rule => rule.isERule(this.tokenSortTable));
   }
 
   /**
@@ -315,7 +315,7 @@ export class Grammar
    */
   public hasChomskyNormalForm() : boolean
   {
-    const tokenTable = this.tokenTable;
+    const tokenTable = this.tokenSortTable;
     const startSymbol = this.startSymbol;
     return this.rules.every(rule =>
     {
@@ -346,10 +346,10 @@ export class Grammar
   public clone() : Grammar
   {
     //Clone Token Table
-    const newTokenTable : TokenTable = {};
-    for(const token in this.tokenTable)
+    const newTokenTable : TokenSortTable = {};
+    for(const token in this.tokenSortTable)
     {
-      newTokenTable[token] = this.tokenTable[token];
+      newTokenTable[token] = this.tokenSortTable[token];
     }
 
     //Clone Production Rules
@@ -365,9 +365,9 @@ export class Grammar
   {
     //Comparing Token Table
     let tokenTableIsEqual = false;
-    for(const token in this.tokenTable)
+    for(const token in this.tokenSortTable)
     {
-      if(this.tokenTable[token] !== other.getTokenTable()[token])
+      if(this.tokenSortTable[token] !== other.getTokenSortTable()[token])
       {
         tokenTableIsEqual = true;
       }
@@ -382,9 +382,9 @@ export class Grammar
   public listTerminals() : Array<Token>
   {
     const terminals = [];
-    for(const token in this.tokenTable)
+    for(const token in this.tokenSortTable)
     {
-      if(this.tokenTable[token] === TokenSort.Terminal)
+      if(this.tokenSortTable[token] === TokenSort.Terminal)
       {
         terminals.push(new Token(token));
       }
@@ -396,9 +396,9 @@ export class Grammar
   public listNonTerminals() : Array<Token>
   {
     const nonTerminals = [];
-    for(const token in this.tokenTable)
+    for(const token in this.tokenSortTable)
     {
-      if(this.tokenTable[token] === TokenSort.NonTerminal)
+      if(this.tokenSortTable[token] === TokenSort.NonTerminal)
       {
         nonTerminals.push(new Token(token));
       }
@@ -408,7 +408,7 @@ export class Grammar
   }
 
 
-  private readonly tokenTable : TokenTable;
+  private readonly tokenSortTable : TokenSortTable;
   private readonly rules : Array<ProductionRule>;
   private readonly startSymbol : Token;
 }

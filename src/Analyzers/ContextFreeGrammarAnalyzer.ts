@@ -1,5 +1,5 @@
 import { Grammar } from "../Core/Grammar";
-import { TokenSort } from "../Core/TokenTable";
+import { TokenSort } from "../Core/TokenSortTable";
 import { TokenString } from "../Core/TokenString";
 
 export class ContextFreeGrammarAnalyzer
@@ -22,7 +22,7 @@ export class ContextFreeGrammarAnalyzer
 
   private static initializeTokenMatrix(grammar : Grammar) : TokenMatrix
   {
-    const tokenTable = grammar.getTokenTable();
+    const tokenTable = grammar.getTokenSortTable();
     const tokenMatrix : TokenMatrix = {};
     for(const departureToken in tokenTable)
     {
@@ -151,49 +151,116 @@ export class ContextFreeGrammarAnalyzer
 
   public computeNonProductiveNonTerminals() : Array<string>
   {
-    const tokenTable = this.grammar.getTokenTable();
-    const nonTerminals = this.grammar.listNonTerminals().map(nonTerminal => nonTerminal.toString());
-    const nonTerminalsTable : {[nonTerminal : string] : string} = {};
+    const tokenClassificationTable = this.classifyNonTerminalsProductivity();
+    const tokenSortTable = this.grammar.getTokenSortTable();
+    const nonProductiveNonTerminals = [];
+    for(const token in tokenClassificationTable)
+    {
+      if(tokenSortTable[token] === TokenSort.NonTerminal && 
+        tokenClassificationTable[token] === "NonProductive")
+      {
+        nonProductiveNonTerminals.push(token);
+      }
+    }
 
-    //Compute
-    let noUnclassifiedNonTerminalsLeft = true;
+    return nonProductiveNonTerminals;
+  } 
+
+  private initializeTokenClassificationTable() : {[token : string] : string}
+  {
+    const tokenSortTable = this.grammar.getTokenSortTable();
+    const tokenClassificationTable : {[token : string] : string} = {};
+    //Initialize Classification Table
+    for(const token in tokenSortTable)
+    {
+      if(tokenSortTable[token] === TokenSort.Terminal)
+      {
+        tokenClassificationTable[token] = "Productive";
+      }
+      else
+      {
+        tokenClassificationTable[token] = "Unclassified";
+      }
+    }
+    return tokenClassificationTable;
+  }
+
+  private classifyOptionProductivity(option : TokenString, tokenClassificationTable : {[token : string] : string}) : string
+  {
+    if(option.every(token => tokenClassificationTable[token.toString()] === "Productive"))
+    {
+      return "Productive";
+    }
+    else if(option.some(token => tokenClassificationTable[token.toString()] === "NonProductive"))
+    {
+      return "NonProductive";
+    }
+    else if(option.isEmpty()) //Empty string is productive
+    {
+      return "Productive";
+    }
+    else //Not every token is productive, nor there is any non productive token, which means that there is at least one unclassified token and the rest are productive tokens
+    {
+      return "Unclassified";
+    }
+  }
+
+  public classifyNonTerminalsProductivity() : {[token : string] : string}
+  {
+    const tokenClassificationTable = this.initializeTokenClassificationTable();
+    const nonTerminals = this.grammar.listNonTerminals().map(token => token.toString());
+
+    let unclassifiedNonTerminalsLeft;
+    let hasNewInformation;
     do
     {
-      for(const nonTerminal in nonTerminalsTable)
+      unclassifiedNonTerminalsLeft = false;
+      hasNewInformation = false;
+      for(const nonTerminal of nonTerminals)
       {
-        if(nonTerminalsTable[nonTerminal] !== undefined)
+        if(tokenClassificationTable[nonTerminal] === "Unclassified")
         {
-          //Try to Analyze
           const tokenizedNonTerminal = TokenString.fromString(nonTerminal);
           const nonTerminalCorrespondingRule = this.grammar.queryRule(tokenizedNonTerminal);
           
-          //Unreachable Non Terminals are Non Productive as well
           if(nonTerminalCorrespondingRule === undefined)
           {
-            nonTerminalsTable[nonTerminal] = "NonProductive";
+            //Undefined non terminals are non productive
+            tokenClassificationTable[nonTerminal] = "NonProductive";
+            hasNewInformation = true;
           }
           else
           {
-            //Core Part
-            for(const option of nonTerminalCorrespondingRule.getRhs())
+            const options = nonTerminalCorrespondingRule.getRhs();
+            if(options.some(option => this.classifyOptionProductivity(option, tokenClassificationTable) === "Productive"))
             {
-              for(const token of option.getTokenList())
-              {
-                if(nonTerminalsTable[token.toString()] === "NonProductive")
-                {
-                  nonTerminalsTable[nonTerminal] = "NonProductive";
-                }
-              }
+              tokenClassificationTable[nonTerminal] = "Productive";
+              hasNewInformation = true;
+            }
+            else if(options.every(option => this.classifyOptionProductivity(option, tokenClassificationTable) === "NonProductive"))
+            {
+              tokenClassificationTable[nonTerminal] = "NonProductive";
+              hasNewInformation = true;
+            }
+            else
+            {
+              unclassifiedNonTerminalsLeft = true;
             }
           }
         }
-        else //Already Classified Rules
-        {
-          continue;
-        }
       }
-    } while(!noUnclassifiedNonTerminalsLeft);
-  } 
+    } while(unclassifiedNonTerminalsLeft && hasNewInformation);
+
+    for(const token in tokenClassificationTable)
+    {
+      if(tokenClassificationTable[token] === "Unclassified")
+      {
+        tokenClassificationTable[token] = "NonProductive";
+      }
+    }
+
+    return tokenClassificationTable;
+  }
 
   private readonly grammar : Grammar;
   private readonly tokenAdjacencyMatrix : TokenMatrix;

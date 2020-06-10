@@ -9,7 +9,7 @@
 import { TokenString } from "./TokenString";
 import { Token } from "./Token";
 import { Utils } from "./Utils";
-import { TokenTable, TokenSort } from "./TokenTable";
+import { TokenSortTable, TokenSort } from "./TokenSortTable";
 import { ParsingException } from "./ParsingException";
 
 /**
@@ -126,7 +126,7 @@ export class ProductionRule
    * 
    * @param tokenTable 
    */
-  public checkValidityWithinContext(tokenTable : TokenTable) : void
+  public checkValidityWithinContext(tokenTable : TokenSortTable) : void
   {
     const missingTokens = [] as Array<Token>;
     for(const token of this.everyTokenList())
@@ -195,7 +195,7 @@ export class ProductionRule
    * 
    * @param tokenTable 
    */
-  public isMonotonic(tokenTable : TokenTable) : boolean
+  public isMonotonic(tokenTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     return this.rhs.every(option => option.size() >= this.lhs.size());
@@ -207,7 +207,7 @@ export class ProductionRule
    * 
    * @param tokenTable 
    */
-  public isERule(tokenTable : TokenTable) : boolean
+  public isERule(tokenTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     return this.rhs.some(option => option.isEqual(TokenString.fromString("")));
@@ -219,7 +219,7 @@ export class ProductionRule
    * 
    * @param tokenTable 
    */
-  public isContextFree(tokenTable : TokenTable) : boolean
+  public isContextFree(tokenTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     return this.lhs.size() === 1 &&
@@ -235,7 +235,7 @@ export class ProductionRule
    * 
    * @param tokenTable 
    */
-  public isRightRegular(tokenTable : TokenTable) : boolean
+  public isRightRegular(tokenTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     return this.isContextFree(tokenTable) &&
@@ -251,7 +251,7 @@ export class ProductionRule
    * 
    * @param tokenTable 
    */
-  public isLeftRegular(tokenTable : TokenTable) : boolean
+  public isLeftRegular(tokenTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     return this.isContextFree(tokenTable) &&
@@ -272,7 +272,7 @@ export class ProductionRule
    * 
    * @param tokenTable 
    */
-  public isContextSensitive(tokenTable : TokenTable) : boolean
+  public isContextSensitive(tokenTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenTable);
     //Correct, but unoptimized version

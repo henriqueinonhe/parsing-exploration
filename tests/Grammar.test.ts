@@ -1,5 +1,5 @@
 import { Grammar } from "../src/Core/Grammar";
-import { TokenSort } from "../src/Core/TokenTable";
+import { TokenSort } from "../src/Core/TokenSortTable";
 import { TokenString } from "../src/Core/TokenString";
 
 describe("constructor", () =>
@@ -57,7 +57,7 @@ describe("constructor", () =>
         {lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"]}
       ];
       const startSymbol = "<expr>";
-      const tokenTable = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenTable();
+      const tokenTable = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenSortTable();
 
       for(const nonTerminal of nonTerminals)
       {
@@ -247,8 +247,8 @@ describe("clone()", () =>
       const original = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
       const clone = original.clone();
 
-      clone.getTokenTable()["S"] = TokenSort.Terminal;
-      expect(original.getTokenTable()["S"]).toBe(TokenSort.NonTerminal);
+      clone.getTokenSortTable()["S"] = TokenSort.Terminal;
+      expect(original.getTokenSortTable()["S"]).toBe(TokenSort.NonTerminal);
     });
   });
 });

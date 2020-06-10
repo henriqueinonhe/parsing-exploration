@@ -3,15 +3,15 @@ import { TokenString } from "../Core/TokenString";
 import { ProductionRule } from "../Core/ProductionRule";
 import { Token } from "../Core/Token";
 import { ContextFreeGrammarAnalyzer } from "../Analyzers/ContextFreeGrammarAnalyzer";
-import { TokenTable } from "../Core/TokenTable";
+import { TokenSortTable } from "../Core/TokenSortTable";
 import { Utils } from "../Core/Utils";
 
-export class GrammarTransformer
+export class ContextFreeGrammarTransformer
 {
   /**
-   * Returns a new grammar where unreachable tokens
-   * are removed from the token table and unused rules
-   * are also removed. Doesn't modify original.
+   * Returns a new grammar with non productive options, 
+   * rules and non terminals as well as unreachable tokens
+   * and rules are removed.
    * 
    * @param grammar 
    */
@@ -19,16 +19,13 @@ export class GrammarTransformer
   {
     const analyzer = new ContextFreeGrammarAnalyzer(grammar);
     const unreachableTokens = analyzer.computeUnreachableTokens();
-
-    const tokenTable = grammar.getTokenTable();
-    const rules = grammar.getRules();
+    const nonProductiveNonTerminals = analyzer.computeNonProductiveNonTerminals();
+    const uselessTokens = [...unreachableTokens, ...nonProductiveNonTerminals];
+    const cleanTokenSortTable = this.removeUselessTokensFromSortTable(grammar.getTokenSortTable(), uselessTokens);
+    const cleanRules = this.removeUselessRules(grammar.getRules(), uselessTokens);
     const startSymbol = grammar.getStartSymbol();
     
-    const cleanedTokenTable = GrammarTransformer.removeUnusedTokensFromTable(tokenTable, unreachableTokens);
-    const cleanedRules = GrammarTransformer.removeUnusedRules(rules, unreachableTokens);
-
-    //Maybe should also remove unused options...
-    return new Grammar(cleanedTokenTable, cleanedRules, startSymbol);
+    return new Grammar(cleanTokenSortTable, cleanRules, startSymbol);
   }
 
   /**
@@ -38,9 +35,9 @@ export class GrammarTransformer
    * @param tokenTable 
    * @param unusedTokens 
    */
-  private static removeUnusedTokensFromTable(tokenTable : TokenTable, unusedTokens : Array<string>) : TokenTable
+  private static removeUselessTokensFromSortTable(tokenTable : TokenSortTable, unusedTokens : Array<string>) : TokenSortTable
   {
-    const newTokenTable = {} as TokenTable;
+    const newTokenTable = {} as TokenSortTable;
 
     for(const token in tokenTable)
     {
@@ -57,19 +54,42 @@ export class GrammarTransformer
    * removed. Doesn't modify original.
    * 
    * @param rules 
-   * @param unreachableTokens 
+   * @param uselessTokens 
    */
-  private static removeUnusedRules(rules : Array<ProductionRule>, unreachableTokens : Array<string>) : Array<ProductionRule>
+  private static removeUselessRules(rules : Array<ProductionRule>, uselessTokens : Array<string>) : Array<ProductionRule>
   {
     const newRules = [] as Array<ProductionRule>;
-    for(const rule of rules)
+    const cleanOptionsRules = rules.map(rule => this.removeUselessOptions(rule, uselessTokens)).filter(rule => rule !== undefined);
+
+    for(const rule of cleanOptionsRules)
     {
-      if(!unreachableTokens.includes(rule.getLhs().toString()))
+      if(!uselessTokens.includes((rule as ProductionRule).getLhs().toString()))
       {
-        newRules.push(rule);
+        newRules.push((rule as ProductionRule));
       }
     }
     return newRules;
+  }
+
+  private static removeUselessOptions(rule : ProductionRule, uselessTokens : Array<string>) : ProductionRule | undefined
+  {
+    const newRhs = [];
+    for(const option of rule.getRhs())
+    {
+      if(option.every(token => !uselessTokens.includes(token.toString())))
+      {
+        newRhs.push(option);
+      }
+    }
+
+    if(newRhs.length === 0)
+    {
+      return undefined;
+    }
+    else
+    {
+      return new ProductionRule(rule.getLhs(), newRhs);
+    }
   }
 
   /**
@@ -80,7 +100,7 @@ export class GrammarTransformer
    */
   public static removeERules(grammar : Grammar) : Grammar
   {
-    const tokenTable = grammar.getTokenTable();
+    const tokenTable = grammar.getTokenSortTable();
     const newRules = grammar.getRules();
     const startSymbol = grammar.getStartSymbol();
 
@@ -93,13 +113,13 @@ export class GrammarTransformer
       {
         if(rule.isERule(tokenTable)) 
         {
-          GrammarTransformer.substituteERuleLhsOccurrencesInRules(newRules, rule.getLhs());
+          ContextFreeGrammarTransformer.substituteERuleLhsOccurrencesInRules(newRules, rule.getLhs());
           
           const isStartingRule = rule.getLhs().tokenAt(0).isEqual(startSymbol);
           if(!isStartingRule)
           {
             eRulesNoMore = false;
-            GrammarTransformer.removeEmptyStringFromRule(rule);
+            ContextFreeGrammarTransformer.removeEmptyStringFromRule(rule);
           }
         }
       }
@@ -108,7 +128,7 @@ export class GrammarTransformer
 
     //Construct and clean grammar
     const eFreeGrammar = new Grammar(tokenTable, newRules, startSymbol);
-    return GrammarTransformer.cleanGrammar(eFreeGrammar);
+    return ContextFreeGrammarTransformer.cleanGrammar(eFreeGrammar);
   }
 
   private static removeEmptyStringFromRule(rule : ProductionRule) : void
@@ -126,7 +146,7 @@ export class GrammarTransformer
       {
         if(option.includes(eRuleLhs)) 
         {
-          newOptions.push(...GrammarTransformer.generateERuleSubstitutionOptions(eRuleLhs, option));
+          newOptions.push(...ContextFreeGrammarTransformer.generateERuleSubstitutionOptions(eRuleLhs, option));
         }
       }
       const newRhs = [...rule.getRhs()];
@@ -142,11 +162,11 @@ export class GrammarTransformer
     const newOptions = [];
     const eRuleLhsNonTerminal = eRuleLhs.tokenAt(0);
     const eRuleLhsNonTerminalOccurrenceCount = option.reduce((count, token) => token.isEqual(eRuleLhsNonTerminal) ? count + 1 : count, 0);
-    const eRuleLhsNonTerminalIndicatorList = GrammarTransformer.generateIndicatorList(eRuleLhsNonTerminalOccurrenceCount);
+    const eRuleLhsNonTerminalIndicatorList = ContextFreeGrammarTransformer.generateIndicatorList(eRuleLhsNonTerminalOccurrenceCount);
 
     for(const indicator of eRuleLhsNonTerminalIndicatorList)
     {
-      const newOption = GrammarTransformer.generateNonUnitRuleOptionTokenString(eRuleLhsNonTerminal, option, indicator);
+      const newOption = ContextFreeGrammarTransformer.generateNonUnitRuleOptionTokenString(eRuleLhsNonTerminal, option, indicator);
       newOptions.push(newOption);
     }
     return newOptions;
@@ -164,7 +184,7 @@ export class GrammarTransformer
     const indicatorListEntries =  Math.pow(2, size); //Indicator list is a a list of consecutive numbers in base 2 (binary)
     for(let indicatorCount = 2; indicatorCount <= indicatorListEntries; indicatorCount++)
     {
-      GrammarTransformer.advanceToNextIndicator(indicator);
+      ContextFreeGrammarTransformer.advanceToNextIndicator(indicator);
       indicatorList.push(indicator.slice());
     }
     return indicatorList;

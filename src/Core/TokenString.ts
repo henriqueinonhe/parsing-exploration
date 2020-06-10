@@ -186,6 +186,19 @@ export class TokenString
   }
 
   /**
+   * TokenString equivalent of JS's Array
+   * some.
+   * 
+   * @param callbackfn 
+   * @param thisArg 
+   */
+  public some(callbackfn : (value : Token, index : number, array : Array<Token>) => unknown, thisArg ? : TokenString/* This was "any" in the original declaration */) : boolean
+  {
+    return this.tokenList.some(callbackfn, thisArg);
+    
+  }
+
+  /**
    * TokenString equivalent of JS's array
    * reduce.
    * 

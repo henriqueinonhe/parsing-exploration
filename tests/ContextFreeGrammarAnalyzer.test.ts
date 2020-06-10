@@ -450,18 +450,28 @@ describe("computeUndefinedNonTerminals()", () =>
   });
 });
 
-describe("tokenIsUnproductive()", () =>
+describe("computeNonProductiveTokens()", () =>
 {
   describe("Post Conditions", () =>
   {
-    const nonTerminals = ["S", "A", "B", "C"];
-    const terminals = ["a", "b", "c"];
-    const rules = [
-      {lhs: "S", rhs: ["A", "A B"]},
-      {lhs: "A", rhs: ["a"]},
-      {lhs: "B", rhs: ["B"]},
-      {lhs: "C", rhs: ["c"]}
-    ];
-    const startSymbol = "S";
+    test("", () =>
+    {
+      const nonTerminals = ["S", "A", "B", "C", "D", "E", "F", "G"];
+      const terminals = ["a", "b", "c"];
+      const rules = [
+        {lhs: "S", rhs: ["A", "A B", "D"]},
+        {lhs: "A", rhs: ["a"]},
+        {lhs: "B", rhs: ["B"]},
+        {lhs: "C", rhs: ["c"]},
+        {lhs: "E", rhs: [""]},
+        {lhs: "F", rhs: ["F", "G"]},
+        {lhs: "G", rhs: ["F"]}
+      ];
+      const startSymbol = "S";
+      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+      const analyzer = new ContextFreeGrammarAnalyzer(grammar);
+  
+      expect(analyzer.computeNonProductiveNonTerminals()).toStrictEqual(["B", "D", "F", "G"]);
+    });
   });
 });

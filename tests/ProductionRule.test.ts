@@ -1,5 +1,5 @@
 import { ProductionRule, ProductionRuleParser } from "../src/Core/ProductionRule";
-import { TokenSort } from "../src/Core/TokenTable";
+import { TokenSort } from "../src/Core/TokenSortTable";
 import { TokenString } from "../src/Core/TokenString";
 
 describe("constructor", () =>

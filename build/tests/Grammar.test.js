@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const Grammar_1 = require("../src/Core/Grammar");
-const TokenTable_1 = require("../src/Core/TokenTable");
+const TokenSortTable_1 = require("../src/Core/TokenSortTable");
 const TokenString_1 = require("../src/Core/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
@@ -50,10 +50,10 @@ describe("constructor", () => {
             const startSymbol = "<expr>";
             const tokenTable = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenTable();
             for (const nonTerminal of nonTerminals) {
-                expect(tokenTable[nonTerminal]).toBe(TokenTable_1.TokenSort.NonTerminal);
+                expect(tokenTable[nonTerminal]).toBe(TokenSortTable_1.TokenSort.NonTerminal);
             }
             for (const terminal of terminals) {
-                expect(tokenTable[terminal]).toBe(TokenTable_1.TokenSort.Terminal);
+                expect(tokenTable[terminal]).toBe(TokenSortTable_1.TokenSort.Terminal);
             }
         });
         test("Rules are correctly merged", () => {
@@ -200,8 +200,44 @@ describe("clone()", () => {
             const startSymbol = "S";
             const original = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
             const clone = original.clone();
-            clone.getTokenTable()["S"] = TokenTable_1.TokenSort.Terminal;
-            expect(original.getTokenTable()["S"]).toBe(TokenTable_1.TokenSort.NonTerminal);
+            clone.getTokenTable()["S"] = TokenSortTable_1.TokenSort.Terminal;
+            expect(original.getTokenTable()["S"]).toBe(TokenSortTable_1.TokenSort.NonTerminal);
+        });
+    });
+});
+describe("listTerminals()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            const nonTerminals = ["<expr>", "<prim>", "<comp>", "<more>", "<prod>"];
+            const terminals = ["i", "o", "->", "[", "]", "(", ")", ","];
+            const rules = [
+                { lhs: "<expr>", rhs: ["<prim>", "<comp>"] },
+                { lhs: "<prim>", rhs: ["i", "o"] },
+                { lhs: "<comp>", rhs: ["<prim> -> <prim>", "( <comp> ) -> <prim>", "<prim> -> ( <comp> )", "( <comp> ) -> ( <comp> )", "<prod> -> <prim>", "<prod> -> ( <comp> )"] },
+                { lhs: "<prod>", rhs: ["[ <expr> <more> ]"] },
+                { lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"] }
+            ];
+            const startSymbol = "<expr>";
+            const grammar = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+            expect(grammar.listTerminals().map(token => token.toString())).toStrictEqual(terminals);
+        });
+    });
+});
+describe("listNonTerminals()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            const nonTerminals = ["<expr>", "<prim>", "<comp>", "<more>", "<prod>"];
+            const terminals = ["i", "o", "->", "[", "]", "(", ")", ","];
+            const rules = [
+                { lhs: "<expr>", rhs: ["<prim>", "<comp>"] },
+                { lhs: "<prim>", rhs: ["i", "o"] },
+                { lhs: "<comp>", rhs: ["<prim> -> <prim>", "( <comp> ) -> <prim>", "<prim> -> ( <comp> )", "( <comp> ) -> ( <comp> )", "<prod> -> <prim>", "<prod> -> ( <comp> )"] },
+                { lhs: "<prod>", rhs: ["[ <expr> <more> ]"] },
+                { lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"] }
+            ];
+            const startSymbol = "<expr>";
+            const grammar = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+            expect(grammar.listNonTerminals().map(token => token.toString())).toStrictEqual(nonTerminals);
         });
     });
 });

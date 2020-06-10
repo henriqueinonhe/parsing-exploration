@@ -1,6 +1,6 @@
 import { Grammar } from "../Core/Grammar";
 import { TokenString } from "../Core/TokenString";
-import { TokenSort } from "../Core/TokenTable";
+import { TokenSort } from "../Core/TokenSortTable";
 import { Utils } from "../Core/Utils";
 
 enum MatchTableEntryValue
@@ -27,7 +27,7 @@ export class UngersRecognizer
   public recognizes(inputString : TokenString) : boolean
   {
     //Initialize Match Table
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     const matchTable = {} as MatchTable;
     for(const token in tokenTable)
     {
@@ -72,7 +72,7 @@ export class UngersRecognizer
 
   private matchToken(token : TokenString, inputSubstring : TokenString, matchTable : MatchTable) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     if(tokenTable[token.toString()] === TokenSort.Terminal)
     {
       return token.isEqual(inputSubstring);
@@ -117,7 +117,7 @@ export class UngersRecognizer
 
   private matchSentenceBeginning(sentence : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     let index = 0;
     while(index < sentence.size() &&
           tokenTable[sentence.tokenAt(index).toString()] === TokenSort.Terminal)
@@ -130,7 +130,7 @@ export class UngersRecognizer
 
   private matchSentenceEnd(sentence : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     let index = sentence.size() - 1;
     while(index >= 0 &&
           tokenTable[sentence.tokenAt(index).toString()] === TokenSort.Terminal)
@@ -143,7 +143,7 @@ export class UngersRecognizer
 
   private matchSentenceTerminals(sentence : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     const sententialFormTerminalCountTable : {[key : string] : number} = {};
     for(let index = 0; index < sentence.size(); index++)
     {

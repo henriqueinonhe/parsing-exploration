@@ -4,7 +4,7 @@ export enum TokenSort
   Terminal
 }
 
-export interface TokenTable
+export interface TokenSortTable
 {
   [tokenString : string] : TokenSort;
 }

@@ -1,6 +1,6 @@
 import { Grammar } from "../Core/Grammar";
 import { TokenString } from "../Core/TokenString";
-import { TokenSort } from "../Core/TokenTable";
+import { TokenSort } from "../Core/TokenSortTable";
 import { Utils } from "../Core/Utils";
 
 /**
@@ -54,7 +54,7 @@ export class UngersEFreeRecognizer
 
   private matchToken(token : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     if(tokenTable[token.toString()] === TokenSort.Terminal)
     {
       return token.isEqual(inputSubstring);
@@ -76,7 +76,7 @@ export class UngersEFreeRecognizer
 
   private matchSententialFormBeginning(sententialForm : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     let index = 0;
     while(index < sententialForm.size() &&
           tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
@@ -89,7 +89,7 @@ export class UngersEFreeRecognizer
 
   private matchSententialFormEnd(sententialForm : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     let index = sententialForm.size() - 1;
     while(index >= 0 &&
           tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
@@ -102,7 +102,7 @@ export class UngersEFreeRecognizer
 
   private matchSenentialFormTerminals(sententialForm : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenTable();
+    const tokenTable = this.grammar.getTokenSortTable();
     const sententialFormTerminalCountTable : {[key : string] : number} = {};
     for(let index = 0; index < sententialForm.size(); index++)
     {

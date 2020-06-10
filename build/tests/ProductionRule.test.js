@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const ProductionRule_1 = require("../src/Core/ProductionRule");
-const TokenTable_1 = require("../src/Core/TokenTable");
+const TokenSortTable_1 = require("../src/Core/TokenSortTable");
 const TokenString_1 = require("../src/Core/TokenString");
 describe("constructor", () => {
     describe("Pre Conditions", () => {
@@ -33,13 +33,13 @@ describe("isMonotonic()", () => {
     describe("Post Conditions", () => {
         test("", () => {
             const tokenTable = {
-                "A": TokenTable_1.TokenSort.NonTerminal,
-                "B": TokenTable_1.TokenSort.NonTerminal,
-                "S": TokenTable_1.TokenSort.NonTerminal,
-                "a": TokenTable_1.TokenSort.Terminal,
-                "b": TokenTable_1.TokenSort.Terminal,
-                "C": TokenTable_1.TokenSort.NonTerminal,
-                "D": TokenTable_1.TokenSort.NonTerminal
+                "A": TokenSortTable_1.TokenSort.NonTerminal,
+                "B": TokenSortTable_1.TokenSort.NonTerminal,
+                "S": TokenSortTable_1.TokenSort.NonTerminal,
+                "a": TokenSortTable_1.TokenSort.Terminal,
+                "b": TokenSortTable_1.TokenSort.Terminal,
+                "C": TokenSortTable_1.TokenSort.NonTerminal,
+                "D": TokenSortTable_1.TokenSort.NonTerminal
             };
             expect(ProductionRule_1.ProductionRule.fromString("A", [""]).isMonotonic(tokenTable)).toBe(false);
             expect(ProductionRule_1.ProductionRule.fromString("A B", ["a"]).isMonotonic(tokenTable)).toBe(false);
@@ -53,13 +53,13 @@ describe("isERule()", () => {
     describe("Post Conditions", () => {
         test("", () => {
             const tokenTable = {
-                "A": TokenTable_1.TokenSort.NonTerminal,
-                "B": TokenTable_1.TokenSort.NonTerminal,
-                "S": TokenTable_1.TokenSort.NonTerminal,
-                "a": TokenTable_1.TokenSort.Terminal,
-                "b": TokenTable_1.TokenSort.Terminal,
-                "C": TokenTable_1.TokenSort.NonTerminal,
-                "D": TokenTable_1.TokenSort.NonTerminal
+                "A": TokenSortTable_1.TokenSort.NonTerminal,
+                "B": TokenSortTable_1.TokenSort.NonTerminal,
+                "S": TokenSortTable_1.TokenSort.NonTerminal,
+                "a": TokenSortTable_1.TokenSort.Terminal,
+                "b": TokenSortTable_1.TokenSort.Terminal,
+                "C": TokenSortTable_1.TokenSort.NonTerminal,
+                "D": TokenSortTable_1.TokenSort.NonTerminal
             };
             expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isERule(tokenTable)).toBe(true);
             expect(ProductionRule_1.ProductionRule.fromString("a S b", [""]).isERule(tokenTable)).toBe(true);
@@ -73,14 +73,14 @@ describe("isContextFree()", () => {
     describe("Post Conditions", () => {
         test("", () => {
             const tokenTable = {
-                "<expr>": TokenTable_1.TokenSort.NonTerminal,
-                "A": TokenTable_1.TokenSort.NonTerminal,
-                "B": TokenTable_1.TokenSort.NonTerminal,
-                "S": TokenTable_1.TokenSort.NonTerminal,
-                "a": TokenTable_1.TokenSort.Terminal,
-                "d": TokenTable_1.TokenSort.Terminal,
-                "C": TokenTable_1.TokenSort.NonTerminal,
-                "D": TokenTable_1.TokenSort.NonTerminal
+                "<expr>": TokenSortTable_1.TokenSort.NonTerminal,
+                "A": TokenSortTable_1.TokenSort.NonTerminal,
+                "B": TokenSortTable_1.TokenSort.NonTerminal,
+                "S": TokenSortTable_1.TokenSort.NonTerminal,
+                "a": TokenSortTable_1.TokenSort.Terminal,
+                "d": TokenSortTable_1.TokenSort.Terminal,
+                "C": TokenSortTable_1.TokenSort.NonTerminal,
+                "D": TokenSortTable_1.TokenSort.NonTerminal
             };
             expect(ProductionRule_1.ProductionRule.fromString("<expr>", ["A", "B", "", "a D S d A"]).isContextFree(tokenTable)).toBe(true);
             expect(ProductionRule_1.ProductionRule.fromString("<expr>", [""]).isContextFree(tokenTable)).toBe(true);
@@ -94,9 +94,9 @@ describe("isRightRegular()", () => {
     describe("Post Conditions", () => {
         test("", () => {
             const tokenTable = {
-                "S": TokenTable_1.TokenSort.NonTerminal,
-                "A": TokenTable_1.TokenSort.NonTerminal,
-                "a": TokenTable_1.TokenSort.Terminal
+                "S": TokenSortTable_1.TokenSort.NonTerminal,
+                "A": TokenSortTable_1.TokenSort.NonTerminal,
+                "a": TokenSortTable_1.TokenSort.Terminal
             };
             expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isRightRegular(tokenTable)).toBe(true);
             expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a"]).isRightRegular(tokenTable)).toBe(true);
@@ -116,9 +116,9 @@ describe("isLeftRegular()", () => {
     describe("Post Conditions", () => {
         test("", () => {
             const tokenTable = {
-                "S": TokenTable_1.TokenSort.NonTerminal,
-                "A": TokenTable_1.TokenSort.NonTerminal,
-                "a": TokenTable_1.TokenSort.Terminal
+                "S": TokenSortTable_1.TokenSort.NonTerminal,
+                "A": TokenSortTable_1.TokenSort.NonTerminal,
+                "a": TokenSortTable_1.TokenSort.Terminal
             };
             expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isLeftRegular(tokenTable)).toBe(true);
             expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a"]).isLeftRegular(tokenTable)).toBe(true);
@@ -138,10 +138,10 @@ describe("isContextSensitive()", () => {
     describe("Post Conditions", () => {
         test("", () => {
             const tokenTable = {
-                "S": TokenTable_1.TokenSort.NonTerminal,
-                "A": TokenTable_1.TokenSort.NonTerminal,
-                "a": TokenTable_1.TokenSort.Terminal,
-                "b": TokenTable_1.TokenSort.Terminal
+                "S": TokenSortTable_1.TokenSort.NonTerminal,
+                "A": TokenSortTable_1.TokenSort.NonTerminal,
+                "a": TokenSortTable_1.TokenSort.Terminal,
+                "b": TokenSortTable_1.TokenSort.Terminal
             };
             expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isContextSensitive(tokenTable)).toBe(true);
             expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isContextSensitive(tokenTable)).toBe(true);
