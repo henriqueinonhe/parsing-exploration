@@ -190,6 +190,42 @@ export class Utils
   {
     return arr.map(elem => elem.clone());
   }
+
+  public static generateAllNumbersAsArrayInBase(base : number, size : number) : Array<Array<number>> 
+  {
+    const list : Array<Array<number>> = [];
+    list.push(new Array(size).fill(0));
+    for(let count = 0; count < Math.pow(base, size) - 1; count++)
+    {
+      const previousNumber = list[count];
+      list.push(this.generateNextNumberAsArrayInBase(previousNumber, base));
+    }
+    return list;
+  }
+
+  private static generateNextNumberAsArrayInBase(arr : Array<number>, base : number) : Array<number>
+  {
+    const nextNumber = arr.slice();
+    let elementToIncrementIndex = 0;
+    while(nextNumber[elementToIncrementIndex] === (base - 1) && elementToIncrementIndex < nextNumber.length)
+    {
+      elementToIncrementIndex++;
+    }
+
+    if(elementToIncrementIndex === nextNumber.length)
+    {
+      throw "There is no next number as array!";
+    }
+
+    nextNumber[elementToIncrementIndex]++;
+    for(let index = 0; index < elementToIncrementIndex; index++)
+    {
+      nextNumber[index] = 0;
+    }
+
+    return nextNumber;
+  }
+  
 }
 
 export interface Cloneable<T>

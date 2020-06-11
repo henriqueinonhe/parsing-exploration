@@ -3,15 +3,109 @@ import { TokenString } from "../Core/TokenString";
 import { ProductionRule } from "../Core/ProductionRule";
 import { Token } from "../Core/Token";
 import { ContextFreeGrammarAnalyzer } from "../Analyzers/ContextFreeGrammarAnalyzer";
-import { TokenSortTable } from "../Core/TokenSortTable";
+import { TokenSortTable, TokenSort } from "../Core/TokenSortTable";
 import { Utils } from "../Core/Utils";
 
 export class ContextFreeGrammarTransformer
 {
-  // public static removeUnitRules(grammar : Grammar) : Grammar
-  // {
+  public static removeUnitRules(grammar : Grammar) : Grammar
+  {
+    const rules = grammar.getRules();
+    const tokenSortTable = grammar.getTokenSortTable();
 
-  // }
+    //First we need to remove all direct loops from rules
+    const rulesWithoutDirectLoops = [];
+    for(const rule of rules)
+    {
+      const newOptions = [];
+      for(const option of rule.getRhs())
+      {
+        const isDirectLoopOption = rule.getLhs().isEqual(option);
+        if(!isDirectLoopOption)
+        {
+          newOptions.push(option);
+        }
+      }
+      rulesWithoutDirectLoops.push(new ProductionRule(rule.getLhs(), newOptions));
+    }
+
+    const rulesWithoutUnitRules = [];
+    for(const rule of rulesWithoutDirectLoops)
+    {
+      const newOptions = [];
+      for(const option of rule.getRhs())
+      {
+        const isUnitOption = option.size() === 1 && tokenSortTable[option.toString()] === TokenSort.NonTerminal;
+        if(isUnitOption)
+        {
+          const nonTerminalAssociatedRule = rulesWithoutDirectLoops.find(rule => rule.getLhs().isEqual(option));
+          if(nonTerminalAssociatedRule !== undefined)
+          {
+            newOptions.push(... this.generateNonTerminalSubstitutionOptions(nonTerminalAssociatedRule, option));
+          }
+        }
+        else
+        {
+          newOptions.push(option);
+        }
+      }
+      rulesWithoutUnitRules.push(new ProductionRule(rule.getLhs(), newOptions));
+    }
+
+    return new Grammar(tokenSortTable, rulesWithoutUnitRules, grammar.getStartSymbol());
+  }
+
+  public static substituteNonTerminalIntoRule(nonTerminalAssociatedRule : ProductionRule, ruleToBeSubstitutedInto : ProductionRule) : ProductionRule
+  {
+    const newRhs = [];
+    for(const option of ruleToBeSubstitutedInto.getRhs())
+    {
+      newRhs.push(... this.generateNonTerminalSubstitutionOptions(nonTerminalAssociatedRule, option));
+    }
+
+    return new ProductionRule(ruleToBeSubstitutedInto.getLhs(), newRhs);
+  }
+
+  /**
+   * Generates all possible options where
+   * every occurence of a given non terminal
+   * is expanded into its associated rule options.
+   * 
+   * @param nonTerminalAssociatedRule 
+   * @param option 
+   */
+  public static generateNonTerminalSubstitutionOptions(nonTerminalAssociatedRule : ProductionRule, option : TokenString) : Array<TokenString>
+  {
+    //Count non terminal occurrences within option
+    const nonTerminal = nonTerminalAssociatedRule.getLhs().tokenAt(0);
+    const nonTerminalOccurrencesWithinOption = option.reduce((accum, token) => token.isEqual(nonTerminal) ? accum + 1 : accum, 0);
+
+    const nonTerminalsAssociatedRuleOptions = nonTerminalAssociatedRule.getRhs();
+    const optionChoiceIndexesList = Utils.generateAllNumbersAsArrayInBase(nonTerminalsAssociatedRuleOptions.length, nonTerminalOccurrencesWithinOption);
+    const generatedOptions = [];
+
+    for(const optionChoiceIndexes of optionChoiceIndexesList)
+    {
+      const substitutedOptionTokenList : Array<Token> = [];
+      let nonTerminalOccurrenceCount = 0;
+      for(const token of option.getTokenList())
+      {
+        if(token.isEqual(nonTerminal))
+        {
+          const optionToInsert = nonTerminalsAssociatedRuleOptions[optionChoiceIndexes[nonTerminalOccurrenceCount]];
+          substitutedOptionTokenList.push(...optionToInsert.getTokenList());
+          nonTerminalOccurrenceCount++;
+        }
+        else
+        {
+          substitutedOptionTokenList.push(token);
+        }
+      }
+      generatedOptions.push(new TokenString(substitutedOptionTokenList));
+    }
+
+    return generatedOptions;
+  }
 
   /**
    * Returns a new grammar with non productive options, 
@@ -156,7 +250,6 @@ export class ContextFreeGrammarTransformer
       newRhs.push(...newOptions);
       const newRhsWithoutDuplicates = Utils.removeArrayDuplicates(newRhs, (option1, option2) => option1.isEqual(option2));
       rule.setRhs(newRhsWithoutDuplicates);
-
     }
   }
 
@@ -182,35 +275,7 @@ export class ContextFreeGrammarTransformer
       throw new Error("Indicator list size must be > 0!");
     }
 
-    const indicator = new Array(size).fill(false);
-    const indicatorList = [indicator.slice()];
-    const indicatorListEntries =  Math.pow(2, size); //Indicator list is a a list of consecutive numbers in base 2 (binary)
-    for(let indicatorCount = 2; indicatorCount <= indicatorListEntries; indicatorCount++)
-    {
-      ContextFreeGrammarTransformer.advanceToNextIndicator(indicator);
-      indicatorList.push(indicator.slice());
-    }
-    return indicatorList;
-  }
-
-  private static advanceToNextIndicator(indicator : Array<boolean>) : void
-  {
-    let index = 0;
-    while(indicator[index] && index < indicator.length)
-    {
-      index++;
-    }
-
-    if(index === indicator.length)
-    {
-      throw new Error("Already at the last possible indicator!");
-    }
-
-    indicator[index] = true;
-    for(let j = 0; j < index; j++)
-    {
-      indicator[j] = false;
-    }
+    return Utils.generateAllNumbersAsArrayInBase(2, size).map(arr => arr.map(num => !!num));
   }
 
   private static generateNonUnitRuleOptionTokenString(eRuleLhsNonTerminal : Token, option : TokenString, indicator : Array<boolean>) : TokenString
