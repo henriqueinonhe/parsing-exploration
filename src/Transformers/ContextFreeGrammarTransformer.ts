@@ -37,21 +37,21 @@ export class ContextFreeGrammarTransformer
    * Returns a token table copy with unreachable tokens 
    * removed. Doesn't modify original.
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    * @param unusedTokens 
    */
-  private static removeUselessTokensFromSortTable(tokenTable : TokenSortTable, unusedTokens : Array<string>) : TokenSortTable
+  private static removeUselessTokensFromSortTable(tokenSortTable : TokenSortTable, unusedTokens : Array<string>) : TokenSortTable
   {
-    const newTokenTable = {} as TokenSortTable;
+    const newtokenSortTable = {} as TokenSortTable;
 
-    for(const token in tokenTable)
+    for(const token in tokenSortTable)
     {
       if(!unusedTokens.includes(token))
       {
-        newTokenTable[token] = tokenTable[token];
+        newtokenSortTable[token] = tokenSortTable[token];
       }
     }
-    return newTokenTable;
+    return newtokenSortTable;
   }
 
   /**
@@ -105,7 +105,7 @@ export class ContextFreeGrammarTransformer
    */
   public static removeERules(grammar : Grammar) : Grammar
   {
-    const tokenTable = grammar.getTokenSortTable();
+    const tokenSortTable = grammar.getTokenSortTable();
     const newRules = grammar.getRules();
     const startSymbol = grammar.getStartSymbol();
 
@@ -116,7 +116,7 @@ export class ContextFreeGrammarTransformer
 
       for(const rule of newRules)
       {
-        if(rule.isERule(tokenTable)) 
+        if(rule.isERule(tokenSortTable)) 
         {
           ContextFreeGrammarTransformer.substituteERuleLhsOccurrencesInRules(newRules, rule.getLhs());
           
@@ -131,7 +131,7 @@ export class ContextFreeGrammarTransformer
 
     } while(!eRulesNoMore);
 
-    return new Grammar(tokenTable, newRules, startSymbol);
+    return new Grammar(tokenSortTable, newRules, startSymbol);
   }
 
   private static removeEmptyStringFromRule(rule : ProductionRule) : void

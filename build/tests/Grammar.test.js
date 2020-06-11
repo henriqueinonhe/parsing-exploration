@@ -48,12 +48,12 @@ describe("constructor", () => {
                 { lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"] }
             ];
             const startSymbol = "<expr>";
-            const tokenTable = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenSortTable();
+            const tokenSortTable = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenSortTable();
             for (const nonTerminal of nonTerminals) {
-                expect(tokenTable[nonTerminal]).toBe(TokenSortTable_1.TokenSort.NonTerminal);
+                expect(tokenSortTable[nonTerminal]).toBe(TokenSortTable_1.TokenSort.NonTerminal);
             }
             for (const terminal of terminals) {
-                expect(tokenTable[terminal]).toBe(TokenSortTable_1.TokenSort.Terminal);
+                expect(tokenSortTable[terminal]).toBe(TokenSortTable_1.TokenSort.Terminal);
             }
         });
         test("Rules are correctly merged", () => {

@@ -54,8 +54,8 @@ export class UngersEFreeRecognizer
 
   private matchToken(token : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenSortTable();
-    if(tokenTable[token.toString()] === TokenSort.Terminal)
+    const tokenSortTable = this.grammar.getTokenSortTable();
+    if(tokenSortTable[token.toString()] === TokenSort.Terminal)
     {
       return token.isEqual(inputSubstring);
     }
@@ -76,10 +76,10 @@ export class UngersEFreeRecognizer
 
   private matchSententialFormBeginning(sententialForm : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenSortTable();
+    const tokenSortTable = this.grammar.getTokenSortTable();
     let index = 0;
     while(index < sententialForm.size() &&
-          tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
+          tokenSortTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
     {
       index++;
     }
@@ -89,10 +89,10 @@ export class UngersEFreeRecognizer
 
   private matchSententialFormEnd(sententialForm : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenSortTable();
+    const tokenSortTable = this.grammar.getTokenSortTable();
     let index = sententialForm.size() - 1;
     while(index >= 0 &&
-          tokenTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
+          tokenSortTable[sententialForm.tokenAt(index).toString()] === TokenSort.Terminal)
     {
       index--;
     }
@@ -102,12 +102,12 @@ export class UngersEFreeRecognizer
 
   private matchSenentialFormTerminals(sententialForm : TokenString, inputSubstring : TokenString) : boolean
   {
-    const tokenTable = this.grammar.getTokenSortTable();
+    const tokenSortTable = this.grammar.getTokenSortTable();
     const sententialFormTerminalCountTable : {[key : string] : number} = {};
     for(let index = 0; index < sententialForm.size(); index++)
     {
       const currentToken = sententialForm.tokenAt(index);
-      if(tokenTable[currentToken.toString()] === TokenSort.Terminal)
+      if(tokenSortTable[currentToken.toString()] === TokenSort.Terminal)
       {
         const currentTerminalCount = sententialFormTerminalCountTable[currentToken.toString()];
         if(currentTerminalCount === undefined)
@@ -125,7 +125,7 @@ export class UngersEFreeRecognizer
     for(let index = 0; index < inputSubstring.size(); index++)
     {
       const currentToken = inputSubstring.tokenAt(index);
-      if(tokenTable[currentToken.toString()] === TokenSort.Terminal)
+      if(tokenSortTable[currentToken.toString()] === TokenSort.Terminal)
       {
         const currentTerminalCount = inputSubstringTerminalCountTable[currentToken.toString()];
         if(currentTerminalCount === undefined)

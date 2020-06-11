@@ -57,16 +57,16 @@ describe("constructor", () =>
         {lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"]}
       ];
       const startSymbol = "<expr>";
-      const tokenTable = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenSortTable();
+      const tokenSortTable = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenSortTable();
 
       for(const nonTerminal of nonTerminals)
       {
-        expect(tokenTable[nonTerminal]).toBe(TokenSort.NonTerminal);
+        expect(tokenSortTable[nonTerminal]).toBe(TokenSort.NonTerminal);
       }
 
       for(const terminal of terminals)
       {
-        expect(tokenTable[terminal]).toBe(TokenSort.Terminal);
+        expect(tokenSortTable[terminal]).toBe(TokenSort.Terminal);
       }
     });
 

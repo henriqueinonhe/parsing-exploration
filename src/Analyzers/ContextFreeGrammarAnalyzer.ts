@@ -22,12 +22,12 @@ export class ContextFreeGrammarAnalyzer
 
   private static initializeTokenMatrix(grammar : Grammar) : TokenMatrix
   {
-    const tokenTable = grammar.getTokenSortTable();
+    const tokenSortTable = grammar.getTokenSortTable();
     const tokenMatrix : TokenMatrix = {};
-    for(const departureToken in tokenTable)
+    for(const departureToken in tokenSortTable)
     {
       tokenMatrix[departureToken] = {};
-      for(const arrivalToken in tokenTable)
+      for(const arrivalToken in tokenSortTable)
       {
         tokenMatrix[departureToken][arrivalToken] = false;
       }

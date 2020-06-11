@@ -32,7 +32,7 @@ describe("everyTokenList()", () => {
 describe("isMonotonic()", () => {
     describe("Post Conditions", () => {
         test("", () => {
-            const tokenTable = {
+            const tokenSortTable = {
                 "A": TokenSortTable_1.TokenSort.NonTerminal,
                 "B": TokenSortTable_1.TokenSort.NonTerminal,
                 "S": TokenSortTable_1.TokenSort.NonTerminal,
@@ -41,18 +41,18 @@ describe("isMonotonic()", () => {
                 "C": TokenSortTable_1.TokenSort.NonTerminal,
                 "D": TokenSortTable_1.TokenSort.NonTerminal
             };
-            expect(ProductionRule_1.ProductionRule.fromString("A", [""]).isMonotonic(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("A B", ["a"]).isMonotonic(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["S S S", "a b b", "a b a", "C D"]).isMonotonic(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("A", ["a"]).isMonotonic(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A", [" a b", "a b b", "S"]).isMonotonic(tokenTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A", [""]).isMonotonic(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A B", ["a"]).isMonotonic(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["S S S", "a b b", "a b a", "C D"]).isMonotonic(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A", ["a"]).isMonotonic(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A", [" a b", "a b b", "S"]).isMonotonic(tokenSortTable)).toBe(true);
         });
     });
 });
 describe("isERule()", () => {
     describe("Post Conditions", () => {
         test("", () => {
-            const tokenTable = {
+            const tokenSortTable = {
                 "A": TokenSortTable_1.TokenSort.NonTerminal,
                 "B": TokenSortTable_1.TokenSort.NonTerminal,
                 "S": TokenSortTable_1.TokenSort.NonTerminal,
@@ -61,18 +61,18 @@ describe("isERule()", () => {
                 "C": TokenSortTable_1.TokenSort.NonTerminal,
                 "D": TokenSortTable_1.TokenSort.NonTerminal
             };
-            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isERule(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", [""]).isERule(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["", ""]).isERule(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "b"]).isERule(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isERule(tokenTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isERule(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", [""]).isERule(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["", ""]).isERule(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "b"]).isERule(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isERule(tokenSortTable)).toBe(false);
         });
     });
 });
 describe("isContextFree()", () => {
     describe("Post Conditions", () => {
         test("", () => {
-            const tokenTable = {
+            const tokenSortTable = {
                 "<expr>": TokenSortTable_1.TokenSort.NonTerminal,
                 "A": TokenSortTable_1.TokenSort.NonTerminal,
                 "B": TokenSortTable_1.TokenSort.NonTerminal,
@@ -82,108 +82,109 @@ describe("isContextFree()", () => {
                 "C": TokenSortTable_1.TokenSort.NonTerminal,
                 "D": TokenSortTable_1.TokenSort.NonTerminal
             };
-            expect(ProductionRule_1.ProductionRule.fromString("<expr>", ["A", "B", "", "a D S d A"]).isContextFree(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("<expr>", [""]).isContextFree(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("<expr>", ["a", "B", "", "a D S d A"]).isContextFree(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a", ["A", "B", "", "a D S d A"]).isContextFree(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("A B", ["A", "B", "", "a D S d A"]).isContextFree(tokenTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("<expr>", ["A", "B", "", "a D S d A"]).isContextFree(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("<expr>", [""]).isContextFree(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("<expr>", ["a", "B", "", "a D S d A"]).isContextFree(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a", ["A", "B", "", "a D S d A"]).isContextFree(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A B", ["A", "B", "", "a D S d A"]).isContextFree(tokenSortTable)).toBe(false);
         });
     });
 });
 describe("isRightRegular()", () => {
     describe("Post Conditions", () => {
         test("", () => {
-            const tokenTable = {
+            const tokenSortTable = {
                 "S": TokenSortTable_1.TokenSort.NonTerminal,
                 "A": TokenSortTable_1.TokenSort.NonTerminal,
                 "a": TokenSortTable_1.TokenSort.Terminal
             };
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isRightRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a"]).isRightRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a S"]).isRightRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isRightRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isRightRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "a S", "a a a S", "S"]).isRightRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a"]).isRightRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S a"]).isRightRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isRightRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a S S"]).isRightRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "a S", "a a a S", "S", "S a"]).isRightRegular(tokenTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isRightRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a"]).isRightRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a S"]).isRightRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isRightRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isRightRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "a S", "a a a S", "S"]).isRightRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a"]).isRightRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S a"]).isRightRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isRightRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a S S"]).isRightRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "a S", "a a a S", "S", "S a"]).isRightRegular(tokenSortTable)).toBe(false);
         });
     });
 });
 describe("isLeftRegular()", () => {
     describe("Post Conditions", () => {
         test("", () => {
-            const tokenTable = {
+            const tokenSortTable = {
                 "S": TokenSortTable_1.TokenSort.NonTerminal,
                 "A": TokenSortTable_1.TokenSort.NonTerminal,
                 "a": TokenSortTable_1.TokenSort.Terminal
             };
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isLeftRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a"]).isLeftRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a a a a a a "]).isLeftRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isLeftRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isLeftRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "S a", "S a a a", "S"]).isLeftRegular(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S"]).isLeftRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S a"]).isLeftRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isLeftRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S a a a"]).isLeftRegular(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "S a", "S a a a", "S", "S S"]).isLeftRegular(tokenTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isLeftRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a a a a"]).isLeftRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a a a a a a "]).isLeftRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isLeftRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isLeftRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "S a", "S a a a", "S"]).isLeftRegular(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S"]).isLeftRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S a"]).isLeftRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isLeftRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S a a a"]).isLeftRegular(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["", "a", "S a", "S a a a", "S", "S S"]).isLeftRegular(tokenSortTable)).toBe(false);
         });
     });
 });
 describe("isContextSensitive()", () => {
     describe("Post Conditions", () => {
         test("", () => {
-            const tokenTable = {
+            const tokenSortTable = {
                 "S": TokenSortTable_1.TokenSort.NonTerminal,
                 "A": TokenSortTable_1.TokenSort.NonTerminal,
                 "a": TokenSortTable_1.TokenSort.Terminal,
                 "b": TokenSortTable_1.TokenSort.Terminal
             };
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a S"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a a"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S a"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a a b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a S S b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a S S S S S b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a a b b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a S b b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a a S b b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S S S b A S S a", ["a S S a a a b A S S a"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S a", ["a S b a"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("a S a", ["a b S a"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["A"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["A A S"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S A A"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["A S A"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A A b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A S S b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A S S S S S b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A A b b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A S b b"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", ["A S"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A S A", ["A S b A"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("A S A", ["A b S A"]).isContextSensitive(tokenTable)).toBe(true);
-            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S a", ["S"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("a S", ["S a"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["b S a"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a b"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("A S", ["S A"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S A", ["S"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("A S", ["S A"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["b S A"]).isContextSensitive(tokenTable)).toBe(false);
-            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A b"]).isContextSensitive(tokenTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a S"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a a"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S a"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a a b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a S S b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a S S S S S b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a a b b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a S b b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a a S b b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S S S b A S S a", ["a S S a a a b A S S a"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S a", ["a S b a"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("a S a", ["a b S a"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A A S"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S A A"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S S"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A S A"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A A b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A S S b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A S S S S S b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A A b b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A S b b"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A S"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A S A", ["A S b A"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("A S A", ["A b S A"]).isContextSensitive(tokenSortTable)).toBe(true);
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S a", ["S"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("a S", ["S a"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["b S a"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("a S b", ["a b"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A S", ["S A"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S A", ["S"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A S", ["S A"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["b S A"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A b"]).isContextSensitive(tokenSortTable)).toBe(false);
+            expect(ProductionRule_1.ProductionRule.fromString("A S b", ["A S S b", "A b"]).isContextSensitive(tokenSortTable)).toBe(false);
         });
     });
 });

@@ -66,19 +66,19 @@ export class Grammar
   /**
    * Checks whether every token that occurs in each of
    * the [[ProductionRule]]s are present (declared either as a terminal
-   * or a non terminal) in the [[TokenTable]].
+   * or a non terminal) in the [[tokenSortTable]].
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    * @param rules 
    */
-  private static checkTokensInRulesAreInTokenTable(tokenTable : TokenSortTable, rules : Array<ProductionRule>) : void
+  private static checkTokensInRulesAreIntokenSortTable(tokenSortTable : TokenSortTable, rules : Array<ProductionRule>) : void
   {
     const everyTokenInProductionRules = rules.reduce<Array<Token>>((tokenList, rule) => tokenList.concat(rule.everyTokenList()), []);
 
     const ruleTokenNotInTable = [] as Array<Token>;
     for(const ruleToken of everyTokenInProductionRules)
     {
-      if(tokenTable[ruleToken.toString()] === undefined)
+      if(tokenSortTable[ruleToken.toString()] === undefined)
       {
         ruleTokenNotInTable.push(ruleToken);
       }
@@ -100,32 +100,32 @@ export class Grammar
    * @param nonTerminals 
    * @param terminals 
    */
-  private static initializeTokenTable(nonTerminals : Array<Token>, terminals : Array<Token>) : TokenSortTable
+  private static initializetokenSortTable(nonTerminals : Array<Token>, terminals : Array<Token>) : TokenSortTable
   {
-    const tokenTable  = {} as TokenSortTable;
+    const tokenSortTable  = {} as TokenSortTable;
     for(const nonTerminal of nonTerminals)
     {
-      tokenTable[nonTerminal.toString()] = TokenSort.NonTerminal;
+      tokenSortTable[nonTerminal.toString()] = TokenSort.NonTerminal;
     }
 
     for(const terminal of terminals)
     {
-      tokenTable[terminal.toString()] = TokenSort.Terminal;
+      tokenSortTable[terminal.toString()] = TokenSort.Terminal;
     }
 
-    return tokenTable;
+    return tokenSortTable;
   }
 
   /**
    * Checks whether the start symbol is
-   * present (declared) in the [[TokenTable]].
+   * present (declared) in the [[tokenSortTable]].
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    * @param startSymbol 
    */
-  private static checkStartSymbolIsInTable(tokenTable : TokenSortTable, startSymbol : Token) : void
+  private static checkStartSymbolIsInTable(tokenSortTable : TokenSortTable, startSymbol : Token) : void
   {
-    if(tokenTable[startSymbol.toString()] === undefined)
+    if(tokenSortTable[startSymbol.toString()] === undefined)
     {
       throw new Error(`Start symbol "${startSymbol.toString()}" is not present in the token table!`);
     }
@@ -154,18 +154,20 @@ export class Grammar
           continue loop; //In the mergedRules array there will be at most 1 rule with a given lhs at all times
         }
       }
+      //If reaches here means that rule is not mergeble
+      //with rules currently contained by mergedRules array
       mergedRules.push(rule);
     }
     return mergedRules;
   }
 
-  constructor(tokenTable : TokenSortTable, rules : Array<ProductionRule>, startSymbol : Token)
+  constructor(tokenSortTable : TokenSortTable, rules : Array<ProductionRule>, startSymbol : Token)
   {
-    Grammar.checkTokensInRulesAreInTokenTable(tokenTable, rules);
-    Grammar.checkStartSymbolIsInTable(tokenTable, startSymbol);
+    Grammar.checkTokensInRulesAreIntokenSortTable(tokenSortTable, rules);
+    Grammar.checkStartSymbolIsInTable(tokenSortTable, startSymbol);
     const mergedRules = Grammar.mergeRules(rules);
 
-    this.tokenSortTable = tokenTable;
+    this.tokenSortTable = tokenSortTable;
     this.rules = mergedRules;
     this.startSymbol = startSymbol;
   }
@@ -183,11 +185,11 @@ export class Grammar
     const tokenizedNonTerminals = nonTerminals.map(string => new Token(string));
     const tokenizedTerminals = terminals.map(string => new Token(string));
     Grammar.checkNonTerminalsAndTerminalsAreDisjunct(tokenizedNonTerminals, tokenizedTerminals);
-    const tokenTable = Grammar.initializeTokenTable(tokenizedNonTerminals, tokenizedTerminals);
+    const tokenSortTable = Grammar.initializetokenSortTable(tokenizedNonTerminals, tokenizedTerminals);
     const tokenizedRules = rules.map(rule => ProductionRule.fromString(rule.lhs, rule.rhs));
     const tokenizedStartSymbol = new Token(startSymbol);
 
-    return new Grammar(tokenTable, tokenizedRules, tokenizedStartSymbol);
+    return new Grammar(tokenSortTable, tokenizedRules, tokenizedStartSymbol);
   }
 
   /**
@@ -195,12 +197,12 @@ export class Grammar
    */
   public getTokenSortTable() : TokenSortTable
   {
-    const newTokenTable = {} as TokenSortTable;
+    const newtokenSortTable = {} as TokenSortTable;
     for(const token in this.tokenSortTable)
     {
-      newTokenTable[token] = this.tokenSortTable[token];
+      newtokenSortTable[token] = this.tokenSortTable[token];
     }
-    return newTokenTable;
+    return newtokenSortTable;
   }
 
   /**
@@ -315,16 +317,16 @@ export class Grammar
    */
   public hasChomskyNormalForm() : boolean
   {
-    const tokenTable = this.tokenSortTable;
+    const tokenSortTable = this.tokenSortTable;
     const startSymbol = this.startSymbol;
     return this.rules.every(rule =>
     {
       return rule.getLhs().size() === 1 &&
-             tokenTable[rule.getLhs().tokenAt(0).toString()] === TokenSort.NonTerminal &&
+             tokenSortTable[rule.getLhs().tokenAt(0).toString()] === TokenSort.NonTerminal &&
              rule.getRhs().every(option => 
              {
-               return (option.size() === 2 && option.every(token => tokenTable[token.toString()]   === TokenSort.NonTerminal)) || 
-                      (option.size() === 1 && tokenTable[option.tokenAt(0).toString()] === TokenSort.Terminal) ||
+               return (option.size() === 2 && option.every(token => tokenSortTable[token.toString()]   === TokenSort.NonTerminal)) || 
+                      (option.size() === 1 && tokenSortTable[option.tokenAt(0).toString()] === TokenSort.Terminal) ||
                       (rule.getLhs().tokenAt(0).isEqual(startSymbol) && option.isEqual(TokenString.fromString("")));
              });
     });
@@ -346,10 +348,10 @@ export class Grammar
   public clone() : Grammar
   {
     //Clone Token Table
-    const newTokenTable : TokenSortTable = {};
+    const newtokenSortTable : TokenSortTable = {};
     for(const token in this.tokenSortTable)
     {
-      newTokenTable[token] = this.tokenSortTable[token];
+      newtokenSortTable[token] = this.tokenSortTable[token];
     }
 
     //Clone Production Rules
@@ -358,23 +360,23 @@ export class Grammar
     //Clone Start Symbol
     const newStartSymbol = this.startSymbol.clone();
 
-    return new Grammar(newTokenTable, newProductionRules, newStartSymbol);
+    return new Grammar(newtokenSortTable, newProductionRules, newStartSymbol);
   }
 
   public isEqual(other : Grammar) : boolean
   {
     //Comparing Token Table
-    let tokenTableIsEqual = false;
+    let tokenSortTableIsEqual = false;
     for(const token in this.tokenSortTable)
     {
       if(this.tokenSortTable[token] !== other.getTokenSortTable()[token])
       {
-        tokenTableIsEqual = true;
+        tokenSortTableIsEqual = true;
       }
     }
 
     return other instanceof Grammar &&
-           tokenTableIsEqual &&
+           tokenSortTableIsEqual &&
            this.rules.every((rule, index) => rule.isEqual(other.getRules()[index])) &&
            this.startSymbol.isEqual(other.getStartSymbol());
   }

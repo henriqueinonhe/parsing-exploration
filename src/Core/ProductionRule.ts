@@ -1,6 +1,6 @@
 /**
  * File Status
- * Refactoring: MEDIUM
+ * Refactoring: HIGH
  * Documentation: HIGH
  * Testing: HIGH
  * 
@@ -116,7 +116,7 @@ export class ProductionRule
   }
 
   /**
-   * Given a [[TokenTable]] as a contexts,
+   * Given a [[tokenSortTable]] as a contexts,
    * check the validity of the production rule,
    * that is, every token that occurs in
    * the productionrule must be present in the
@@ -124,14 +124,14 @@ export class ProductionRule
    * 
    * Throws an exception listing the missing tokens.
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    */
-  public checkValidityWithinContext(tokenTable : TokenSortTable) : void
+  public checkValidityWithinContext(tokenSortTable : TokenSortTable) : void
   {
     const missingTokens = [] as Array<Token>;
     for(const token of this.everyTokenList())
     {
-      if(tokenTable[token.toString()] === undefined)
+      if(tokenSortTable[token.toString()] === undefined)
       {
         missingTokens.push(token);
       }
@@ -193,11 +193,11 @@ export class ProductionRule
    * if the size of all options in the right hand side is
    * greater or equal than the size of the left hand side.
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    */
-  public isMonotonic(tokenTable : TokenSortTable) : boolean
+  public isMonotonic(tokenSortTable : TokenSortTable) : boolean
   {
-    this.checkValidityWithinContext(tokenTable);
+    this.checkValidityWithinContext(tokenSortTable);
     return this.rhs.every(option => option.size() >= this.lhs.size());
   }
 
@@ -205,11 +205,11 @@ export class ProductionRule
    * Returns whether any of the right hand side
    * options is an empty string.
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    */
-  public isERule(tokenTable : TokenSortTable) : boolean
+  public isERule(tokenSortTable : TokenSortTable) : boolean
   {
-    this.checkValidityWithinContext(tokenTable);
+    this.checkValidityWithinContext(tokenSortTable);
     return this.rhs.some(option => option.isEqual(TokenString.fromString("")));
   }
 
@@ -217,13 +217,13 @@ export class ProductionRule
    * Returns whether the rule is context free, that is,
    * its left hand side consists of a single token.
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    */
-  public isContextFree(tokenTable : TokenSortTable) : boolean
+  public isContextFree(tokenSortTable : TokenSortTable) : boolean
   {
-    this.checkValidityWithinContext(tokenTable);
+    this.checkValidityWithinContext(tokenSortTable);
     return this.lhs.size() === 1 &&
-           tokenTable[this.lhs.tokenAt(0).toString()] === TokenSort.NonTerminal;
+           tokenSortTable[this.lhs.tokenAt(0).toString()] === TokenSort.NonTerminal;
   }
 
   /**
@@ -233,13 +233,13 @@ export class ProductionRule
    * solely by terminals and optionally a single non terminal
    * that occurs at the end of the string.
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    */
-  public isRightRegular(tokenTable : TokenSortTable) : boolean
+  public isRightRegular(tokenSortTable : TokenSortTable) : boolean
   {
-    this.checkValidityWithinContext(tokenTable);
-    return this.isContextFree(tokenTable) &&
-           this.rhs.every(option => option.slice(0, -1).every(token => tokenTable[token.toString()] === TokenSort.Terminal));
+    this.checkValidityWithinContext(tokenSortTable);
+    return this.isContextFree(tokenSortTable) &&
+           this.rhs.every(option => option.slice(0, -1).every(token => tokenSortTable[token.toString()] === TokenSort.Terminal));
   }
 
   /**
@@ -249,13 +249,13 @@ export class ProductionRule
    * solely by terminals and optionally a single non terminal
    * that occurs at the beginning of the string.
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    */
-  public isLeftRegular(tokenTable : TokenSortTable) : boolean
+  public isLeftRegular(tokenSortTable : TokenSortTable) : boolean
   {
-    this.checkValidityWithinContext(tokenTable);
-    return this.isContextFree(tokenTable) &&
-           this.rhs.every(option => option.slice(1).every(token => tokenTable[token.toString()] === TokenSort.Terminal));
+    this.checkValidityWithinContext(tokenSortTable);
+    return this.isContextFree(tokenSortTable) &&
+           this.rhs.every(option => option.slice(1).every(token => tokenSortTable[token.toString()] === TokenSort.Terminal));
   }
 
   /**
@@ -270,9 +270,9 @@ export class ProductionRule
    * and this mandatory non terminal substituted by
    * anything other than the empty string (must be monotonic).
    * 
-   * @param tokenTable 
+   * @param tokenSortTable 
    */
-  public isContextSensitive(tokenTable : TokenSortTable) : boolean
+  public isContextSensitive(tokenSortTable : TokenSortTable) : boolean
   {
     /**
      * Context sensitive rules are monotonic and also
@@ -292,11 +292,11 @@ export class ProductionRule
      * and taking each non terminal as a candidate
      * for substitution.
      */
-    this.checkValidityWithinContext(tokenTable);
-    return this.rhs.every(option => this.optionIsContextSensitiveInRespectToLhs(tokenTable, option)) && this.isMonotonic(tokenTable);
+    this.checkValidityWithinContext(tokenSortTable);
+    return this.rhs.every(option => this.optionIsContextSensitiveInRespectToLhs(tokenSortTable, option)) && this.isMonotonic(tokenSortTable);
   }
 
-  private optionIsContextSensitiveInRespectToLhs(tokenTable : TokenSortTable, option : TokenString) : boolean
+  private optionIsContextSensitiveInRespectToLhs(tokenSortTable : TokenSortTable, option : TokenString) : boolean
   {
     /**
      * A very important realization to understand
@@ -318,7 +318,7 @@ export class ProductionRule
     const lhs = this.lhs;
     return lhs.some((tokenToBeSubstitutedCandidate, index) =>
     {
-      if(tokenTable[tokenToBeSubstitutedCandidate.toString()] === TokenSort.NonTerminal)
+      if(tokenSortTable[tokenToBeSubstitutedCandidate.toString()] === TokenSort.NonTerminal)
       {
         const oneAfterTokenToBeSubstitutedIndex = index + 1;
         const leftContext = lhs.slice(0, index);
