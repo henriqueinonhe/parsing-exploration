@@ -48,7 +48,7 @@ describe("constructor", () => {
                 { lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"] }
             ];
             const startSymbol = "<expr>";
-            const tokenTable = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenTable();
+            const tokenTable = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol).getTokenSortTable();
             for (const nonTerminal of nonTerminals) {
                 expect(tokenTable[nonTerminal]).toBe(TokenSortTable_1.TokenSort.NonTerminal);
             }
@@ -200,8 +200,8 @@ describe("clone()", () => {
             const startSymbol = "S";
             const original = Grammar_1.Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
             const clone = original.clone();
-            clone.getTokenTable()["S"] = TokenSortTable_1.TokenSort.Terminal;
-            expect(original.getTokenTable()["S"]).toBe(TokenSortTable_1.TokenSort.NonTerminal);
+            clone.getTokenSortTable()["S"] = TokenSortTable_1.TokenSort.Terminal;
+            expect(original.getTokenSortTable()["S"]).toBe(TokenSortTable_1.TokenSort.NonTerminal);
         });
     });
 });

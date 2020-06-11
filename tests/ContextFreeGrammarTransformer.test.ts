@@ -223,9 +223,34 @@ describe("removeERules()", () =>
       const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
       const eFreeGrammar = ContextFreeGrammarTransformer.removeERules(grammar);
 
-      expect(eFreeGrammar.getRules().length).toBe(1);
-      expect(eFreeGrammar.getRules()[0].getRhs().map(option => option.toString())).toStrictEqual([ "a"]);
-      
+      expect(eFreeGrammar.getRules().length).toBe(3);
+      expect(eFreeGrammar.getRules()[0].getRhs().map(option => option.toString())).toStrictEqual(["L a M", "a M", "L a", "a"]);
+      expect(eFreeGrammar.getRules()[1].getRhs().map(option => option.toString())).toStrictEqual(["L M", "M", "L"]);
+      expect(eFreeGrammar.getRules()[2].getRhs().map(option => option.toString())).toStrictEqual(["M M", "M"]);
+    });
+  });
+});
+
+describe("cleanGrammar()", () =>
+{
+  describe("Post Conditions",  () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["S", "L", "M"];
+      const terminals = ["a"];
+      const rules = [
+        {lhs: "S", rhs: ["L a M"]},
+        {lhs: "L", rhs: ["L M", ""]},
+        {lhs: "M", rhs: ["M M", ""]}
+      ];
+      const startSymbol = "S";
+      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+      const eFreeGrammar = ContextFreeGrammarTransformer.removeERules(grammar);
+      const cleanGrammar = ContextFreeGrammarTransformer.cleanGrammar(eFreeGrammar);
+
+      expect(cleanGrammar.getRules().length).toBe(1);
+      expect(cleanGrammar.getRules()[0].getRhs().map(option => option.toString())).toStrictEqual(["a"]);
     });
   });
 });

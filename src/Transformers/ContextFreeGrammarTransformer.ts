@@ -8,6 +8,11 @@ import { Utils } from "../Core/Utils";
 
 export class ContextFreeGrammarTransformer
 {
+  // public static removeUnitRules(grammar : Grammar) : Grammar
+  // {
+
+  // }
+
   /**
    * Returns a new grammar with non productive options, 
    * rules and non terminals as well as unreachable tokens
@@ -126,9 +131,7 @@ export class ContextFreeGrammarTransformer
 
     } while(!eRulesNoMore);
 
-    //Construct and clean grammar
-    const eFreeGrammar = new Grammar(tokenTable, newRules, startSymbol);
-    return ContextFreeGrammarTransformer.cleanGrammar(eFreeGrammar);
+    return new Grammar(tokenTable, newRules, startSymbol);
   }
 
   private static removeEmptyStringFromRule(rule : ProductionRule) : void

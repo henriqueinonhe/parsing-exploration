@@ -274,35 +274,62 @@ export class ProductionRule
    */
   public isContextSensitive(tokenTable : TokenSortTable) : boolean
   {
+    /**
+     * Context sensitive rules are monotonic and also
+     * of the form "aNb", where "a" and "b" are
+     * arbitrary sequences of terminals/non terminals 
+     * (possibly intermixed together) and N is necessarily
+     * a non terminal.
+     * 
+     * Also, each option must be of the form "aSb" where 
+     * "a" and "b" are the same as the left hand side and
+     * "S" is any sequence of arbitrary terminals or non terminals 
+     * (possibly intermixed together).
+     * 
+     * This algorithm works by trying to find
+     * a suitable substitution for "N" by "S" and does
+     * so by linearly analyzing the left hand string
+     * and taking each non terminal as a candidate
+     * for substitution.
+     */
     this.checkValidityWithinContext(tokenTable);
-    //Correct, but unoptimized version
+    return this.rhs.every(option => this.optionIsContextSensitiveInRespectToLhs(tokenTable, option)) && this.isMonotonic(tokenTable);
+  }
+
+  private optionIsContextSensitiveInRespectToLhs(tokenTable : TokenSortTable, option : TokenString) : boolean
+  {
+    /**
+     * A very important realization to understand
+     * this algorithm is that if "aNb" is to be 
+     * transformed into "aSb" then when we inspect
+     * the option it must be the case that "aSb" starts
+     * with "a" and ends with "b", so we just need to find
+     * the sectioning point at the lhs, which corresponds
+     * to the substituted non terminal.
+     * 
+     * Even though the option might have substituted 
+     * the non terminal with more than one token it doesn't 
+     * matter, since we are just checking whether
+     * left and right context have been preserved, and in 
+     * the left hand side NO MORE THAN ONE TOKEN
+     * can be substituted.
+     */
+
     const lhs = this.lhs;
-    for(const option of this.rhs)
+    return lhs.some((tokenToBeSubstitutedCandidate, index) =>
     {
-      let foundCorrectSubstitution = false;
-      for(let index = 0; index < lhs.size() && index < option.size(); index++)
+      if(tokenTable[tokenToBeSubstitutedCandidate.toString()] === TokenSort.NonTerminal)
       {
-        const currentLhsToken = lhs.tokenAt(index);
-        if(tokenTable[currentLhsToken.toString()] === TokenSort.NonTerminal)
-        {
-          const oneAfterPivotIndex = index + 1;
-          const leftContext = lhs.slice(0, index);
-          const rightContext = lhs.slice(oneAfterPivotIndex);
-          if(option.startsWith(leftContext) && 
-             option.endsWith(rightContext))
-          {
-            foundCorrectSubstitution = true;
-            break;
-          }
-        }
+        const oneAfterTokenToBeSubstitutedIndex = index + 1;
+        const leftContext = lhs.slice(0, index);
+        const rightContext = lhs.slice(oneAfterTokenToBeSubstitutedIndex);
+        return option.startsWith(leftContext) && option.endsWith(rightContext);
       }
-      if(!foundCorrectSubstitution)
+      else
       {
         return false;
       }
-    }
-
-    return true && this.isMonotonic(tokenTable);
+    });
   }
 
   /**
