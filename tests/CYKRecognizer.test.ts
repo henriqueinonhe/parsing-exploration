@@ -21,7 +21,135 @@ test("", () =>
   const recognizer = new CYKRecognizer(grammar);
   
   const table = recognizer.buildTable(TokenString.fromString("3 2 . 5 e + 1"));
-
-  expect(recognizer.recognizes(TokenString.fromString("3 2 . 5 e + 1"))).toBe(true);
+  const serializedTable : Array<Array<Array<string>>> = [];
   
+  for(const length in table)
+  {
+    serializedTable.push([]);
+    for(const startIndex in table[length])
+    {
+      serializedTable[length].push([]);
+      for(const token of table[length][startIndex])
+      {
+        serializedTable[length][startIndex].push(token);
+      }
+    }
+  }
+
+  expect(serializedTable).toStrictEqual( [
+    [
+      [
+        "Empty",
+        "Scale"
+      ],
+      [
+        "Empty",
+        "Scale"
+      ],
+      [
+        "Empty",
+        "Scale"
+      ],
+      [
+        "Empty",
+        "Scale"
+      ],
+      [
+        "Empty",
+        "Scale"
+      ],
+      [
+        "Empty",
+        "Scale"
+      ],
+      [
+        "Empty",
+        "Scale"
+      ],
+      [
+        "Empty",
+        "Scale"
+      ]
+    ],
+    [
+      [
+        "Digit",
+        "Integer",
+        "Number"
+      ],
+      [
+        "Digit",
+        "Integer",
+        "Number"
+      ],
+      [],
+      [
+        "Digit",
+        "Integer",
+        "Number"
+      ],
+      [],
+      [
+        "Sign"
+      ],
+      [
+        "Digit",
+        "Integer",
+        "Number"
+      ]
+    ],
+    [
+      [
+        "Integer",
+        "Number"
+      ],
+      [],
+      [
+        "Fraction"
+      ],
+      [],
+      [],
+      []
+    ],
+    [
+      [],
+      [
+        "Real",
+        "Number"
+      ],
+      [],
+      [],
+      [
+        "Scale"
+      ]
+    ],
+    [
+      [
+        "Real",
+        "Number"
+      ],
+      [],
+      [],
+      []
+    ],
+    [
+      [],
+      [],
+      []
+    ],
+    [
+      [],
+      [
+        "Real",
+        "Number"
+      ]
+    ],
+    [
+      [
+        "Real",
+        "Number"
+      ]
+    ]
+  ]);
+  expect(recognizer.recognizes(TokenString.fromString("3 2  . 5 e + 1"))).toBe(true);
 });
