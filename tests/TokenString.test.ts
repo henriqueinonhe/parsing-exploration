@@ -1,5 +1,4 @@
 import { TokenString } from "../src/Core/TokenString";
-import { Token } from "../src/Core/Token";
 
 describe("toString()", () =>
 {

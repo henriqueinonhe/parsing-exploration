@@ -151,5 +151,10 @@ test("", () =>
       ]
     ]
   ]);
-  expect(recognizer.recognizes(TokenString.fromString("3 2  . 5 e + 1"))).toBe(true);
+
+  expect(recognizer.recognizes(TokenString.fromString("3 2 . 5 e + 1"))).toBe(true);
+  expect(recognizer.recognizes(TokenString.fromString("2 . 5 e + 1"))).toBe(true);
+  expect(recognizer.recognizes(TokenString.fromString("3 2 . 5"))).toBe(true);
+
+  expect(recognizer.recognizes(TokenString.fromString(". 5 e + 1"))).toBe(false);
 });

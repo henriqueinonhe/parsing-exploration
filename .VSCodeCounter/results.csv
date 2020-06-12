@@ -1,0 +1,12 @@
+"filename", "language", "TypeScript", "comment", "blank", "total"
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\CYKRecognizer.test.ts", "TypeScript", 151, 0, 4, 155
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\ContextFreeGrammarAnalyzer.test.ts", "TypeScript", 439, 3, 35, 477
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\ContextFreeGrammarTransformer.test.ts", "TypeScript", 286, 0, 37, 323
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\Grammar.test.ts", "TypeScript", 274, 0, 26, 300
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\ProductionRule.test.ts", "TypeScript", 294, 1, 29, 324
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\Token.test.ts", "TypeScript", 45, 0, 5, 50
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\TokenString.test.ts", "TypeScript", 117, 0, 13, 130
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\UngersEFreeRecognizer.test.ts", "TypeScript", 63, 6, 7, 76
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\UngersRecognizer.test.ts", "TypeScript", 88, 2, 10, 100
+"c:\Users\henri\Desktop\Repositories\pre-parsing\tests\Utils.test.ts", "TypeScript", 219, 0, 26, 245
+"Total", "-", 1976, 12, 192, 2180
