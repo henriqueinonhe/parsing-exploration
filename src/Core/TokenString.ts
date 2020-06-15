@@ -16,6 +16,7 @@ import { Utils } from "./Utils";
  */
 export class TokenString
 {
+
   /**
    * Lexes a given string, breaking it into
    * tokens.
@@ -239,5 +240,5 @@ export class TokenString
     return false;
   }
 
-  private readonly tokenList : Array<Token>
+  private readonly tokenList : Array<Token>;
 }

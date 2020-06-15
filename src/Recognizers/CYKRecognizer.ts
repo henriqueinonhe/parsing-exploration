@@ -72,20 +72,20 @@ export class CYKRecognizer
               continue;
             }
 
-            for(const option of rule.getRhs())
+            for(const alternative of rule.getRhs())
             {
               //Cannot list partitions of empty string
-              if(option.isEmpty())
+              if(alternative.isEmpty())
               {
                 continue;
               }
 
-              const partitions = Utils.listPartitions(substring.getTokenList(), option.size(), true);
+              const partitions = Utils.listPartitions(substring.getTokenList(), alternative.size(), true);
               for(const partition of partitions)
               {
                 const groupStartIndexListInRespectToInputString = this.generatePartitionGroupsStartIndexListInRespectToInputString(startIndex, partition);
   
-                if(this.optionAdheresToPartition(option, partition, table, groupStartIndexListInRespectToInputString))
+                if(this.alternativeAdheresToPartition(alternative, partition, table, groupStartIndexListInRespectToInputString))
                 {
                   table[substringLength][startIndex].add(currentRuleLhsNonTerminal);
                   hasNewInformation = true;
@@ -99,10 +99,10 @@ export class CYKRecognizer
     return table;
   }
 
-  private optionDerivesEmptyString(option : TokenString, table : CYKTable) : boolean
+  private alternativeDerivesEmptyString(alternative : TokenString, table : CYKTable) : boolean
   {
-    return option.isEqual(TokenString.fromString("")) ||
-           option.every(token => table[0][0].has(token.toString()));
+    return alternative.isEqual(TokenString.fromString("")) ||
+           alternative.every(token => table[0][0].has(token.toString()));
   }
 
   private fillEmptyStringRow(inputStringSize : number, /*out*/ table : CYKTable) : void
@@ -121,10 +121,10 @@ export class CYKRecognizer
           continue;
         }
 
-        const options = rule.getRhs();
-        for(const option of options)
+        const alternatives = rule.getRhs();
+        for(const alternative of alternatives)
         {
-          if(this.optionDerivesEmptyString(option, table))
+          if(this.alternativeDerivesEmptyString(alternative, table))
           {
             for(let startIndex = 0; startIndex <= inputStringSize; startIndex++)
             {
@@ -140,7 +140,7 @@ export class CYKRecognizer
     } while(hasNewInformation);
   }
 
-  private generatePartitionGroupsStartIndexListInRespectToInputString(inputStringStartIndex : number, partition : Partition) : Array<number>
+  protected generatePartitionGroupsStartIndexListInRespectToInputString(inputStringStartIndex : number, partition : Partition) : Array<number>
   {
     const indexList = [inputStringStartIndex];
     for(const group of partition)
@@ -150,26 +150,26 @@ export class CYKRecognizer
     return indexList;
   }
 
-  private optionAdheresToPartition(option : TokenString, partition : Partition, table : CYKTable, groupStartIndexListInRespectToInputString : Array<number>) : boolean
+  protected alternativeAdheresToPartition(alternative : TokenString, partition : Partition, table : CYKTable, groupStartIndexListInRespectToInputString : Array<number>) : boolean
   {
     return partition.every( (group, groupIndex) => 
     {
       const tokenSortTable = this.grammar.getTokenSortTable();
       const inputStringStartIndex = groupStartIndexListInRespectToInputString[groupIndex];
-      const groupCorrespondingOptionToken = option.tokenAt(groupIndex).toString();
+      const groupCorrespondingAlternativeToken = alternative.tokenAt(groupIndex).toString();
 
-      if(tokenSortTable[groupCorrespondingOptionToken] === TokenSort.NonTerminal)
+      if(tokenSortTable[groupCorrespondingAlternativeToken] === TokenSort.NonTerminal)
       {
-        return table[group.length][inputStringStartIndex].has(groupCorrespondingOptionToken);
+        return table[group.length][inputStringStartIndex].has(groupCorrespondingAlternativeToken);
       }
       else
       {
-        return groupCorrespondingOptionToken === new TokenString(group).toString();
+        return groupCorrespondingAlternativeToken === new TokenString(group).toString();
       }
     });
   }
 
-  private readonly grammar : Grammar;
+  protected readonly grammar : Grammar;
 }
 
 /**

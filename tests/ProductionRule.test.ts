@@ -20,7 +20,7 @@ describe("constructor", () =>
 
   describe("Post Conditions", () =>
   {
-    test("Duplicate rhs options are removed", () =>
+    test("Duplicate rhs alternatives are removed", () =>
     {
       expect(ProductionRule.fromString("<expr>", ["AA", "B", "AA", "B", "AA", "C"]).getRhs().join(",")).toBe("AA,B,C");
     });

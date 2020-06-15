@@ -20,7 +20,7 @@ import { ParsingException } from "./ParsingException";
  * and a right hand side, where the left hand side
  * represents the [[TokenString]] to be substituted and
  * the right hand side represents the [[TokenString]] 
- * options that will substitute the left hand side string.
+ * alternatives that will substitute the left hand side string.
  */
 export class ProductionRule
 {
@@ -41,7 +41,7 @@ export class ProductionRule
   /**
    * Enforces class invariant.
    * The only rhs restriction is that it cannot be empty,
-   * that is, it must contain at least one option.
+   * that is, it must contain at least one alternative.
    * 
    * @param rhs 
    */
@@ -178,11 +178,11 @@ export class ProductionRule
     const thisRhs = this.getRhs();
     const otherRhs = other.getRhs();
     const mergedRhs = [... thisRhs];
-    for(const option of otherRhs)
+    for(const alternative of otherRhs)
     {
-      if(mergedRhs.every(elem => !elem.isEqual(option)))
+      if(mergedRhs.every(elem => !elem.isEqual(alternative)))
       {
-        mergedRhs.push(option);
+        mergedRhs.push(alternative);
       }
     }
     return new ProductionRule(this.getLhs(), mergedRhs);
@@ -190,7 +190,7 @@ export class ProductionRule
 
   /**
    * Returns whether the rule is monotonic, that is, 
-   * if the size of all options in the right hand side is
+   * if the size of all alternatives in the right hand side is
    * greater or equal than the size of the left hand side.
    * 
    * @param tokenSortTable 
@@ -198,19 +198,19 @@ export class ProductionRule
   public isMonotonic(tokenSortTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenSortTable);
-    return this.rhs.every(option => option.size() >= this.lhs.size());
+    return this.rhs.every(alternative => alternative.size() >= this.lhs.size());
   }
 
   /**
    * Returns whether any of the right hand side
-   * options is an empty string.
+   * alternatives is an empty string.
    * 
    * @param tokenSortTable 
    */
   public isERule(tokenSortTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenSortTable);
-    return this.rhs.some(option => option.isEqual(TokenString.fromString("")));
+    return this.rhs.some(alternative => alternative.isEqual(TokenString.fromString("")));
   }
 
   /**
@@ -229,7 +229,7 @@ export class ProductionRule
   /**
    * Returns whether the rule is right regular, that is,
    * the left hand side consists of a single token
-   * and every right hand side option is composed
+   * and every right hand side alternative is composed
    * solely by terminals and optionally a single non terminal
    * that occurs at the end of the string.
    * 
@@ -239,13 +239,13 @@ export class ProductionRule
   {
     this.checkValidityWithinContext(tokenSortTable);
     return this.isContextFree(tokenSortTable) &&
-           this.rhs.every(option => option.slice(0, -1).every(token => tokenSortTable[token.toString()] === TokenSort.Terminal));
+           this.rhs.every(alternative => alternative.slice(0, -1).every(token => tokenSortTable[token.toString()] === TokenSort.Terminal));
   }
 
   /**
    * Returns whether the rule is left regular, that is,
    * the left hand side consists of a single token
-   * and every right hand side option is composed
+   * and every right hand side alternative is composed
    * solely by terminals and optionally a single non terminal
    * that occurs at the beginning of the string.
    * 
@@ -255,7 +255,7 @@ export class ProductionRule
   {
     this.checkValidityWithinContext(tokenSortTable);
     return this.isContextFree(tokenSortTable) &&
-           this.rhs.every(option => option.slice(1).every(token => tokenSortTable[token.toString()] === TokenSort.Terminal));
+           this.rhs.every(alternative => alternative.slice(1).every(token => tokenSortTable[token.toString()] === TokenSort.Terminal));
   }
 
   /**
@@ -264,7 +264,7 @@ export class ProductionRule
    * a possibly empty sequence of terminals/non terminals
    * followed by a mandatory non terminal and then again
    * followed by another possibly empty sequence of 
-   * terminals/non terminals, where every option 
+   * terminals/non terminals, where every alternative 
    * of the right hand side consists of the same 
    * sequences that "sandwich" the mandatory non terminal
    * and this mandatory non terminal substituted by
@@ -281,7 +281,7 @@ export class ProductionRule
      * (possibly intermixed together) and N is necessarily
      * a non terminal.
      * 
-     * Also, each option must be of the form "aSb" where 
+     * Also, each alternative must be of the form "aSb" where 
      * "a" and "b" are the same as the left hand side and
      * "S" is any sequence of arbitrary terminals or non terminals 
      * (possibly intermixed together).
@@ -293,21 +293,21 @@ export class ProductionRule
      * for substitution.
      */
     this.checkValidityWithinContext(tokenSortTable);
-    return this.rhs.every(option => this.optionIsContextSensitiveInRespectToLhs(tokenSortTable, option)) && this.isMonotonic(tokenSortTable);
+    return this.rhs.every(alternative => this.alternativeIsContextSensitiveInRespectToLhs(tokenSortTable, alternative)) && this.isMonotonic(tokenSortTable);
   }
 
-  private optionIsContextSensitiveInRespectToLhs(tokenSortTable : TokenSortTable, option : TokenString) : boolean
+  private alternativeIsContextSensitiveInRespectToLhs(tokenSortTable : TokenSortTable, alternative : TokenString) : boolean
   {
     /**
      * A very important realization to understand
      * this algorithm is that if "aNb" is to be 
      * transformed into "aSb" then when we inspect
-     * the option it must be the case that "aSb" starts
+     * the alternative it must be the case that "aSb" starts
      * with "a" and ends with "b", so we just need to find
      * the sectioning point at the lhs, which corresponds
      * to the substituted non terminal.
      * 
-     * Even though the option might have substituted 
+     * Even though the alternative might have substituted 
      * the non terminal with more than one token it doesn't 
      * matter, since we are just checking whether
      * left and right context have been preserved, and in 
@@ -323,7 +323,7 @@ export class ProductionRule
         const oneAfterTokenToBeSubstitutedIndex = index + 1;
         const leftContext = lhs.slice(0, index);
         const rightContext = lhs.slice(oneAfterTokenToBeSubstitutedIndex);
-        return option.startsWith(leftContext) && option.endsWith(rightContext);
+        return alternative.startsWith(leftContext) && alternative.endsWith(rightContext);
       }
       else
       {
@@ -350,7 +350,7 @@ export class ProductionRule
   {
     return other instanceof ProductionRule &&
            this.lhs.isEqual(other.getLhs()) &&
-           this.getRhs().every((option, index) => option.isEqual(other.getRhs()[index]));
+           this.getRhs().every((alternative, index) => alternative.isEqual(other.getRhs()[index]));
   }
 
   private lhs : TokenString;

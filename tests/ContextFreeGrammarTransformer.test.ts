@@ -5,19 +5,6 @@ import { ProductionRule } from "../src/Core/ProductionRule";
 import { Grammar } from "../src/Core/Grammar";
 import { TokenSort } from "../src/Core/TokenSortTable";
 
-
-const nonTerminals = ["S", "A", "B"];
-      const terminals = ["a", "b", "c"];
-      const rules = [
-        {lhs: "S", rhs: ["A B"]},
-        {lhs: "B", rhs: ["A"]},
-        {lhs: "A", rhs: ["a", "b", "c", "A"]}
-      ];
-      const startSymbol = "S";
-      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
-      const noUnitRulesGrammar = ContextFreeGrammarTransformer.removeUnitRules(grammar);
-      const newRules = noUnitRulesGrammar.getRules();
-
 describe("generateIndicatorList()", () =>
 {
   describe("Pre Conditions", () =>
@@ -68,34 +55,34 @@ describe("generateIndicatorList()", () =>
   });
 });
 
-describe("generateNonUnitRuleOptionTokenString()", () =>
+describe("generateNonUnitRuleAlternativeTokenString()", () =>
 {
   describe("Post Conditions", () =>
   {
     test("", () =>
     {
-      expect(ContextFreeGrammarTransformer["generateNonUnitRuleOptionTokenString"](new Token("A"), TokenString.fromString("a A"), [false]).toString()).toBe("a");
+      expect(ContextFreeGrammarTransformer["generateNonUnitRuleAlternativeTokenString"](new Token("A"), TokenString.fromString("a A"), [false]).toString()).toBe("a");
 
-      expect(ContextFreeGrammarTransformer["generateNonUnitRuleOptionTokenString"](new Token("A"), TokenString.fromString("a A"), [true]).toString()).toBe("a A");
+      expect(ContextFreeGrammarTransformer["generateNonUnitRuleAlternativeTokenString"](new Token("A"), TokenString.fromString("a A"), [true]).toString()).toBe("a A");
 
-      expect(ContextFreeGrammarTransformer["generateNonUnitRuleOptionTokenString"](new Token("A"), TokenString.fromString("A a A"), [false, false]).toString()).toBe("a");
+      expect(ContextFreeGrammarTransformer["generateNonUnitRuleAlternativeTokenString"](new Token("A"), TokenString.fromString("A a A"), [false, false]).toString()).toBe("a");
 
-      expect(ContextFreeGrammarTransformer["generateNonUnitRuleOptionTokenString"](new Token("A"), TokenString.fromString("A a A"), [true, false]).toString()).toBe("A a");
+      expect(ContextFreeGrammarTransformer["generateNonUnitRuleAlternativeTokenString"](new Token("A"), TokenString.fromString("A a A"), [true, false]).toString()).toBe("A a");
 
-      expect(ContextFreeGrammarTransformer["generateNonUnitRuleOptionTokenString"](new Token("A"), TokenString.fromString("A a A"), [false, true]).toString()).toBe("a A");
+      expect(ContextFreeGrammarTransformer["generateNonUnitRuleAlternativeTokenString"](new Token("A"), TokenString.fromString("A a A"), [false, true]).toString()).toBe("a A");
 
-      expect(ContextFreeGrammarTransformer["generateNonUnitRuleOptionTokenString"](new Token("A"), TokenString.fromString("A a A"), [true, true]).toString()).toBe("A a A");
+      expect(ContextFreeGrammarTransformer["generateNonUnitRuleAlternativeTokenString"](new Token("A"), TokenString.fromString("A a A"), [true, true]).toString()).toBe("A a A");
     });
   });
 });
 
-describe("generateERuleSubstitutionOptions()", () =>
+describe("generateERuleSubstitutionAlternatives()", () =>
 {
   describe("Post Conditions", () =>
   {
     test("", () =>
     {
-      expect(ContextFreeGrammarTransformer["generateERuleSubstitutionOptions"](TokenString.fromString("A"), TokenString.fromString("A a A")).map(tokenString => tokenString.toString())).toStrictEqual([
+      expect(ContextFreeGrammarTransformer["generateERuleSubstitutionAlternatives"](TokenString.fromString("A"), TokenString.fromString("A a A")).map(tokenString => tokenString.toString())).toStrictEqual([
         "a",
         "A a",
         "a A",
@@ -175,9 +162,9 @@ describe("removeERules()", () =>
       const eFreeGrammar = ContextFreeGrammarTransformer.removeERules(grammar);
 
       expect(eFreeGrammar.getRules().length).toBe(3);
-      expect(eFreeGrammar.getRules()[0].getRhs().map(option => option.toString())).toStrictEqual(["L a M", "a M", "L a", "a"]);
-      expect(eFreeGrammar.getRules()[1].getRhs().map(option => option.toString())).toStrictEqual(["L M", "M", "L"]);
-      expect(eFreeGrammar.getRules()[2].getRhs().map(option => option.toString())).toStrictEqual(["M M", "M"]);
+      expect(eFreeGrammar.getRules()[0].getRhs().map(alternative => alternative.toString())).toStrictEqual(["L a M", "a M", "L a", "a"]);
+      expect(eFreeGrammar.getRules()[1].getRhs().map(alternative => alternative.toString())).toStrictEqual(["L M", "M", "L"]);
+      expect(eFreeGrammar.getRules()[2].getRhs().map(alternative => alternative.toString())).toStrictEqual(["M M", "M"]);
     });
   });
 });
@@ -201,22 +188,22 @@ describe("cleanGrammar()", () =>
       const cleanGrammar = ContextFreeGrammarTransformer.cleanGrammar(eFreeGrammar);
 
       expect(cleanGrammar.getRules().length).toBe(1);
-      expect(cleanGrammar.getRules()[0].getRhs().map(option => option.toString())).toStrictEqual(["a"]);
+      expect(cleanGrammar.getRules()[0].getRhs().map(alternative => alternative.toString())).toStrictEqual(["a"]);
     });
   });
 });
 
-describe("generateNonTerminalSubstitutionOptions()", () =>
+describe("generateNonTerminalSubstitutionAlternatives()", () =>
 {
   describe("Post Conditions", () =>
   {
     test("", () =>
     {
       const rule = ProductionRule.fromString("A", ["a", "b", "c c c"]);
-      const option = TokenString.fromString("A B A");
-      const generatedOptions = ContextFreeGrammarTransformer.generateNonTerminalSubstitutionOptions(rule, option);
+      const alternative = TokenString.fromString("A B A");
+      const generatedAlternatives = ContextFreeGrammarTransformer.generateNonTerminalSubstitutionAlternatives(rule, alternative);
 
-      expect(generatedOptions.map(option => option.toString())).toStrictEqual([
+      expect(generatedAlternatives.map(alternative => alternative.toString())).toStrictEqual([
         "a B a",
         "b B a",
         "c c c B a",
@@ -232,10 +219,10 @@ describe("generateNonTerminalSubstitutionOptions()", () =>
     test("", () =>
     {
       const rule = ProductionRule.fromString("A", ["A", "B", "A A"]);
-      const option = TokenString.fromString("A A A");
-      const generatedOptions = ContextFreeGrammarTransformer.generateNonTerminalSubstitutionOptions(rule, option);
+      const alternative = TokenString.fromString("A A A");
+      const generatedAlternatives = ContextFreeGrammarTransformer.generateNonTerminalSubstitutionAlternatives(rule, alternative);
 
-      expect(generatedOptions.map(option => option.toString())).toStrictEqual([
+      expect(generatedAlternatives.map(alternative => alternative.toString())).toStrictEqual([
         "A A A",
         "B A A",
         "A A A A",
@@ -279,7 +266,7 @@ describe("substituteNonTerminalIntoRule()", () =>
       const newRule = ContextFreeGrammarTransformer.substituteNonTerminalIntoRule(nonTerminalAssociatedRule, rule);
 
       expect(newRule.getLhs().toString()).toBe("B");
-      expect(newRule.getRhs().map(option => option.toString())).toStrictEqual([
+      expect(newRule.getRhs().map(alternative => alternative.toString())).toStrictEqual([
         "B",
         "a A",
         "b B",
@@ -313,9 +300,9 @@ describe("removeUnitRules()", () =>
       expect(newRules[1].getLhs().toString()).toBe("B");
       expect(newRules[2].getLhs().toString()).toBe("A");
 
-      expect(newRules[0].getRhs().map(option => option.toString())).toStrictEqual(["A B"]);
-      expect(newRules[1].getRhs().map(option => option.toString())).toStrictEqual(["a", "b", "c"]);
-      expect(newRules[2].getRhs().map(option => option.toString())).toStrictEqual(["a", "b", "c"]);
+      expect(newRules[0].getRhs().map(alternative => alternative.toString())).toStrictEqual(["A B"]);
+      expect(newRules[1].getRhs().map(alternative => alternative.toString())).toStrictEqual(["a", "b", "c"]);
+      expect(newRules[2].getRhs().map(alternative => alternative.toString())).toStrictEqual(["a", "b", "c"]);
       
     });
   });

@@ -323,11 +323,11 @@ export class Grammar
     {
       return rule.getLhs().size() === 1 &&
              tokenSortTable[rule.getLhs().tokenAt(0).toString()] === TokenSort.NonTerminal &&
-             rule.getRhs().every(option => 
+             rule.getRhs().every(alternative => 
              {
-               return (option.size() === 2 && option.every(token => tokenSortTable[token.toString()]   === TokenSort.NonTerminal)) || 
-                      (option.size() === 1 && tokenSortTable[option.tokenAt(0).toString()] === TokenSort.Terminal) ||
-                      (rule.getLhs().tokenAt(0).isEqual(startSymbol) && option.isEqual(TokenString.fromString("")));
+               return (alternative.size() === 2 && alternative.every(token => tokenSortTable[token.toString()]   === TokenSort.NonTerminal)) || 
+                      (alternative.size() === 1 && tokenSortTable[alternative.tokenAt(0).toString()] === TokenSort.Terminal) ||
+                      (rule.getLhs().tokenAt(0).isEqual(startSymbol) && alternative.isEqual(TokenString.fromString("")));
              });
     });
   }
@@ -408,7 +408,6 @@ export class Grammar
 
     return nonTerminals;
   }
-
 
   private readonly tokenSortTable : TokenSortTable;
   private readonly rules : Array<ProductionRule>;

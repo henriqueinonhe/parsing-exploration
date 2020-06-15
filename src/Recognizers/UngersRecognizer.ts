@@ -92,10 +92,10 @@ export class UngersRecognizer
         {
           matchTable[token.toString()][inputSubstring.toString()] = MatchTableEntryValue.Trying;
           const rhs = correspondingRule.getRhs();
-          const anyOptionMatch = rhs.some(option => this.matchSentence(option, inputSubstring, matchTable));
+          const anyAlternativeMatch = rhs.some(alternative => this.matchSentence(alternative, inputSubstring, matchTable));
           
-          matchTable[token.toString()][inputSubstring.toString()] = anyOptionMatch ? MatchTableEntryValue.Match : MatchTableEntryValue.NoMatch;
-          return anyOptionMatch;
+          matchTable[token.toString()][inputSubstring.toString()] = anyAlternativeMatch ? MatchTableEntryValue.Match : MatchTableEntryValue.NoMatch;
+          return anyAlternativeMatch;
         }
       }
       else if(matchTableEntryValue === MatchTableEntryValue.Match)

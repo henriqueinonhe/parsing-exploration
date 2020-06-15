@@ -69,7 +69,7 @@ export class UngersEFreeRecognizer
       else
       {
         const rhs = correspondingRule.getRhs();
-        return rhs.some(option => this.matchSententialForm(option, inputSubstring));
+        return rhs.some(alternative => this.matchSententialForm(alternative, inputSubstring));
       }
     }
   }

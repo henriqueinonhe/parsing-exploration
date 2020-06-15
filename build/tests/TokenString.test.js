@@ -90,4 +90,17 @@ describe("includes()", () => {
         });
     });
 });
+// describe("Iterator Protocol", () =>
+// {
+//   test("", () =>
+//   {
+//     const tokenString = TokenString.fromString("D O B S");
+//     const tokenList = [];
+//     for(const token of tokenString)
+//     {
+//       tokenList.push(token);
+//     }
+//     expect(tokenList.map(token => token.toString())).toBe("D O B S");
+//   });
+// });
 //# sourceMappingURL=TokenString.test.js.map

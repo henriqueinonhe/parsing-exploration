@@ -85,6 +85,10 @@
             "warn",
             {"checkLoops": false}
         ],
+        "camelcase": [
+            "warn",
+            {"properties": "always"}
+        ],
         "@typescript-eslint/type-annotation-spacing": [
             "warn",
             {

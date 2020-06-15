@@ -17,39 +17,39 @@ export class ContextFreeGrammarTransformer
     const rulesWithoutDirectLoops = [];
     for(const rule of rules)
     {
-      const newOptions = [];
-      for(const option of rule.getRhs())
+      const newAlternatives = [];
+      for(const alternative of rule.getRhs())
       {
-        const isDirectLoopOption = rule.getLhs().isEqual(option);
-        if(!isDirectLoopOption)
+        const isDirectLoopAlternative = rule.getLhs().isEqual(alternative);
+        if(!isDirectLoopAlternative)
         {
-          newOptions.push(option);
+          newAlternatives.push(alternative);
         }
       }
-      rulesWithoutDirectLoops.push(new ProductionRule(rule.getLhs(), newOptions));
+      rulesWithoutDirectLoops.push(new ProductionRule(rule.getLhs(), newAlternatives));
     }
 
     const rulesWithoutUnitRules = [];
     for(const rule of rulesWithoutDirectLoops)
     {
-      const newOptions = [];
-      for(const option of rule.getRhs())
+      const newAlternatives = [];
+      for(const alternative of rule.getRhs())
       {
-        const isUnitOption = option.size() === 1 && tokenSortTable[option.toString()] === TokenSort.NonTerminal;
-        if(isUnitOption)
+        const isUnitalternative = alternative.size() === 1 && tokenSortTable[alternative.toString()] === TokenSort.NonTerminal;
+        if(isUnitalternative)
         {
-          const nonTerminalAssociatedRule = rulesWithoutDirectLoops.find(rule => rule.getLhs().isEqual(option));
+          const nonTerminalAssociatedRule = rulesWithoutDirectLoops.find(rule => rule.getLhs().isEqual(alternative));
           if(nonTerminalAssociatedRule !== undefined)
           {
-            newOptions.push(... this.generateNonTerminalSubstitutionOptions(nonTerminalAssociatedRule, option));
+            newAlternatives.push(... this.generateNonTerminalSubstitutionAlternatives(nonTerminalAssociatedRule, alternative));
           }
         }
         else
         {
-          newOptions.push(option);
+          newAlternatives.push(alternative);
         }
       }
-      rulesWithoutUnitRules.push(new ProductionRule(rule.getLhs(), newOptions));
+      rulesWithoutUnitRules.push(new ProductionRule(rule.getLhs(), newAlternatives));
     }
 
     return new Grammar(tokenSortTable, rulesWithoutUnitRules, grammar.getStartSymbol());
@@ -58,57 +58,57 @@ export class ContextFreeGrammarTransformer
   public static substituteNonTerminalIntoRule(nonTerminalAssociatedRule : ProductionRule, ruleToBeSubstitutedInto : ProductionRule) : ProductionRule
   {
     const newRhs = [];
-    for(const option of ruleToBeSubstitutedInto.getRhs())
+    for(const alternative of ruleToBeSubstitutedInto.getRhs())
     {
-      newRhs.push(... this.generateNonTerminalSubstitutionOptions(nonTerminalAssociatedRule, option));
+      newRhs.push(... this.generateNonTerminalSubstitutionAlternatives(nonTerminalAssociatedRule, alternative));
     }
 
     return new ProductionRule(ruleToBeSubstitutedInto.getLhs(), newRhs);
   }
 
   /**
-   * Generates all possible options where
+   * Generates all possible alternatives where
    * every occurence of a given non terminal
-   * is expanded into its associated rule options.
+   * is expanded into its associated rule alternatives.
    * 
    * @param nonTerminalAssociatedRule 
-   * @param option 
+   * @param alternative 
    */
-  public static generateNonTerminalSubstitutionOptions(nonTerminalAssociatedRule : ProductionRule, option : TokenString) : Array<TokenString>
+  public static generateNonTerminalSubstitutionAlternatives(nonTerminalAssociatedRule : ProductionRule, alternative : TokenString) : Array<TokenString>
   {
-    //Count non terminal occurrences within option
+    //Count non terminal occurrences within alternative
     const nonTerminal = nonTerminalAssociatedRule.getLhs().tokenAt(0);
-    const nonTerminalOccurrencesWithinOption = option.reduce((accum, token) => token.isEqual(nonTerminal) ? accum + 1 : accum, 0);
+    const nonTerminalOccurrencesWithinAlternative = alternative.reduce((accum, token) => token.isEqual(nonTerminal) ? accum + 1 : accum, 0);
 
-    const nonTerminalsAssociatedRuleOptions = nonTerminalAssociatedRule.getRhs();
-    const optionChoiceIndexesList = Utils.generateAllNumbersAsArrayInBase(nonTerminalsAssociatedRuleOptions.length, nonTerminalOccurrencesWithinOption);
-    const generatedOptions = [];
+    const nonTerminalsAssociatedRuleAlternatives = nonTerminalAssociatedRule.getRhs();
+    const alternativeChoiceIndexesList = Utils.generateAllNumbersAsArrayInBase(nonTerminalsAssociatedRuleAlternatives.length, nonTerminalOccurrencesWithinAlternative);
+    const generatedAlternatives = [];
 
-    for(const optionChoiceIndexes of optionChoiceIndexesList)
+    for(const alternativeChoiceIndexes of alternativeChoiceIndexesList)
     {
-      const substitutedOptionTokenList : Array<Token> = [];
+      const substitutedAlternativeTokenList : Array<Token> = [];
       let nonTerminalOccurrenceCount = 0;
-      for(const token of option.getTokenList())
+      for(const token of alternative.getTokenList())
       {
         if(token.isEqual(nonTerminal))
         {
-          const optionToInsert = nonTerminalsAssociatedRuleOptions[optionChoiceIndexes[nonTerminalOccurrenceCount]];
-          substitutedOptionTokenList.push(...optionToInsert.getTokenList());
+          const alternativeToInsert = nonTerminalsAssociatedRuleAlternatives[alternativeChoiceIndexes[nonTerminalOccurrenceCount]];
+          substitutedAlternativeTokenList.push(...alternativeToInsert.getTokenList());
           nonTerminalOccurrenceCount++;
         }
         else
         {
-          substitutedOptionTokenList.push(token);
+          substitutedAlternativeTokenList.push(token);
         }
       }
-      generatedOptions.push(new TokenString(substitutedOptionTokenList));
+      generatedAlternatives.push(new TokenString(substitutedAlternativeTokenList));
     }
 
-    return generatedOptions;
+    return generatedAlternatives;
   }
 
   /**
-   * Returns a new grammar with non productive options, 
+   * Returns a new grammar with non productive alternatives, 
    * rules and non terminals as well as unreachable tokens
    * and rules are removed.
    * 
@@ -158,9 +158,9 @@ export class ContextFreeGrammarTransformer
   private static removeUselessRules(rules : Array<ProductionRule>, uselessTokens : Array<string>) : Array<ProductionRule>
   {
     const newRules = [] as Array<ProductionRule>;
-    const cleanOptionsRules = rules.map(rule => this.removeUselessOptions(rule, uselessTokens)).filter(rule => rule !== undefined);
+    const cleanAlternativesRules = rules.map(rule => this.removeUselessAlternatives(rule, uselessTokens)).filter(rule => rule !== undefined);
 
-    for(const rule of cleanOptionsRules)
+    for(const rule of cleanAlternativesRules)
     {
       if(!uselessTokens.includes((rule as ProductionRule).getLhs().toString()))
       {
@@ -170,14 +170,14 @@ export class ContextFreeGrammarTransformer
     return newRules;
   }
 
-  private static removeUselessOptions(rule : ProductionRule, uselessTokens : Array<string>) : ProductionRule | undefined
+  private static removeUselessAlternatives(rule : ProductionRule, uselessTokens : Array<string>) : ProductionRule | undefined
   {
     const newRhs = [];
-    for(const option of rule.getRhs())
+    for(const alternative of rule.getRhs())
     {
-      if(option.every(token => !uselessTokens.includes(token.toString())))
+      if(alternative.every(token => !uselessTokens.includes(token.toString())))
       {
-        newRhs.push(option);
+        newRhs.push(alternative);
       }
     }
 
@@ -237,35 +237,35 @@ export class ContextFreeGrammarTransformer
   {
     for(const rule of rules)
     {
-      const newOptions = [];
+      const newAlternatives = [];
 
-      for(const option of rule.getRhs())
+      for(const alternative of rule.getRhs())
       {
-        if(option.includes(eRuleLhs)) 
+        if(alternative.includes(eRuleLhs)) 
         {
-          newOptions.push(...ContextFreeGrammarTransformer.generateERuleSubstitutionOptions(eRuleLhs, option));
+          newAlternatives.push(...ContextFreeGrammarTransformer.generateERuleSubstitutionAlternatives(eRuleLhs, alternative));
         }
       }
       const newRhs = [...rule.getRhs()];
-      newRhs.push(...newOptions);
-      const newRhsWithoutDuplicates = Utils.removeArrayDuplicates(newRhs, (option1, option2) => option1.isEqual(option2));
+      newRhs.push(...newAlternatives);
+      const newRhsWithoutDuplicates = Utils.removeArrayDuplicates(newRhs, (alternative1, alternative2) => alternative1.isEqual(alternative2));
       rule.setRhs(newRhsWithoutDuplicates);
     }
   }
 
-  private static generateERuleSubstitutionOptions(eRuleLhs : TokenString, option : TokenString) : Array<TokenString>
+  private static generateERuleSubstitutionAlternatives(eRuleLhs : TokenString, alternative : TokenString) : Array<TokenString>
   {
-    const newOptions = [];
+    const newAlternatives = [];
     const eRuleLhsNonTerminal = eRuleLhs.tokenAt(0);
-    const eRuleLhsNonTerminalOccurrenceCount = option.reduce((count, token) => token.isEqual(eRuleLhsNonTerminal) ? count + 1 : count, 0);
+    const eRuleLhsNonTerminalOccurrenceCount = alternative.reduce((count, token) => token.isEqual(eRuleLhsNonTerminal) ? count + 1 : count, 0);
     const eRuleLhsNonTerminalIndicatorList = ContextFreeGrammarTransformer.generateIndicatorList(eRuleLhsNonTerminalOccurrenceCount);
 
     for(const indicator of eRuleLhsNonTerminalIndicatorList)
     {
-      const newOption = ContextFreeGrammarTransformer.generateNonUnitRuleOptionTokenString(eRuleLhsNonTerminal, option, indicator);
-      newOptions.push(newOption);
+      const newAlternative = ContextFreeGrammarTransformer.generateNonUnitRuleAlternativeTokenString(eRuleLhsNonTerminal, alternative, indicator);
+      newAlternatives.push(newAlternative);
     }
-    return newOptions;
+    return newAlternatives;
   }
 
   private static generateIndicatorList(size : number) : Array<Array<boolean>>
@@ -278,13 +278,13 @@ export class ContextFreeGrammarTransformer
     return Utils.generateAllNumbersAsArrayInBase(2, size).map(arr => arr.map(num => !!num));
   }
 
-  private static generateNonUnitRuleOptionTokenString(eRuleLhsNonTerminal : Token, option : TokenString, indicator : Array<boolean>) : TokenString
+  private static generateNonUnitRuleAlternativeTokenString(eRuleLhsNonTerminal : Token, alternative : TokenString, indicator : Array<boolean>) : TokenString
   {
     const tokenList = [];
     let indicatorIndex = 0;
-    for(let index = 0; index < option.size(); index++)
+    for(let index = 0; index < alternative.size(); index++)
     {
-      const currentToken = option.tokenAt(index);
+      const currentToken = alternative.tokenAt(index);
       if(currentToken.isEqual(eRuleLhsNonTerminal))
       {
         if(indicator[indicatorIndex])

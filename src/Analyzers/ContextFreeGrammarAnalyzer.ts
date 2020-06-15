@@ -44,12 +44,12 @@ export class ContextFreeGrammarAnalyzer
     for(const rule of rules)
     {
       const lhsToken = rule.getLhs().toString();
-      for(const option of rule.getRhs())
+      for(const alternative of rule.getRhs())
       {
-        for(let index = 0; index < option.size(); index++)
+        for(let index = 0; index < alternative.size(); index++)
         {
-          const optionToken = option.tokenAt(index).toString();
-          adjacencyMatrix[lhsToken][optionToken] = true;
+          const alternativeToken = alternative.tokenAt(index).toString();
+          adjacencyMatrix[lhsToken][alternativeToken] = true;
         }
       }
     }
@@ -185,17 +185,17 @@ export class ContextFreeGrammarAnalyzer
     return tokenClassificationTable;
   }
 
-  private classifyOptionProductivity(option : TokenString, tokenClassificationTable : {[token : string] : string}) : string
+  private classifyAlternativeProductivity(alternative : TokenString, tokenClassificationTable : {[token : string] : string}) : string
   {
-    if(option.every(token => tokenClassificationTable[token.toString()] === "Productive"))
+    if(alternative.every(token => tokenClassificationTable[token.toString()] === "Productive"))
     {
       return "Productive";
     }
-    else if(option.some(token => tokenClassificationTable[token.toString()] === "NonProductive"))
+    else if(alternative.some(token => tokenClassificationTable[token.toString()] === "NonProductive"))
     {
       return "NonProductive";
     }
-    else if(option.isEmpty()) //Empty string is productive
+    else if(alternative.isEmpty()) //Empty string is productive
     {
       return "Productive";
     }
@@ -231,13 +231,13 @@ export class ContextFreeGrammarAnalyzer
           }
           else
           {
-            const options = nonTerminalCorrespondingRule.getRhs();
-            if(options.some(option => this.classifyOptionProductivity(option, tokenClassificationTable) === "Productive"))
+            const alternatives = nonTerminalCorrespondingRule.getRhs();
+            if(alternatives.some(alternative => this.classifyAlternativeProductivity(alternative, tokenClassificationTable) === "Productive"))
             {
               tokenClassificationTable[nonTerminal] = "Productive";
               hasNewInformation = true;
             }
-            else if(options.every(option => this.classifyOptionProductivity(option, tokenClassificationTable) === "NonProductive"))
+            else if(alternatives.every(alternative => this.classifyAlternativeProductivity(alternative, tokenClassificationTable) === "NonProductive"))
             {
               tokenClassificationTable[nonTerminal] = "NonProductive";
               hasNewInformation = true;
