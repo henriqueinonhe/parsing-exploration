@@ -95,11 +95,9 @@ export class CYKParser extends CYKRecognizer
       if(tokenSortTable[currentToken.toString()] === TokenSort.Terminal ||
          currentToken.isEmpty())
       {
-        const currentStack = currentTree. stack;
-        const stackLastIndex = currentStack.length - 1;
-        const stackLastElement = currentStack[stackLastIndex];
+        const currentStack = currentTree.stack;
         while(currentTree.currentNode() !== null && 
-              stackLastElement === currentTree.currentNode().parent?.children.length as number - 1) //FIXME!
+              currentStack[currentStack.length - 1] === currentTree.currentNode().parent?.children.length as number - 1) //FIXME!
         {
           currentTree.stack.pop();
         }
@@ -141,6 +139,7 @@ export class CYKParser extends CYKRecognizer
               newTree.currentNode().appendChild(currentlyMatchedSubstring, currentlyMatchedSubstringBeginIndex, currentlyMatchedSubstringEndIndex);
               newTree.stack.push(0);
               parseTreeQueue.push(newTree);
+              continue;
             }
             else
             {
