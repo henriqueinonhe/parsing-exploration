@@ -8,7 +8,7 @@ import { Utils } from "../Core/Utils";
 
 class CYKTreeNode
 {
-  constructor(parent : CYKTreeNode | null, token : Token, matchedSubstringBeginIndex : number, matchedSubstringEndIndex : number, children : Array<CYKTreeNode> = [])
+  constructor(parent : CYKTreeNode | null, token : TokenString, matchedSubstringBeginIndex : number, matchedSubstringEndIndex : number, children : Array<CYKTreeNode> = [])
   {
     this.parent = parent;
     this.token = token;
@@ -17,7 +17,7 @@ class CYKTreeNode
     this.children = children;
   }
 
-  public appendChild(token : Token, matchedSubstringBeginIndex : number, matchedSubstringEndIndex : number) : void
+  public appendChild(token : TokenString, matchedSubstringBeginIndex : number, matchedSubstringEndIndex : number) : void
   {
     this.children.push(new CYKTreeNode(this, token, matchedSubstringBeginIndex, matchedSubstringEndIndex));
   }
@@ -29,7 +29,7 @@ class CYKTreeNode
   }
 
   public parent : CYKTreeNode | null;
-  public token : Token;
+  public token : TokenString;
   public matchedSubstringBeginIndex : number;
   public matchedSubstringEndIndex : number;
   public children : Array<CYKTreeNode>;
@@ -37,7 +37,7 @@ class CYKTreeNode
 
 class CYKTree
 {
-  constructor(token : Token, matchedSubstringBeginIndex : number, matchedSubstringEndIndex : number)
+  constructor(token : TokenString, matchedSubstringBeginIndex : number, matchedSubstringEndIndex : number)
   {
     this.root = new CYKTreeNode(null, token, matchedSubstringBeginIndex, matchedSubstringEndIndex, []);
     this.stack = [];
@@ -52,63 +52,18 @@ class CYKTree
     return newTree;
   }
 
+  public currentNode() : CYKTreeNode
+  {
+    let currentNode = this.root;
+    for(const index of this.stack)
+    {
+      currentNode = currentNode.children[index];
+    }
+    return currentNode;
+  }
+
   public root : CYKTreeNode;
   public stack : Array<number>;
-}
-
-class CYKTreeIterator
-{
-  constructor(tree : CYKTree)
-  {
-    this.tree = tree;
-    this.currentNode = tree.root;
-    this.travelPath(tree.stack);
-  }
-
-  public goToParent() : CYKTreeIterator
-  {
-    if(this.currentNode.parent === null)
-    {
-      throw new Error("Current node is already root!");
-    }
-
-    this.currentNode = this.currentNode.parent;
-    return this;
-  }
-
-  public goToChild(index : number) : CYKTreeIterator
-  {
-    if(index >= this.currentNode.children.length)
-    {
-      throw new Error("Child index out of bounds!");
-    }
-
-    this.currentNode = this.currentNode.children[index];
-    return this;
-  }
-
-  public goToRoot() : CYKTreeIterator
-  {
-    this.currentNode = this.tree.root;
-    return this;
-  }
-
-  public travelPath(path : Array<number>) : CYKTreeIterator
-  {
-    for(const index of path)
-    {
-      this.goToChild(index);
-    }
-    return this;
-  }
-
-  public node() : CYKTreeNode
-  {
-    return this.currentNode;
-  }
-
-  public tree : CYKTree;
-  public currentNode : CYKTreeNode;
 }
 
 //Parser Itself
@@ -130,24 +85,26 @@ export class CYKParser extends CYKRecognizer
       throw new Error("Input string is not in the language!");
     }
 
-    const parseTreeQueue : Array<CYKTree> = [new CYKTree(startSymbol, 0, inputString.size())];
+    const parseTreeQueue : Array<CYKTree> = [new CYKTree(new TokenString([startSymbol]), 0, inputString.size())];
     const finishedTreeList : Array<CYKTree> = [];
     while(parseTreeQueue.length !== 0)
     {
       const currentTree = parseTreeQueue[0];
-      const iter = new CYKTreeIterator(currentTree);
-      const currentNode = iter.node();
-      const currentToken = currentNode.token;
-
-      if(tokenSortTable[currentToken.toString()] === TokenSort.Terminal)
+      let currentNode = currentTree.currentNode();
+      let currentToken = currentNode.token;
+      if(tokenSortTable[currentToken.toString()] === TokenSort.Terminal ||
+         currentToken.isEmpty())
       {
-
-        //Encapsulate into another function
-        while(currentTree.stack[currentTree.stack.length - 1] === iter.node().children.length - 1)
+        const currentStack = currentTree. stack;
+        const stackLastIndex = currentStack.length - 1;
+        const stackLastElement = currentStack[stackLastIndex];
+        while(currentTree.currentNode() !== null && 
+              stackLastElement === currentTree.currentNode().parent?.children.length as number - 1) //FIXME!
         {
           currentTree.stack.pop();
         }
-        if(currentTree.stack === [])
+
+        if(currentTree.stack.length === 0)
         {
           finishedTreeList.push(currentTree);
           parseTreeQueue.shift();
@@ -159,7 +116,9 @@ export class CYKParser extends CYKRecognizer
         }
       }
 
-      const nonTerminalCorrespondingRule = this.grammar.queryRule(new TokenString([currentToken]));
+      currentNode = currentTree.currentNode();
+      currentToken = currentNode.token;
+      const nonTerminalCorrespondingRule = this.grammar.queryRule(currentToken);
       if(nonTerminalCorrespondingRule === undefined)
       {
         //Remove from queue
@@ -169,10 +128,26 @@ export class CYKParser extends CYKRecognizer
       {
         const currentlyMatchedSubstringBeginIndex = currentNode.matchedSubstringBeginIndex;
         const currentlyMatchedSubstringEndIndex = currentNode.matchedSubstringEndIndex;
+        const currentlyMatchedSubstring = inputString.slice(currentlyMatchedSubstringBeginIndex, currentlyMatchedSubstringEndIndex);
         const alternatives = nonTerminalCorrespondingRule.getRhs();
         for(const alternative of alternatives)
         {
-          const currentlyMatchedSubstring = inputString.slice(currentlyMatchedSubstringBeginIndex, currentlyMatchedSubstringEndIndex);
+          //Check for empty alternatives
+          if(alternative.isEmpty())
+          {
+            if(currentlyMatchedSubstring.isEmpty())
+            {
+              const newTree = currentTree.clone();
+              newTree.currentNode().appendChild(currentlyMatchedSubstring, currentlyMatchedSubstringBeginIndex, currentlyMatchedSubstringEndIndex);
+              newTree.stack.push(0);
+              parseTreeQueue.push(newTree);
+            }
+            else
+            {
+              continue;
+            }
+          }
+
           const partitions = Utils.listPartitions(currentlyMatchedSubstring.getTokenList(), alternative.size(), true);
 
           for(const partition of partitions)
@@ -181,15 +156,14 @@ export class CYKParser extends CYKRecognizer
             if(this.alternativeAdheresToPartition(alternative, partition, cykTable, groupStartIndexList))
             {
               const newTree = currentTree.clone();
-              const newIter = new CYKTreeIterator(newTree);
-              newTree.stack.push(0);
               partition.forEach((group, index) => 
               {
-                const currentToken = inputString.tokenAt(currentlyMatchedSubstringBeginIndex + index);
+                const currentToken = alternative.slice(index, index + 1);
                 const beginIndex = groupStartIndexList[index];
                 const endIndex = beginIndex + group.length;
-                newIter.node().appendChild(currentToken, beginIndex, endIndex);
+                newTree.currentNode().appendChild(currentToken, beginIndex, endIndex);
               });
+              newTree.stack.push(0);
               parseTreeQueue.push(newTree);
             }
           }

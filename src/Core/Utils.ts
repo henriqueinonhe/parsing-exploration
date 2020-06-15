@@ -111,9 +111,9 @@ export class Utils
   public static listPartitions<T>(elements : Array<T>, numberOfGroups : number, allowEmptyGroups = false) : Array<Array<Array<T>>>
   {
   //Pre Conditions
-    if(elements.length == 0)
+    if(elements.length == 0 && !allowEmptyGroups)
     {
-      throw new Error("Elements array cannot be empty!");
+      throw new Error("Elements array cannot be empty if no empty groups are allowed!");
     }
 
     if(numberOfGroups <= 0 || !Number.isInteger(numberOfGroups))
@@ -126,7 +126,7 @@ export class Utils
       throw new Error("Number of groups cannot be greater than the number of elements, when no empty group allowed!");
     }
 
-    //Special Case
+    //Special Cases
     if(numberOfGroups === 1)
     {
       return [[elements]];

@@ -191,6 +191,13 @@ describe("List Non Empty Partitions", () =>
         ]
       );
     });
+
+    test("Empty element list", () =>
+    {
+      expect(Utils.listPartitions([], 1, true)).toStrictEqual([[[]]]);
+      expect(Utils.listPartitions([], 2, true)).toStrictEqual([[[], []]]);
+      expect(Utils.listPartitions([], 3, true)).toStrictEqual([[[], [], []]]);
+    });
   });
 });
 
