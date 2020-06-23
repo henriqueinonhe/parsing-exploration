@@ -1,7 +1,6 @@
 import { Grammar } from "../Core/Grammar";
 import { TokenString } from "../Core/TokenString";
 import { TokenSort } from "../Core/TokenSortTable";
-import { Utils } from "../Core/Utils";
 
 export class SentenceGenerator
 {
@@ -14,42 +13,36 @@ export class SentenceGenerator
   {
     const startSymbol = this.grammar.getStartSymbol();
     const rules = this.grammar.getRules();
-    let sentences = [] as Array<TokenString>;
-    let sententialFormQueue = [new TokenString([startSymbol])] as Array<TokenString>;
-    let sententialFormBuffer = [] as Array<TokenString>;
+    const sentences = [] as Array<TokenString>;
+    const sententialFormQueue = [new TokenString([startSymbol])] as Array<TokenString>;
     
     while(sentences.length < quantity)
     {
-      // const currentSententialForm = sententialFormQueue[0];
-
-      for(const sententialForm of sententialFormQueue)
+      const currentSententialForm = sententialFormQueue[0];
+      for(const rule of rules)
       {
-        for(const rule of rules)
+        for(let index = 0; index < currentSententialForm.size(); index++)
         {
-          for(let index = 0; index < sententialForm.size(); index++)
+          if(this.tokenStringHasMatchAtIndex(currentSententialForm, rule.getLhs(), index))
           {
-            if(this.tokenStringHasMatchAtIndex(sententialForm, rule.getLhs(), index))
+            for(const alternative of rule.getRhs())
             {
-              for(const alternative of rule.getRhs())
-              {
-                const sententialFormLeftPart = sententialForm.slice(0, index);
-                const sententialFormRightPart = sententialForm.slice(index + rule.getLhs().size());
-                const rewrittenSententialForm = new TokenString([...sententialFormLeftPart.getTokenList(), ...alternative.getTokenList(), ...sententialFormRightPart.getTokenList()]);
+              const sententialFormLeftPart = currentSententialForm.slice(0, index);
+              const sententialFormRightPart = currentSententialForm.slice(index + rule.getLhs().size());
+              const rewrittenSententialForm = new TokenString([...sententialFormLeftPart.getTokenList(), ...alternative.getTokenList(), ...sententialFormRightPart.getTokenList()]);
 
-                sententialFormBuffer.push(rewrittenSententialForm);
+              if(this.tokenStringIsSentence(rewrittenSententialForm) && 
+                 !sentences.some(tokenString => tokenString.isEqual(rewrittenSententialForm)))
+              {
+                sentences.push(rewrittenSententialForm);
               }
+
+              sententialFormQueue.push(rewrittenSententialForm);
             }
           }
         }
       }
-
-      sentences.push(...sententialFormBuffer.filter(sententialForm => this.tokenStringIsSentence(sententialForm)));
-      sentences = Utils.removeArrayDuplicates(sentences, (str1, str2) => str1.isEqual(str2));
-      sententialFormBuffer = sententialFormBuffer.filter(sententialForm => !this.tokenStringIsSentence(sententialForm));
-
-      sententialFormQueue = sententialFormBuffer;
-      sententialFormBuffer = [];
-
+      sententialFormQueue.shift();
     }
 
     return sentences.slice(0, quantity);

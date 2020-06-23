@@ -2,8 +2,20 @@ import { Grammar } from "../Core/Grammar";
 import { TokenSort } from "../Core/TokenSortTable";
 import { TokenString } from "../Core/TokenString";
 
+/**
+ * Class that analyzes and extract properties
+ * of a given context free grammar, like
+ * non productive tokens, unreachable rules
+ * and etc.
+ */
 export class ContextFreeGrammarAnalyzer
 {
+  /**
+   * Enforces class invariant, making sure that 
+   * the grammar passed is actually context free.
+   * 
+   * @param grammar 
+   */
   private static validateGrammar(grammar : Grammar) : void
   {
     if(!grammar.isContextFree())
@@ -20,6 +32,12 @@ export class ContextFreeGrammarAnalyzer
     this.tokenReachabilityMatrix = ContextFreeGrammarAnalyzer.buildReachabilityMatrix(grammar, this.tokenAdjacencyMatrix);
   }
 
+  /**
+   * Initializes a given token string from the
+   * grammars TokenSortTable.
+   * 
+   * @param grammar 
+   */
   private static initializeTokenMatrix(grammar : Grammar) : TokenMatrix
   {
     const tokenSortTable = grammar.getTokenSortTable();
@@ -36,6 +54,11 @@ export class ContextFreeGrammarAnalyzer
     return tokenMatrix;
   }
 
+  /**
+   * Builds grammar's token adjacency matrix.
+   * 
+   * @param grammar 
+   */
   private static buildAdjacencyMatrix(grammar : Grammar) : TokenMatrix
   {
     const rules = grammar.getRules();
@@ -57,11 +80,20 @@ export class ContextFreeGrammarAnalyzer
     return adjacencyMatrix;
   }
 
+  /**
+   * Returns token adjacency matrix by value.
+   */
   public getTokenAdjacencyMatrix() : TokenMatrix
   {
     return this.tokenAdjacencyMatrix;
   }
 
+  /**
+   * Build grammar's token reachability matrix.
+   * 
+   * @param grammar 
+   * @param adjacencyMatrix 
+   */
   private static buildReachabilityMatrix(grammar : Grammar, adjacencyMatrix : TokenMatrix) : TokenMatrix
   {
     //Floyd Warshall Algorithm
@@ -95,11 +127,19 @@ export class ContextFreeGrammarAnalyzer
     return transitiveClosureMatrix;
   }
 
+  /**
+   * Returns token reachability matrix by value.
+   */
   public getTokenReachabilityMatrix() : TokenMatrix
   {
     return this.tokenReachabilityMatrix;
   }
 
+  /**
+   * Returns whether the grammar in analysis 
+   * has any recursive rules/non terminals, that is,
+   * if any non terminal expands to a string containing itself.
+   */
   public grammarIsRecursive() : boolean
   {
     for(const token in this.tokenReachabilityMatrix)
@@ -112,6 +152,11 @@ export class ContextFreeGrammarAnalyzer
     return false;
   }
 
+  /**
+   * Returns a list of unreachable tokens,
+   * that is, tokens that can never appear in any
+   * production process.
+   */
   public computeUnreachableTokens() : Array<string>
   {
     const startSymbol = this.grammar.getStartSymbol().toString();
@@ -128,6 +173,11 @@ export class ContextFreeGrammarAnalyzer
     return unreachableTokens;
   }
 
+  /**
+   * Returns a list of all recursive non terminals,
+   * that is, non terminals whose rules (should one exist)
+   * expand to a string containing itself.
+   */
   public computeRecursiveTokens() : Array<string>
   {
     const recursiveTokens = [];
@@ -142,6 +192,11 @@ export class ContextFreeGrammarAnalyzer
     return recursiveTokens;
   }
 
+  /**
+   * Returns a list of all non terminals that 
+   * do not have rules associated with them 
+   * and therefore cannot be expanded to anything.
+   */
   public computeUndefinedNonTerminals() : Array<string>
   {
     const nonTerminals = this.grammar.listNonTerminals().map(nonTerminal => nonTerminal.toString());
@@ -149,6 +204,11 @@ export class ContextFreeGrammarAnalyzer
     return nonTerminals.filter(nonTerminal => rules.every(rule => rule.getLhs().toString() !== nonTerminal));
   }
 
+  /**
+   * Returns a list of all non productive non 
+   * terminals, that is, non terminals whose 
+   * associated sub languages are empty.
+   */
   public computeNonProductiveNonTerminals() : Array<string>
   {
     const tokenClassificationTable = this.classifyNonTerminalsProductivity();
@@ -267,6 +327,10 @@ export class ContextFreeGrammarAnalyzer
   private readonly tokenReachabilityMatrix : TokenMatrix;
 }
 
+/**
+ * Represents a boolean matrix
+ * where each row/column is a token.
+ */
 interface TokenMatrix
 {
   [departureToken : string] : {[arrivalToken : string] : boolean};

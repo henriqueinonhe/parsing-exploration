@@ -282,28 +282,49 @@ describe("removeUnitRules()", () =>
   {
     test("", () =>
     {
-      const nonTerminals = ["S", "A", "B"];
-      const terminals = ["a", "b", "c"];
-      const rules = [
-        {lhs: "S", rhs: ["A B"]},
-        {lhs: "B", rhs: ["A"]},
-        {lhs: "A", rhs: ["a", "b", "c", "A"]}
-      ];
-      const startSymbol = "S";
-      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
-      const noUnitRulesGrammar = ContextFreeGrammarTransformer.removeUnitRules(grammar);
-      const newRules = noUnitRulesGrammar.getRules();
+      {
+        const nonTerminals = ["S", "A", "B"];
+        const terminals = ["a", "b", "c"];
+        const rules = [
+          {lhs: "S", rhs: ["A B"]},
+          {lhs: "B", rhs: ["A"]},
+          {lhs: "A", rhs: ["a", "b", "c", "A"]}
+        ];
+        const startSymbol = "S";
+        const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+        const noUnitRulesGrammar = ContextFreeGrammarTransformer.removeUnitRules(grammar);
+        const newRules = noUnitRulesGrammar.getRules();
+  
+        expect(newRules.length).toBe(3);
+        
+        expect(newRules[0].getLhs().toString()).toBe("S");
+        expect(newRules[1].getLhs().toString()).toBe("B");
+        expect(newRules[2].getLhs().toString()).toBe("A");
+  
+        expect(newRules[0].getRhs().map(alternative => alternative.toString())).toStrictEqual(["A B"]);
+        expect(newRules[1].getRhs().map(alternative => alternative.toString())).toStrictEqual(["a", "b", "c"]);
+        expect(newRules[2].getRhs().map(alternative => alternative.toString())).toStrictEqual(["a", "b", "c"]);
+      }
 
-      expect(newRules.length).toBe(3);
-      
-      expect(newRules[0].getLhs().toString()).toBe("S");
-      expect(newRules[1].getLhs().toString()).toBe("B");
-      expect(newRules[2].getLhs().toString()).toBe("A");
+      {
+        const nonTerminals = ["S", "A", "B", "C", "D"];
+        const terminals = ["a", "b"];
+        const rules = [
+          {lhs: "S", rhs: ["S", "S A", "B", "C C", "D D D"]},
+          {lhs: "A", rhs: ["A", "a", "B", "C"]},
+          {lhs: "B", rhs: ["B B", "A", "b"]}
+        ];
+        const startSymbol = "S";
+        const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+        const newGrammar = ContextFreeGrammarTransformer.removeUnitRules(grammar);
 
-      expect(newRules[0].getRhs().map(alternative => alternative.toString())).toStrictEqual(["A B"]);
-      expect(newRules[1].getRhs().map(alternative => alternative.toString())).toStrictEqual(["a", "b", "c"]);
-      expect(newRules[2].getRhs().map(alternative => alternative.toString())).toStrictEqual(["a", "b", "c"]);
-      
+        expect(newGrammar.getRules().map(rule => rule.toString())).toStrictEqual([
+          `"S" -> "S A" | "B B" | "a" | "b" | "C C" | "D D D"`,
+          `"A" -> "a" | "B B" | "b"`,
+          `"B" -> "B B" | "a" | "b"`
+        ]);
+      }
+
     });
   });
 });

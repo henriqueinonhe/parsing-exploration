@@ -6,6 +6,7 @@ import { Token } from "../Core/Token";
 import { TokenSort } from "../Core/TokenSortTable";
 import { Utils } from "../Core/Utils";
 
+//Helper Classes
 class CYKTreeNode
 {
   constructor(parent : CYKTreeNode | null, token : TokenString, matchedSubstringBeginIndex : number, matchedSubstringEndIndex : number, children : Array<CYKTreeNode> = [])
@@ -97,7 +98,7 @@ export class CYKParser extends CYKRecognizer
       {
         const currentStack = currentTree.stack;
         while(currentTree.currentNode() !== null && 
-              currentStack[currentStack.length - 1] === currentTree.currentNode().parent?.children.length as number - 1) //FIXME!
+              currentStack[currentStack.length - 1] === currentTree.currentNode().parent?.children.length as number - 1) 
         {
           currentTree.stack.pop();
         }

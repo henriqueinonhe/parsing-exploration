@@ -8,51 +8,79 @@ import { Utils } from "../Core/Utils";
 
 export class ContextFreeGrammarTransformer
 {
+  /**
+   * Removes all unit rules from a given context
+   * free grammar, preserving weak equivalence. 
+   * As a side effect also removes
+   * direct loop alternatives from rules.
+   * 
+   * @param grammar 
+   */
   public static removeUnitRules(grammar : Grammar) : Grammar
   {
-    const rules = grammar.getRules();
+    let rules = grammar.getRules();
     const tokenSortTable = grammar.getTokenSortTable();
 
-    //First we need to remove all direct loops from rules
+    let stillHasUnitRules = true;
+    while(stillHasUnitRules)
+    {
+      stillHasUnitRules = false;
+      const rulesWithoutDirectLoops = ContextFreeGrammarTransformer.removeDirectLoopsAlternatives(rules);
+  
+      const rulesWithoutUnitRules = [];
+      for(const rule of rulesWithoutDirectLoops)
+      {
+        const newAlternatives = [];
+        for(const alternative of rule.getRhs())
+        {
+          const isUnitAlternative = alternative.size() === 1 && 
+                                    tokenSortTable[alternative.toString()] === TokenSort.NonTerminal;
+          if(isUnitAlternative)
+          {
+            const nonTerminalAssociatedRule = rulesWithoutDirectLoops.find(rule => rule.getLhs().isEqual(alternative));
+            if(nonTerminalAssociatedRule !== undefined)
+            {
+              stillHasUnitRules = true;
+              newAlternatives.push(... this.generateNonTerminalSubstitutionAlternatives(nonTerminalAssociatedRule, alternative));
+            }
+          }
+          else
+          {
+            newAlternatives.push(alternative);
+          }
+        }
+        rulesWithoutUnitRules.push(new ProductionRule(rule.getLhs(), newAlternatives));
+      }
+      rules = rulesWithoutUnitRules;
+    }
+
+    return new Grammar(tokenSortTable, rules, grammar.getStartSymbol());
+  }
+
+
+  /**
+   * Returns a new array of rules with all direct loop 
+   * alternatives removed.
+   * 
+   * @param rules 
+   */
+  public static removeDirectLoopsAlternatives(rules : Array<ProductionRule>) : Array<ProductionRule> 
+  {
     const rulesWithoutDirectLoops = [];
-    for(const rule of rules)
+    for (const rule of rules) 
     {
       const newAlternatives = [];
-      for(const alternative of rule.getRhs())
+      for (const alternative of rule.getRhs()) 
       {
         const isDirectLoopAlternative = rule.getLhs().isEqual(alternative);
-        if(!isDirectLoopAlternative)
+        if (!isDirectLoopAlternative) 
         {
           newAlternatives.push(alternative);
         }
       }
       rulesWithoutDirectLoops.push(new ProductionRule(rule.getLhs(), newAlternatives));
     }
-
-    const rulesWithoutUnitRules = [];
-    for(const rule of rulesWithoutDirectLoops)
-    {
-      const newAlternatives = [];
-      for(const alternative of rule.getRhs())
-      {
-        const isUnitalternative = alternative.size() === 1 && tokenSortTable[alternative.toString()] === TokenSort.NonTerminal;
-        if(isUnitalternative)
-        {
-          const nonTerminalAssociatedRule = rulesWithoutDirectLoops.find(rule => rule.getLhs().isEqual(alternative));
-          if(nonTerminalAssociatedRule !== undefined)
-          {
-            newAlternatives.push(... this.generateNonTerminalSubstitutionAlternatives(nonTerminalAssociatedRule, alternative));
-          }
-        }
-        else
-        {
-          newAlternatives.push(alternative);
-        }
-      }
-      rulesWithoutUnitRules.push(new ProductionRule(rule.getLhs(), newAlternatives));
-    }
-
-    return new Grammar(tokenSortTable, rulesWithoutUnitRules, grammar.getStartSymbol());
+    return rulesWithoutDirectLoops;
   }
 
   public static substituteNonTerminalIntoRule(nonTerminalAssociatedRule : ProductionRule, ruleToBeSubstitutedInto : ProductionRule) : ProductionRule
