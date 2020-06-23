@@ -1,10 +1,3 @@
-/**
- * File Status
- * Refactoring: DONE
- * Documentation: DONE
- * Testing: DONE
- */
-
 import { Token } from "./Token";
 import { ProductionRule } from "./ProductionRule";
 import { Utils } from "./Utils";
@@ -100,7 +93,7 @@ export class Grammar
    * @param nonTerminals 
    * @param terminals 
    */
-  private static initializetokenSortTable(nonTerminals : Array<Token>, terminals : Array<Token>) : TokenSortTable
+  private static initializeTokenSortTable(nonTerminals : Array<Token>, terminals : Array<Token>) : TokenSortTable
   {
     const tokenSortTable  = {} as TokenSortTable;
     for(const nonTerminal of nonTerminals)
@@ -185,7 +178,7 @@ export class Grammar
     const tokenizedNonTerminals = nonTerminals.map(string => new Token(string));
     const tokenizedTerminals = terminals.map(string => new Token(string));
     Grammar.checkNonTerminalsAndTerminalsAreDisjunct(tokenizedNonTerminals, tokenizedTerminals);
-    const tokenSortTable = Grammar.initializetokenSortTable(tokenizedNonTerminals, tokenizedTerminals);
+    const tokenSortTable = Grammar.initializeTokenSortTable(tokenizedNonTerminals, tokenizedTerminals);
     const tokenizedRules = rules.map(rule => ProductionRule.fromString(rule.lhs, rule.rhs));
     const tokenizedStartSymbol = new Token(startSymbol);
 

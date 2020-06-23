@@ -248,4 +248,11 @@ describe("isEqual()", () => {
         });
     });
 });
+describe("toString()", () => {
+    describe("Post Conditions", () => {
+        test("", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A", "a", "A B B", "S A"]).toString()).toBe(`"S" -> "A" | "a" | "A B B" | "S A"`);
+        });
+    });
+});
 //# sourceMappingURL=ProductionRule.test.js.map

@@ -1,10 +1,3 @@
-/**
- * File Status
- * Refactoring: HIGH
- * Documentation: HIGH
- * Testing: HIGH
- */
-
 import { Token } from "./Token";
 import { validateIndex } from "./LogosUtils";
 import { Utils } from "./Utils";
@@ -229,6 +222,8 @@ export class TokenString
    */
   public includes(tokenString : TokenString, startIndex = 0) : boolean
   {
+    validateIndex(startIndex, "startIndex", tokenString.size(), "tokenString");
+
     for(let index = startIndex; index < this.size(); index++)
     {
       if(this.slice(index, index + tokenString.size()).isEqual(tokenString))

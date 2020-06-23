@@ -1,11 +1,4 @@
 /**
- * File Status
- * Refactoring: HIGH
- * Documentation: HIGH
- * Testing: HIGH
- */
-
-/**
  * Represents a token that is used to compose
  * [[TokenString]]s and that is treated as the 
  * smallest lexical element in a parsing environment.

@@ -1,6 +1,0 @@
-Quick Notes About Classes and Methods:
-
-Token:
-
-The smallest lexical unit in a parsing environment.
-Accepts anything but spaces and double quotation marks.

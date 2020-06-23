@@ -1,11 +1,3 @@
-/**
- * File Status
- * Refactoring: HIGH
- * Documentation: HIGH
- * Testing: HIGH
- * 
- */
-
 import { TokenString } from "./TokenString";
 import { Token } from "./Token";
 import { Utils } from "./Utils";
@@ -351,6 +343,13 @@ export class ProductionRule
     return other instanceof ProductionRule &&
            this.lhs.isEqual(other.getLhs()) &&
            this.getRhs().every((alternative, index) => alternative.isEqual(other.getRhs()[index]));
+  }
+
+  public toString() : string
+  {
+    const stringnizedLhs = this.lhs.toString();
+    const stringnizedRhs = this.rhs.map(alternative => `"${alternative.toString()}"`).join(" | ");
+    return `"${stringnizedLhs}" -> ${stringnizedRhs}`;
   }
 
   private lhs : TokenString;

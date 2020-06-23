@@ -1,5 +1,12 @@
 export class Utils
 {
+  /**
+   * Returns a new array with only a single
+   * instance of each element (duplicates removes).
+   * 
+   * @param array 
+   * @param equalityTest Method to test equality between elements in the array
+   */
   public static  removeArrayDuplicates<T>(array : Array<T>, equalityTest : (elem1 : T, elem2 : T) => boolean) : Array<T>
   {
     const arrayWithoutDuplicates = [] as Array<T>;
@@ -13,6 +20,11 @@ export class Utils
     return arrayWithoutDuplicates;
   }
 
+  /**
+   * Returns the factorial of a given number.
+   * 
+   * @param num 
+   */
   public static factorial(num : number) : number
   {
     if(!Number.isInteger(num) || num < 0)
@@ -28,17 +40,35 @@ export class Utils
     return result;
   }
 
-  public static combinationsCount(gaps : number, occupants : number) : number
+  /**
+   * Returns the number of possible combinations. C_{n,k}
+   * 
+   * @param elements 
+   * @param groupSize 
+   */
+  public static combinationsCount(elements : number, groupSize : number) : number
   {
-  //TODO Enforce Pre Conditions
-    return Utils.factorial(gaps) / ( Utils.factorial(occupants) * Utils.factorial(gaps - occupants) );
+    return Utils.factorial(elements) / ( Utils.factorial(groupSize) * Utils.factorial(elements - groupSize) );
   }
 
+  /**
+   * Returns the number of possible permutations with repetitions.
+   * 
+   * @param total 
+   * @param repetitions 
+   */
   public static permutationsWithRepetitionsCount(total : number, ... repetitions : Array<number>) : number
   {
     return Utils.factorial(total) / repetitions.reduce((accum, num) => accum * Utils.factorial(num), 1);
   }
 
+  /**
+   * Returns the index of the next element to be incremented.
+   * 
+   * @param dividersIndexList 
+   * @param greatestDividerIndex 
+   * @param allowEmptyGroups 
+   */
   public static findPivotIndex(dividersIndexList : Array<number>, greatestDividerIndex : number, allowEmptyGroups = false) : number
   {
     if(allowEmptyGroups)
@@ -108,6 +138,13 @@ export class Utils
     return partition;
   }
 
+  /**
+   * List all contiguous partitions of a given array.
+   * 
+   * @param elements 
+   * @param numberOfGroups 
+   * @param allowEmptyGroups 
+   */
   public static listPartitions<T>(elements : Array<T>, numberOfGroups : number, allowEmptyGroups = false) : Array<Array<Array<T>>>
   {
   //Pre Conditions
@@ -185,12 +222,25 @@ export class Utils
     }
   }
 
-  //Testing still
+  /**
+   * Utility method to clone an entire array whenever 
+   * its elements implement the clone method (and thus
+   * are cloneable).
+   * 
+   * @param arr 
+   */
   public static cloneArray<T>(arr : Array<Cloneable<T>>) : Array<T>
   {
     return arr.map(elem => elem.clone());
   }
 
+  /**
+   * Generates every possible number as an array in reverse order
+   * (least significant digits first) in a given base.
+   * 
+   * @param base 
+   * @param size 
+   */
   public static generateAllNumbersAsArrayInBase(base : number, size : number) : Array<Array<number>> 
   {
     const list : Array<Array<number>> = [];

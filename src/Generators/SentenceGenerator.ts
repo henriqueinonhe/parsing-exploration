@@ -20,6 +20,8 @@ export class SentenceGenerator
     
     while(sentences.length < quantity)
     {
+      // const currentSententialForm = sententialFormQueue[0];
+
       for(const sententialForm of sententialFormQueue)
       {
         for(const rule of rules)
