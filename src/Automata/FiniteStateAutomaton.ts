@@ -4,41 +4,54 @@ class Thread
 {
   constructor(currentState : string)
   {
-    this.currentState = currentState;
     this.inputReadIndex = 0;
     this.log = [currentState];
   }
 
-  public advance(nextState : string) : void
+  public nonEmptyTransition(nextState : string) : Thread
   {
-    this.currentState = nextState;
-    this.inputReadIndex++;
     this.log.push(nextState);
+    this.inputReadIndex++;
+    return this;
+  }
+
+  public emptyTransition(nextState : string) : Thread
+  {
+    this.log.push(nextState);
+    return this;
+  }
+
+  public currentState() : string
+  {
+    return this.log[this.log.length - 1];
+  }
+
+  public getInputReadIndex() : number
+  {
+    return this.inputReadIndex;
+  }
+
+  public getLog() : Array<string>
+  {
+    return this.log.slice();
   }
 
   public clone() : Thread
   {
-    const newThread = new Thread(this.currentState);
+    const newThread = new Thread(this.log[0]);
     newThread.inputReadIndex = this.inputReadIndex;
     newThread.log = this.log.slice();
 
     return newThread;
   }
 
-  public currentState : string;
-  public inputReadIndex : number;
-  public log : Array<string>;
-}
-
-export enum FiniteStateAutomatonExecutionPolicy
-{
-  DepthFirst,
-  BreadthFirst
+  private log : Array<string>;
+  private inputReadIndex : number;
 }
 
 export class FiniteStateAutomaton
 {
-  private static validateStates(initialState : string, acceptState : string, states : Array<string>) : void
+  private static validateStates(initialState : string, acceptState : string, transitions : Array<TransitionTableEntry>, states : Array<string>) : void
   {
     if(!states.includes(initialState))
     {
@@ -49,74 +62,83 @@ export class FiniteStateAutomaton
     {
       throw new Error(`Accept state is "${acceptState}", but it is not contained in the states array!`);
     }
+
+    if(transitions.some(transition => !states.includes(transition.currentState) || !states.includes(transition.nextState)))
+    {
+      throw new Error("A transition mentions a state that is not contained in the states array!");
+    }
   }
   
+  private static buildTransitionTable(states : Array<string>, transitions : Array<TransitionTableEntry>) : TransitionTable
+  {
+    const transitionTable : TransitionTable = {};
+    for(const state of states)
+    {
+      transitionTable[state] = {};
+    }
+
+    for(const transition of transitions)
+    {
+      if(transitionTable[transition.currentState][transition.condition] === undefined)
+      {
+        transitionTable[transition.currentState][transition.condition] = [];
+      }
+
+      transitionTable[transition.currentState][transition.condition].push(transition.nextState);
+    }
+
+    return transitionTable;
+  }
+
   constructor(initialState : string, states : Array<string>, transitions : Array<TransitionTableEntry>, acceptState : string)
   {
-    FiniteStateAutomaton.validateStates(initialState, acceptState, states);
+    FiniteStateAutomaton.validateStates(initialState, acceptState, transitions, states);
     this.initialState = initialState;
     this.acceptState = acceptState;
 
     const statesWithoutDuplicates = Utils.removeArrayDuplicates(states, (e1, e2) => e1 === e2);
     this.states = statesWithoutDuplicates;
 
-    this.transitionTable = {};
     const transitionsWithoutDuplicates = Utils.removeArrayDuplicates(transitions, (e1, e2) =>
     {
       return e1.currentState === e2.currentState &&
              e1.condition === e2.condition && 
              e1.nextState === e2.nextState;
     });
-    for(const transition of transitionsWithoutDuplicates)
-    {
-      if(this.transitionTable[transition.currentState] === undefined)
-      {
-        this.transitionTable[transition.currentState] = {};
-      }
-
-      if(this.transitionTable[transition.currentState][transition.condition] === undefined)
-      {
-        this.transitionTable[transition.currentState][transition.condition] = [];
-      }
-
-      this.transitionTable[transition.currentState][transition.condition].push(transition.nextState);
-    }
+    this.transitionTable = FiniteStateAutomaton.buildTransitionTable(statesWithoutDuplicates, transitionsWithoutDuplicates);
 
     this.input = [];
     this.running = false;
-    this.livingThreads = [new Thread(initialState)];
-    this.finishedThreads = [];
-    this.executionPolicy = FiniteStateAutomatonExecutionPolicy.BreadthFirst;
-    this.currentThreadIndex = 0;
+    this.livingThreads = [];
+    this.finishedThreads = [new Thread(initialState)];
   }
 
   public compute(steps = 1) : FiniteStateAutomaton
   {
-    if(this.executionPolicy === FiniteStateAutomatonExecutionPolicy.DepthFirst)
+    for(let step = 1; step <= steps; step++)
     {
-      for(let step = 0; step < steps; step++)
-      {
-        //asdasd
-      }
+      this.computeNextStep();
     }
-    else
-    {
-      for(let step = 0; step < steps; step++)
-      {
-        //
-      }
-    }
+    return this;
+  }
 
+  public computeAll() : FiniteStateAutomaton
+  {
+    while(!this.hasFinished())
+    {
+      this.computeNextStep();
+    }
     return this;
   }
 
   public setInput(input : Array<string>) : void
   {
-    if(this.running)
+    if(this.isRunning())
     {
       throw new Error("Cannot set input as machine is still running!");
     }
     this.input = input.slice();
+    this.reset();
   }
 
   public getInput() : Array<string>
@@ -136,19 +158,18 @@ export class FiniteStateAutomaton
 
   public reset() : void
   {
-    this.livingThreads = [new Thread(this.initialState)];
-    this.finishedThreads = [];
-    this.running = false;
-  }
-
-  public setExecutionPolicy(policy : FiniteStateAutomatonExecutionPolicy) : void
-  {
-    if(this.isRunning())
+    if(this.input.length === 0)
     {
-      throw new Error("Cannot set execution policy while machine is still running!");
+      this.livingThreads = [];
+      this.finishedThreads = [new Thread(this.initialState)];
+      this.running = false;
     }
-
-    this.executionPolicy = policy;
+    else
+    {
+      this.livingThreads = [new Thread(this.initialState)];
+      this.finishedThreads = [];
+      this.running = false;
+    }
   }
 
   private computeNextStep() : FiniteStateAutomaton
@@ -158,27 +179,70 @@ export class FiniteStateAutomaton
       throw new Error("Cannot compute next step as machine has already finished running!");
     }
 
-    if(this.executionPolicy === FiniteStateAutomatonExecutionPolicy.DepthFirst)
-    {
-      const currentThread = this.livingThreads[0];
-      const currentState = currentThread.currentState;
-      const currentInputToken = this.input[currentThread.inputReadIndex];
-      const nextPossibleStates = this.transitionTable[currentState][currentInputToken];
-      const newThreads = [currentThread];
-      for(let threadCount = 1; threadCount < nextPossibleStates.length; threadCount++)
-      {
-        newThreads.push(currentThread.clone());
-      }
-      newThreads.forEach((thread, index) => thread.advance(nextPossibleStates[index]));
+    const currentThread = this.livingThreads[0];
+    const currentState = currentThread.currentState();
+    const currentInputToken = this.input[currentThread.getInputReadIndex()];
+    const nonEmptyTransitionNextPossibleStates =  this.transitionTable[currentState][currentInputToken] || [];
+    const emptyTransitionNextPossibleStates = this.transitionTable[currentState][""] || [];
+    const newNonEmptyTransitionThreads = nonEmptyTransitionNextPossibleStates.map(nextState => currentThread.clone().nonEmptyTransition(nextState));
+    const newEmptyTransitionThreads = emptyTransitionNextPossibleStates.map(nextState => currentThread.clone().emptyTransition(nextState));
+    const newThreads = [...newNonEmptyTransitionThreads, ...newEmptyTransitionThreads];
+    const livingThreads = newThreads.filter(thread => thread.getInputReadIndex() < this.input.length);
+    const finishedThreads = newThreads.filter(thread => thread.getInputReadIndex() === this.input.length);
+    
+    this.livingThreads.shift();
+    this.livingThreads.push(...livingThreads);
+    this.finishedThreads.push(...finishedThreads);
+    this.running = !this.hasFinished();
 
-      
-    }
-    else
-    {
-
-    }
+    return this;
   }
 
+  public hasAccepted() : boolean
+  {
+    return this.finishedThreads.some(thread => thread.currentState() === this.acceptState);
+  }
+
+  public getLivingThreads() : Array<Thread>
+  {
+    return Utils.cloneArray(this.livingThreads);
+  }
+
+  public getFinishedThreads() : Array<Thread>
+  {
+    return Utils.cloneArray(this.finishedThreads);
+  }
+
+  public getInitialState() : string
+  {
+    return this.initialState;
+  }
+
+  public getStates() : Array<string>
+  {
+    return this.states.slice();
+  }
+
+  public getTransitions() : Array<TransitionTableEntry>
+  {
+    const transitions : Array<TransitionTableEntry> = [];
+    for(const state in this.transitionTable)
+    {
+      for(const condition in this.transitionTable[state])
+      {
+        for(const nextState of this.transitionTable[state][condition])
+        {
+          transitions.push({currentState: state, condition: condition, nextState: nextState});
+        }
+      }
+    } 
+    return transitions;
+  }
+
+  public getAcceptState() : string
+  {
+    return this.acceptState;
+  }
 
   private initialState : string;
   private states : Array<string>;
@@ -188,8 +252,6 @@ export class FiniteStateAutomaton
   private running : boolean;
   private livingThreads : Array<Thread>;
   private finishedThreads : Array<Thread>;
-  private executionPolicy : FiniteStateAutomatonExecutionPolicy;
-  private currentThreadIndex : number;
 }
 
 interface TransitionTableEntry
