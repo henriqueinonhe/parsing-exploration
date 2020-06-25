@@ -128,7 +128,7 @@ describe("constructor", () =>
         {currentState: "S", condition: "c", nextState: "C"}
       ];
       const acceptState = "ACCEPT";
-      expect(new FiniteStateAutomaton(initialState, states, transitions, acceptState).getLivingThreads()).toStrictEqual([]);
+      expect(new FiniteStateAutomaton(initialState, states, transitions, acceptState).getOpenThreads()).toStrictEqual([]);
     });
 
     test("Starting living thread", () =>
@@ -142,8 +142,8 @@ describe("constructor", () =>
       ];
       const acceptState = "ACCEPT";
       const fsa = new FiniteStateAutomaton(initialState, states, transitions, acceptState);
-      expect(fsa.getFinishedThreads().length).toBe(1);
-      expect(fsa.getFinishedThreads()[0].getLog()).toStrictEqual(["S"]);
+      expect(fsa.getClosedThreads().length).toBe(1);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S"]);
     });
   });
 });
@@ -157,9 +157,9 @@ describe("setInput()", () =>
       const initialState = "S";
       const states = ["S", "A", "B", "C", "ACCEPT"];
       const transitions = [
-        {currentState: "S", condition: "a", nextState: "A"},
-        {currentState: "S", condition: "b", nextState: "B"},
-        {currentState: "S", condition: "c", nextState: "C"}
+        {currentState: "S", condition: "a", nextState: "S"},
+        {currentState: "S", condition: "b", nextState: "S"},
+        {currentState: "S", condition: "c", nextState: "S"}
       ];
       const acceptState = "ACCEPT";
       const fsa = new FiniteStateAutomaton(initialState, states, transitions, acceptState);
@@ -239,13 +239,13 @@ describe("compute()", () =>
       expect(fsa.isRunning()).toBe(true);
       expect(fsa.hasFinished()).toBe(false);
       expect(fsa.hasAccepted()).toBe(false);
-      expect(fsa.getLivingThreads()[0].getLog()).toStrictEqual(["S", "A"]);
+      expect(fsa.getOpenThreads()[0].getLog()).toStrictEqual(["S", "A"]);
   
       fsa.compute(1);
       expect(fsa.isRunning()).toBe(false);
       expect(fsa.hasFinished()).toBe(true);
       expect(fsa.hasAccepted()).toBe(true);
-      expect(fsa.getFinishedThreads()[0].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
     });
 
     test("Case 2", () =>
@@ -266,14 +266,14 @@ describe("compute()", () =>
       expect(fsa.isRunning()).toBe(true);
       expect(fsa.hasFinished()).toBe(false);
       expect(fsa.hasAccepted()).toBe(false);
-      expect(fsa.getLivingThreads()[0].getLog()).toStrictEqual(["S", "A"]);
+      expect(fsa.getOpenThreads()[0].getLog()).toStrictEqual(["S", "A"]);
   
       fsa.compute(1);
       expect(fsa.isRunning()).toBe(false);
       expect(fsa.hasFinished()).toBe(true);
       expect(fsa.hasAccepted()).toBe(true);
-      expect(fsa.getFinishedThreads()[0].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
-      expect(fsa.getFinishedThreads()[1].getLog()).toStrictEqual(["S", "A", "B"]);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
+      expect(fsa.getClosedThreads()[1].getLog()).toStrictEqual(["S", "A", "B"]);
     });
 
     test("Dead end", () =>
@@ -294,21 +294,42 @@ describe("compute()", () =>
       expect(fsa.isRunning()).toBe(true);
       expect(fsa.hasFinished()).toBe(false);
       expect(fsa.hasAccepted()).toBe(false);
-      expect(fsa.getLivingThreads()[0].getLog()).toStrictEqual(["S", "A"]);
-      expect(fsa.getLivingThreads()[1].getLog()).toStrictEqual(["S", "B"]);
+      expect(fsa.getOpenThreads()[0].getLog()).toStrictEqual(["S", "A"]);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S", "B"]);
   
+      fsa.compute(1);
+      expect(fsa.isRunning()).toBe(false);
+      expect(fsa.hasFinished()).toBe(true);
+      expect(fsa.hasAccepted()).toBe(true);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S", "B"]);
+      expect(fsa.getClosedThreads()[1].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
+    });
+
+    test("Empty Transitions", () =>
+    {
+      const initialState = "S";
+      const states = ["S", "A", "ACCEPT"];
+      const transitions = [
+        {currentState: "S", condition: "a", nextState: "A"},
+        {currentState: "A", condition: "", nextState: "ACCEPT"}
+      ];
+      const acceptState = "ACCEPT";
+      const fsa = new FiniteStateAutomaton(initialState, states, transitions, acceptState);
+      fsa.setInput(["a"]);
+
       fsa.compute(1);
       expect(fsa.isRunning()).toBe(true);
       expect(fsa.hasFinished()).toBe(false);
-      expect(fsa.hasAccepted()).toBe(true);
-      expect(fsa.getLivingThreads()[0].getLog()).toStrictEqual(["S", "B"]);
-      expect(fsa.getFinishedThreads()[0].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
+      expect(fsa.hasAccepted()).toBe(false);
+      expect(fsa.getOpenThreads()[0].getLog()).toStrictEqual(["S", "A"]);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S", "A"]);
 
       fsa.compute(1);
       expect(fsa.isRunning()).toBe(false);
       expect(fsa.hasFinished()).toBe(true);
       expect(fsa.hasAccepted()).toBe(true);
-      expect(fsa.getFinishedThreads()[0].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S", "A"]);
+      expect(fsa.getClosedThreads()[1].getLog()).toStrictEqual(["S", "A", "ACCEPT"]);
     });
   });
 });
@@ -334,7 +355,7 @@ describe("reset()", () =>
       fsa.reset();
       expect(fsa.isRunning()).toBe(false);
       expect(fsa.hasFinished()).toBe(false);
-      expect(fsa.getLivingThreads()[0].getLog()).toStrictEqual(["S"]);
+      expect(fsa.getOpenThreads()[0].getLog()).toStrictEqual(["S"]);
     });
   });
 });
@@ -361,7 +382,7 @@ describe("computeAll()", () =>
       expect(fsa.isRunning()).toBe(false);
       expect(fsa.hasFinished()).toBe(true);
       expect(fsa.hasAccepted()).toBe(true);
-      expect(fsa.getFinishedThreads()[0].getLog()).toStrictEqual(["S", "A", "A", "ACCEPT", "ACCEPT", "ACCEPT"]);
+      expect(fsa.getClosedThreads()[0].getLog()).toStrictEqual(["S", "A", "A", "ACCEPT", "ACCEPT", "ACCEPT"]);
     });
   });
 });

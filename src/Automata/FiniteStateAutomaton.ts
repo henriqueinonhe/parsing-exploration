@@ -109,8 +109,8 @@ export class FiniteStateAutomaton
 
     this.input = [];
     this.running = false;
-    this.livingThreads = [];
-    this.finishedThreads = [new Thread(initialState)];
+    this.openThreads = [];
+    this.closedThreads = [new Thread(initialState)];
   }
 
   public compute(steps = 1) : FiniteStateAutomaton
@@ -153,21 +153,21 @@ export class FiniteStateAutomaton
 
   public hasFinished() : boolean
   {
-    return this.livingThreads.length === 0;
+    return this.openThreads.length === 0;
   }
 
   public reset() : void
   {
     if(this.input.length === 0)
     {
-      this.livingThreads = [];
-      this.finishedThreads = [new Thread(this.initialState)];
+      this.openThreads = [];
+      this.closedThreads = [new Thread(this.initialState)];
       this.running = false;
     }
     else
     {
-      this.livingThreads = [new Thread(this.initialState)];
-      this.finishedThreads = [];
+      this.openThreads = [new Thread(this.initialState)];
+      this.closedThreads = [];
       this.running = false;
     }
   }
@@ -179,7 +179,7 @@ export class FiniteStateAutomaton
       throw new Error("Cannot compute next step as machine has already finished running!");
     }
 
-    const currentThread = this.livingThreads[0];
+    const currentThread = this.openThreads[0];
     const currentState = currentThread.currentState();
     const currentInputToken = this.input[currentThread.getInputReadIndex()];
     const nonEmptyTransitionNextPossibleStates =  this.transitionTable[currentState][currentInputToken] || [];
@@ -187,30 +187,47 @@ export class FiniteStateAutomaton
     const newNonEmptyTransitionThreads = nonEmptyTransitionNextPossibleStates.map(nextState => currentThread.clone().nonEmptyTransition(nextState));
     const newEmptyTransitionThreads = emptyTransitionNextPossibleStates.map(nextState => currentThread.clone().emptyTransition(nextState));
     const newThreads = [...newNonEmptyTransitionThreads, ...newEmptyTransitionThreads];
-    const livingThreads = newThreads.filter(thread => thread.getInputReadIndex() < this.input.length);
-    const finishedThreads = newThreads.filter(thread => thread.getInputReadIndex() === this.input.length);
+    const newOpenThreads = Utils.cloneArray(newThreads.filter(thread => this.isOpenThread(thread)));
+    const newClosedThreads = Utils.cloneArray(newThreads.filter(thread => this.isClosedThread(thread)));
     
-    this.livingThreads.shift();
-    this.livingThreads.push(...livingThreads);
-    this.finishedThreads.push(...finishedThreads);
+    this.openThreads.shift();
+    this.openThreads.push(...newOpenThreads);
+    this.closedThreads.push(...newClosedThreads);
     this.running = !this.hasFinished();
 
     return this;
   }
 
+  private isOpenThread(thread : Thread) : boolean
+  {
+    return !this.noAvailableTransition(thread);
+  }
+
+  private isClosedThread(thread : Thread) : boolean
+  {
+    return thread.getInputReadIndex() === this.input.length ||
+           this.noAvailableTransition(thread);
+  }
+
+  private noAvailableTransition(thread : Thread) : boolean
+  {
+    return this.transitionTable[thread.currentState()][this.input[thread.getInputReadIndex()]] === undefined &&
+    this.transitionTable[thread.currentState()][""] === undefined;
+  }
+
   public hasAccepted() : boolean
   {
-    return this.finishedThreads.some(thread => thread.currentState() === this.acceptState);
+    return this.closedThreads.some(thread => thread.currentState() === this.acceptState);
   }
 
-  public getLivingThreads() : Array<Thread>
+  public getOpenThreads() : Array<Thread>
   {
-    return Utils.cloneArray(this.livingThreads);
+    return Utils.cloneArray(this.openThreads);
   }
 
-  public getFinishedThreads() : Array<Thread>
+  public getClosedThreads() : Array<Thread>
   {
-    return Utils.cloneArray(this.finishedThreads);
+    return Utils.cloneArray(this.closedThreads);
   }
 
   public getInitialState() : string
@@ -250,8 +267,8 @@ export class FiniteStateAutomaton
   private acceptState : string;
   private input : Array<string>;
   private running : boolean;
-  private livingThreads : Array<Thread>;
-  private finishedThreads : Array<Thread>;
+  private openThreads : Array<Thread>;
+  private closedThreads : Array<Thread>;
 }
 
 interface TransitionTableEntry
