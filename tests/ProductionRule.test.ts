@@ -333,3 +333,67 @@ describe("toString()", () =>
     });
   });
 });
+
+describe("isChomskyRightRegular()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    const tokenSortTable = {"S": TokenSort.NonTerminal, "a": TokenSort.Terminal};
+    test("Single terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["a"]).isChomskyRightRegular(tokenSortTable)).toBe(true);
+    });
+
+    test("Single terminal followed by single non terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["a S"]).isChomskyRightRegular(tokenSortTable)).toBe(true);
+    });
+
+    test("Single non terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["S"]).isChomskyRightRegular(tokenSortTable)).toBe(false);
+    });
+
+    test("More than one terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["a a a"]).isChomskyRightRegular(tokenSortTable)).toBe(false);
+    });
+
+    test("More than one terminal followed by single non terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["a a a S"]).isChomskyRightRegular(tokenSortTable)).toBe(false);
+    });
+  });
+});
+
+describe("isChomskyLeftRegular()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    const tokenSortTable = {"S": TokenSort.NonTerminal, "a": TokenSort.Terminal};
+    test("Single terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["a"]).isChomskyLeftRegular(tokenSortTable)).toBe(true);
+    });
+
+    test("Single non terminal followed by terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["S a"]).isChomskyLeftRegular(tokenSortTable)).toBe(true);
+    });
+
+    test("Single non terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["S"]).isChomskyLeftRegular(tokenSortTable)).toBe(false);
+    });
+
+    test("More than one terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["a a a"]).isChomskyLeftRegular(tokenSortTable)).toBe(false);
+    });
+
+    test("Single non terminal followed by more than one terminal", () =>
+    {
+      expect(ProductionRule.fromString("S", ["S a a a "]).isChomskyLeftRegular(tokenSortTable)).toBe(false);
+    });
+  });
+});

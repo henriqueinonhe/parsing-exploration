@@ -193,6 +193,11 @@ export class ProductionRule
     return this.rhs.every(alternative => alternative.size() >= this.lhs.size());
   }
 
+  public static alternativeIsEAlternative(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return alternative.isEmpty();
+  }
+
   /**
    * Returns whether any of the right hand side
    * alternatives is an empty string.
@@ -202,7 +207,7 @@ export class ProductionRule
   public isERule(tokenSortTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenSortTable);
-    return this.rhs.some(alternative => alternative.isEqual(TokenString.fromString("")));
+    return this.rhs.some(alternative => ProductionRule.alternativeIsEAlternative(alternative, tokenSortTable));
   }
 
   /**
@@ -325,34 +330,198 @@ export class ProductionRule
   }
 
   /**
-   * Returns whether the rule is right regular according
-   * to chomsky's original definition, that is, 
-   * rule must be of the form:
+   * Returns whether a given alternative is a single
+   * terminal.
+   * 
+   * @param alternative 
+   * @param tokenSortTable 
+   */
+  private static alternativeIsSingleTerminal(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return alternative.size() === 1 &&
+           tokenSortTable[alternative.tokenAt(0).toString()] === TokenSort.Terminal;
+  }
+
+  /**
+   * Returns whether a given alternative is a single terminal
+   * followed by a single non terminal. 
+   * 
+   * @param alternative 
+   * @param tokenSortTable 
+   */
+  private static alternativeIsSingleTerminalFollowedBySingleNonTerminal(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return alternative.size() === 2 &&
+           tokenSortTable[alternative.tokenAt(0).toString()] === TokenSort.Terminal &&
+           tokenSortTable[alternative.tokenAt(1).toString()] === TokenSort.NonTerminal;
+  }
+
+  /**
+   * Returns whether a given alternative is a single
+   * non terminal followed by a single terminal.
+   * 
+   * @param alternative 
+   * @param tokenSortTable 
+   */
+  private static alternativeIsSingleNonTerminalFollowedBySingleTerminal(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return alternative.size() === 2 &&
+           tokenSortTable[alternative.tokenAt(0).toString()] === TokenSort.NonTerminal &&
+           tokenSortTable[alternative.tokenAt(1).toString()] === TokenSort.Terminal;
+  }
+
+  /**
+   * Returns whether a given alternative is right regular according
+   * to Chomsky's original definition, that is, 
+   * the alternative must have the form:
    * A -> a N or
    * A -> a
-   * where "A" and "N" are arbitrary non terminals and "a"
-   * is an arbitrary terminal.
+   * where "A" and "N" are single arbitrary non terminals and "a"
+   * is a single arbitrary terminal.
+   * 
+   * @param alternative
+   * @param tokenSortTable 
+   */
+  public static alternativeIsChomskyRightRegularSuitable(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return this.alternativeIsSingleTerminal(alternative, tokenSortTable) ||
+           this.alternativeIsSingleTerminalFollowedBySingleNonTerminal(alternative, tokenSortTable);
+  }
+
+  /**
+   * Returns whether the rule is right regular according
+   * to Chomsky's original definition, that is, 
+   * rule must have the form:
+   * A -> a N or
+   * A -> a
+   * where "A" and "N" are single arbitrary non terminals and "a"
+   * is a single arbitrary terminal.
    * 
    * @param tokenSortTable 
    */
   public isChomskyRightRegular(tokenSortTable : TokenSortTable) : boolean
   {
-    return 
+    return this.rhs.every(alternative => ProductionRule.alternativeIsChomskyRightRegularSuitable(alternative, tokenSortTable));
+
   }
 
+  /**
+   * Returns whether a given alternative is left regular
+   * according to Chomsky's original definition, that is,
+   * the alternative must have the form: 
+   * A -> N a or
+   * A -> a
+   * where "A" and "N" are single arbitrary non terminals and "a"
+   * is a single arbitrary terminal.
+   * 
+   * @param alternative 
+   * @param tokenSortTable 
+   */
+  public static alternativeIsChomskyLeftRegularSuitable(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return this.alternativeIsSingleTerminal(alternative, tokenSortTable) ||
+           this.alternativeIsSingleNonTerminalFollowedBySingleTerminal(alternative, tokenSortTable);
+  }
+
+  /**
+   * Returns whether the rule is left regular
+   * according to Chomsky's original definition, that is,
+   * rule must have the form: 
+   * A -> N a or
+   * A -> a
+   * where "A" and "N" are single arbitrary non terminals and "a"
+   * is a single arbitrary terminal.
+   * 
+   * @param tokenSortTable 
+   */
   public isChomskyLeftRegular(tokenSortTable : TokenSortTable) : boolean
   {
-
+    return this.rhs.every(alternative => ProductionRule.alternativeIsChomskyLeftRegularSuitable(alternative, tokenSortTable));
   }
 
+  /**
+   * Returns whether a given alternative is an
+   * extended version of Chomsky's original
+   * definition of right regular alternatives,
+   * that includes unit rules and E-rules.
+   * 
+   * @param alternative 
+   * @param tokenSortTable 
+   */
+  public static alternativeIsExtendedChomskyRightRegularSuitable(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return this.alternativeIsChomskyRightRegularSuitable(alternative, tokenSortTable) ||
+           this.alternativeIsUnitAlternativeSuitable(alternative, tokenSortTable) ||
+           this.alternativeIsEAlternative(alternative, tokenSortTable);
+  }
+
+  /**
+   * Returns whether the rule is an extended
+   * version of Chomsky original definion of right
+   * regular rules that includes unit rules and
+   * E-rules.
+   * 
+   * @param tokenSortTable 
+   */
   public isExtendedChomskyRightRegular(tokenSortTable : TokenSortTable) : boolean
   {
-
+    return this.rhs.every(alternative => ProductionRule.alternativeIsExtendedChomskyRightRegularSuitable(alternative, tokenSortTable));
   }
 
+  /**
+   * Returns whether a given alternative is an
+   * extended version of Chomsky's original
+   * definition of left regular alternatives,
+   * that includes unit rules and E-rules.
+   * 
+   * @param alternative 
+   * @param tokenSortTable 
+   */
+  public static alternativeIsExtendedChomskyLeftRegularSuitable(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return this.alternativeIsChomskyLeftRegularSuitable(alternative, tokenSortTable) ||
+           this.alternativeIsUnitAlternativeSuitable(alternative, tokenSortTable) ||
+           this.alternativeIsEAlternative(alternative, tokenSortTable);
+  }
+
+  /**
+   * Returns whether the rule is an extended
+   * version of Chomsky original definion of left
+   * regular rules that includes unit rules and
+   * E-rules.
+   * 
+   * @param tokenSortTable 
+   */
   public isExtendedChomskyLeftRegular(tokenSortTable : TokenSortTable) : boolean
   {
+    return this.rhs.every(alternative => ProductionRule.alternativeIsExtendedChomskyLeftRegularSuitable(alternative, tokenSortTable));
+  }
 
+  /**
+   * Returns whether a given alternative
+   * is composed of a single non terminal.
+   * 
+   * @param alternative 
+   * @param tokenSortTable 
+   */
+  public static alternativeIsUnitAlternativeSuitable(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  {
+    return alternative.size() === 1 &&
+           tokenSortTable[alternative.tokenAt(0).toString()] === TokenSort.NonTerminal;
+  }
+
+  /**
+   * Returns whether the rule has
+   * an alternative that is an unit alternative.
+   * //FIXME
+   * 
+   * @param tokenSortTable 
+   */
+  public isUnitRule(tokenSortTable : TokenSortTable) : boolean
+  {
+    return this.lhs.size() === 1 &&
+           tokenSortTable[this.lhs.tokenAt(0).toString()] === TokenSort.NonTerminal &&
+           this.rhs.some(alternative => ProductionRule.alternativeIsUnitAlternativeSuitable(alternative, tokenSortTable));
   }
 
   /**
