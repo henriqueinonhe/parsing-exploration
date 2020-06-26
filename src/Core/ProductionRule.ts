@@ -325,6 +325,37 @@ export class ProductionRule
   }
 
   /**
+   * Returns whether the rule is right regular according
+   * to chomsky's original definition, that is, 
+   * rule must be of the form:
+   * A -> a N or
+   * A -> a
+   * where "A" and "N" are arbitrary non terminals and "a"
+   * is an arbitrary terminal.
+   * 
+   * @param tokenSortTable 
+   */
+  public isChomskyRightRegular(tokenSortTable : TokenSortTable) : boolean
+  {
+    return 
+  }
+
+  public isChomskyLeftRegular(tokenSortTable : TokenSortTable) : boolean
+  {
+
+  }
+
+  public isExtendedChomskyRightRegular(tokenSortTable : TokenSortTable) : boolean
+  {
+
+  }
+
+  public isExtendedChomskyLeftRegular(tokenSortTable : TokenSortTable) : boolean
+  {
+
+  }
+
+  /**
    * Deep copy.
    */
   public clone() : ProductionRule
