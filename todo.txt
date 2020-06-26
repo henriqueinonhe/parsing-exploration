@@ -1,0 +1,38 @@
+Token:
+
+TokenString:
+
+Utils: 
+
+- Test corner cases in list partitions
+
+Production Rule:
+
+Grammar:
+
+SentenceGenerator:
+
+ContextFreeGrammarAnalyzer:
+
+- Improve Documentation
+- Add more tests
+
+UngersEFreeRecognizer:
+
+- Improve Documentation
+
+UngersRecognizer:
+
+- Improve Documentation
+
+ContextFreeGrammarTransformer:
+
+- Refactor removeUnitRules()
+
+CYKRecognizer:
+
+CYKParser:
+
+- Refactor and document
+
+
