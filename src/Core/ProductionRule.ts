@@ -193,7 +193,7 @@ export class ProductionRule
     return this.rhs.every(alternative => alternative.size() >= this.lhs.size());
   }
 
-  public static alternativeIsEAlternative(alternative : TokenString, tokenSortTable : TokenSortTable) : boolean
+  public static alternativeIsEAlternative(alternative : TokenString) : boolean
   {
     return alternative.isEmpty();
   }
@@ -207,7 +207,7 @@ export class ProductionRule
   public isERule(tokenSortTable : TokenSortTable) : boolean
   {
     this.checkValidityWithinContext(tokenSortTable);
-    return this.rhs.some(alternative => ProductionRule.alternativeIsEAlternative(alternative, tokenSortTable));
+    return this.rhs.some(alternative => ProductionRule.alternativeIsEAlternative(alternative));
   }
 
   /**
@@ -452,7 +452,7 @@ export class ProductionRule
   {
     return this.alternativeIsChomskyRightRegularSuitable(alternative, tokenSortTable) ||
            this.alternativeIsUnitAlternativeSuitable(alternative, tokenSortTable) ||
-           this.alternativeIsEAlternative(alternative, tokenSortTable);
+           this.alternativeIsEAlternative(alternative);
   }
 
   /**
@@ -481,7 +481,7 @@ export class ProductionRule
   {
     return this.alternativeIsChomskyLeftRegularSuitable(alternative, tokenSortTable) ||
            this.alternativeIsUnitAlternativeSuitable(alternative, tokenSortTable) ||
-           this.alternativeIsEAlternative(alternative, tokenSortTable);
+           this.alternativeIsEAlternative(alternative);
   }
 
   /**

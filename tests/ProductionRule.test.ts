@@ -396,4 +396,38 @@ describe("isChomskyLeftRegular()", () =>
       expect(ProductionRule.fromString("S", ["S a a a "]).isChomskyLeftRegular(tokenSortTable)).toBe(false);
     });
   });
+}); 
+
+describe("isExtendedChomskyRightRegular()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    const tokenSortTable = {"S": TokenSort.NonTerminal, "A": TokenSort.NonTerminal};
+    test("Unit rules", () =>
+    {
+      expect(ProductionRule.fromString("S", ["A"]).isExtendedChomskyRightRegular(tokenSortTable)).toBe(true);
+    });
+
+    test("E rules", () =>
+    {
+      expect(ProductionRule.fromString("S", [""]).isExtendedChomskyRightRegular(tokenSortTable)).toBe(true);
+    });
+  });
+});
+
+describe("isExtendedChomskyLeftRegular()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    const tokenSortTable = {"S": TokenSort.NonTerminal, "A": TokenSort.NonTerminal};
+    test("Unit rules", () =>
+    {
+      expect(ProductionRule.fromString("S", ["A"]).isExtendedChomskyLeftRegular(tokenSortTable)).toBe(true);
+    });
+
+    test("E rules", () =>
+    {
+      expect(ProductionRule.fromString("S", [""]).isExtendedChomskyLeftRegular(tokenSortTable)).toBe(true);
+    });
+  });
 });

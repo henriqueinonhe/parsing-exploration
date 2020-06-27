@@ -271,7 +271,7 @@ export class FiniteStateAutomaton
   private closedThreads : Array<Thread>;
 }
 
-interface TransitionTableEntry
+export interface TransitionTableEntry
 {
   currentState : string;
   condition : string;
