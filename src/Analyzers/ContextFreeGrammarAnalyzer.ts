@@ -36,7 +36,7 @@ export class ContextFreeGrammarAnalyzer
    * Initializes a given token string from the
    * grammars TokenSortTable.
    * 
-   * @param grammar 
+   * @param grammar
    */
   private static initializeTokenMatrix(grammar : Grammar) : TokenMatrix
   {

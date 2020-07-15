@@ -4,17 +4,27 @@ import { ProductionRule } from "../Core/ProductionRule";
 import { TokenString } from "../Core/TokenString";
 import { TokenSortTable, TokenSort } from "../Core/TokenSortTable";
 
+export enum RegularLanguageConverterGrammarDirection
+{
+  Left,
+  Right
+}
+
 export class RegularLanguageConverter
 {
   public static grammarToNFA(grammar : Grammar) : FiniteStateAutomaton
   {
-    //Pseudo Algorithm
-    //1. Create states based on non terminals
-    //2. Create transitions based on rules
+    if(!grammar.isExtendedChomskyLeftRegular() && !grammar.isExtendedChomskyRightRegular())
+    {
+      throw new Error("Cannot convert grammar to NFA as it is not regular (extended chomsky's definition)!");
+    }
 
-    const states = grammar.listNonTerminals().map(token => token.toString());
+    const states = [`"ACCEPT"`, ...grammar.listNonTerminals().map(token => token.toString())];
     const transitions = this.convertRuleArrayToTransitions(grammar.getRules(), grammar.getTokenSortTable());
+    const initialState = grammar.getStartSymbol().toString();
+    const acceptState = `"ACCEPT"`;
     
+    return new FiniteStateAutomaton(initialState, states, transitions, acceptState);
   }
 
   private static convertRuleArrayToTransitions(rules : Array<ProductionRule>, tokenSortTable : TokenSortTable) : Array<TransitionTableEntry>
@@ -43,7 +53,7 @@ export class RegularLanguageConverter
         const currentState = rule.getLhs().toString();
         const condition = alternative.tokenAt(0).toString();
         const nextState = alternative.tokenAt(1).toString();
-        return {currentState, condition, nextState}
+        return {currentState, condition, nextState};
       }
       else if(this.alternativeIsSingleNonTerminalFollowedBySingleTerminal(alternative, tokenSortTable))
       {
@@ -92,4 +102,55 @@ export class RegularLanguageConverter
     tokenSortTable[alternative.tokenAt(0).toString()] === TokenSort.Terminal &&
     tokenSortTable[alternative.tokenAt(1).toString()] === TokenSort.NonTerminal;
   }
+
+  public static NFAToGrammar(nfa : FiniteStateAutomaton, grammarDirection : RegularLanguageConverterGrammarDirection) : Grammar
+  {
+    const nonTerminals = nfa.getStates();
+    const terminals = nfa.getTransitions().map(transition => transition.condition).filter(string => string !== "");
+    const rules = nfa.getTransitions().map(transition => this.convertTransitionToRule(nfa.getAcceptState(), transition, grammarDirection));
+    const startSymbol = nfa.getInitialState();
+    
+    return Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+  }
+
+  private static convertTransitionToRule(acceptState : string, transition : TransitionTableEntry, grammarDirection : RegularLanguageConverterGrammarDirection) : {lhs : string; rhs : Array<string>}
+  {
+    const lhs = transition.currentState;
+    if(transition.condition === "")
+    {
+      if(transition.nextState === acceptState)
+      {
+        const rhs = [""];
+        return {lhs, rhs};
+      }
+      else
+      {
+        const rhs = [transition.nextState];
+        return {lhs, rhs};
+      }
+    }
+    else
+    {
+      if(transition.nextState === acceptState)
+      {
+        const rhs = [transition.condition];
+        return {lhs, rhs};
+      }
+      else
+      {
+        if(grammarDirection === RegularLanguageConverterGrammarDirection.Left)
+        {
+          const rhs = [`${transition.nextState} ${transition.condition}`];
+          return {lhs, rhs};
+        }
+        else
+        {
+          const rhs = [`${transition.condition} ${transition.nextState}`];
+          return {lhs, rhs};
+        }
+      }
+    }
+  }
+
+
 }

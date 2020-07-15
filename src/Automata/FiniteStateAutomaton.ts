@@ -198,6 +198,16 @@ export class FiniteStateAutomaton
     return this;
   }
 
+  public getCompletedThreads() : Array<Thread>
+  {
+    return this.getClosedThreads().filter(thread => this.isCompletedThread(thread));
+  }
+
+  private isCompletedThread(thread : Thread) : boolean
+  {
+    return thread.getInputReadIndex() === this.input.length;
+  }
+
   private isOpenThread(thread : Thread) : boolean
   {
     return !this.noAvailableTransition(thread);
@@ -217,7 +227,7 @@ export class FiniteStateAutomaton
 
   public hasAccepted() : boolean
   {
-    return this.closedThreads.some(thread => thread.currentState() === this.acceptState);
+    return this.getCompletedThreads().some(thread => thread.currentState() === this.acceptState);
   }
 
   public getOpenThreads() : Array<Thread>
@@ -259,6 +269,36 @@ export class FiniteStateAutomaton
   public getAcceptState() : string
   {
     return this.acceptState;
+  }
+  
+  public accepts(input : Array<string>) : boolean
+  {
+    if(this.isRunning())
+    {
+      throw new Error("Cannot try to accept a string as the machine is still running!");
+    }
+
+    this.setInput(input);
+    this.computeAll();
+    return this.hasAccepted();
+  }
+
+  //TODO Test
+  public isDeterministic() : boolean
+  {
+    for(const state in this.transitionTable)
+    {
+      const stateEntry = this.transitionTable[state];
+      for(const condition in stateEntry)
+      {
+        const nextStates = stateEntry[condition];
+        if(nextStates.length > 1)
+        {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   private initialState : string;

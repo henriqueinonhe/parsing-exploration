@@ -402,6 +402,26 @@ export class Grammar
     return nonTerminals;
   }
 
+  public isChomskyRightRegular() : boolean
+  {
+    return this.rules.every(rule => rule.isChomskyRightRegular(this.getTokenSortTable()));
+  }
+
+  public isChomskyLeftRegular() : boolean
+  {
+    return this.rules.every(rule => rule.isChomskyLeftRegular(this.getTokenSortTable()));
+  }
+
+  public isExtendedChomskyRightRegular() : boolean
+  {
+    return this.rules.every(rule => rule.isExtendedChomskyRightRegular(this.getTokenSortTable()));
+  }
+
+  public isExtendedChomskyLeftRegular() : boolean
+  {
+    return this.rules.every(rule => rule.isExtendedChomskyLeftRegular(this.getTokenSortTable()));
+  }
+
   private readonly tokenSortTable : TokenSortTable;
   private readonly rules : Array<ProductionRule>;
   private readonly startSymbol : Token;

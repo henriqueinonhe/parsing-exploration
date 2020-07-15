@@ -255,4 +255,66 @@ describe("toString()", () => {
         });
     });
 });
+describe("isChomskyRightRegular()", () => {
+    describe("Post Conditions", () => {
+        const tokenSortTable = { "S": TokenSortTable_1.TokenSort.NonTerminal, "a": TokenSortTable_1.TokenSort.Terminal };
+        test("Single terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isChomskyRightRegular(tokenSortTable)).toBe(true);
+        });
+        test("Single terminal followed by single non terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a S"]).isChomskyRightRegular(tokenSortTable)).toBe(true);
+        });
+        test("Single non terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isChomskyRightRegular(tokenSortTable)).toBe(false);
+        });
+        test("More than one terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a"]).isChomskyRightRegular(tokenSortTable)).toBe(false);
+        });
+        test("More than one terminal followed by single non terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a S"]).isChomskyRightRegular(tokenSortTable)).toBe(false);
+        });
+    });
+});
+describe("isChomskyLeftRegular()", () => {
+    describe("Post Conditions", () => {
+        const tokenSortTable = { "S": TokenSortTable_1.TokenSort.NonTerminal, "a": TokenSortTable_1.TokenSort.Terminal };
+        test("Single terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a"]).isChomskyLeftRegular(tokenSortTable)).toBe(true);
+        });
+        test("Single non terminal followed by terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a"]).isChomskyLeftRegular(tokenSortTable)).toBe(true);
+        });
+        test("Single non terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S"]).isChomskyLeftRegular(tokenSortTable)).toBe(false);
+        });
+        test("More than one terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["a a a"]).isChomskyLeftRegular(tokenSortTable)).toBe(false);
+        });
+        test("Single non terminal followed by more than one terminal", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["S a a a "]).isChomskyLeftRegular(tokenSortTable)).toBe(false);
+        });
+    });
+});
+describe("isExtendedChomskyRightRegular()", () => {
+    describe("Post Conditions", () => {
+        const tokenSortTable = { "S": TokenSortTable_1.TokenSort.NonTerminal, "A": TokenSortTable_1.TokenSort.NonTerminal };
+        test("Unit rules", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A"]).isExtendedChomskyRightRegular(tokenSortTable)).toBe(true);
+        });
+        test("E rules", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isExtendedChomskyRightRegular(tokenSortTable)).toBe(true);
+        });
+    });
+});
+describe("isExtendedChomskyLeftRegular()", () => {
+    describe("Post Conditions", () => {
+        const tokenSortTable = { "S": TokenSortTable_1.TokenSort.NonTerminal, "A": TokenSortTable_1.TokenSort.NonTerminal };
+        test("Unit rules", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", ["A"]).isExtendedChomskyLeftRegular(tokenSortTable)).toBe(true);
+        });
+        test("E rules", () => {
+            expect(ProductionRule_1.ProductionRule.fromString("S", [""]).isExtendedChomskyLeftRegular(tokenSortTable)).toBe(true);
+        });
+    });
+});
 //# sourceMappingURL=ProductionRule.test.js.map
