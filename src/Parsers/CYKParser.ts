@@ -1,8 +1,6 @@
 import { Grammar } from "../Core/Grammar";
-import { ParseTree } from "../Core/ParseTree";
 import { CYKRecognizer } from "../Recognizers/CYKRecognizer";
 import { TokenString } from "../Core/TokenString";
-import { Token } from "../Core/Token";
 import { TokenSort } from "../Core/TokenSortTable";
 import { Utils } from "../Core/Utils";
 
