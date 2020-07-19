@@ -42,6 +42,11 @@ export class ParseTreeNode
     return this.parent === null;
   }
 
+  public isLeaf() : boolean
+  {
+    return this.children.length === 0;
+  }
+
   private tree : ParseTree;
   private parent : ParseTreeNode | null;
   private children : Array<ParseTreeNode>;

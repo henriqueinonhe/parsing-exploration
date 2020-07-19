@@ -33,5 +33,10 @@ export class ParseTreeIterator
     this.currentNode = this.currentNode.getTree().getRoot();
   } 
 
+  public getCurrentNode() : ParseTreeNode
+  {
+    return this.currentNode;
+  }
+
   private currentNode : ParseTreeNode;
 }

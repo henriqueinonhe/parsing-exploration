@@ -235,5 +235,11 @@ export class TokenString
     return false;
   }
 
+  public splice(start : number, deleteCount : number, ...insertItems : Array<Token>) : TokenString
+  {
+    this.tokenList.splice(start, deleteCount, ...insertItems);
+    return this;
+  }
+
   private readonly tokenList : Array<Token>;
 }
