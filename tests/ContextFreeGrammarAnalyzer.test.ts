@@ -475,3 +475,40 @@ describe("computeNonProductiveTokens()", () =>
     });
   });
 });
+
+describe("computeTokensShortestStringsLength()", () =>
+{
+  describe("Post Conditions", () =>
+  {
+    test("", () =>
+    {
+      const nonTerminals = ["<expr>", "<prim>", "<comp>", "<more>", "<prod>"];
+      const terminals = ["i", "o", "->", "[", "]", "(", ")", ","];
+      const rules = [
+        {lhs: "<expr>", rhs: ["<prim>", "<comp>"]},
+        {lhs: "<prim>", rhs: ["i", "o"]},
+        {lhs: "<comp>", rhs: ["<prim> -> <prim>", "( <comp> ) -> <prim>", "<prim> -> ( <comp> )", "( <comp> ) -> ( <comp> )", "<prod> -> <prim>", "<prod> -> ( <comp> )"]},
+        {lhs: "<prod>", rhs: ["[ <expr> <more> ]"]},
+        {lhs: "<more>", rhs: [", <expr>", ", <expr> <more>"]}
+      ];
+      const startSymbol = "<expr>";
+      const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+      const analyzer = new ContextFreeGrammarAnalyzer(grammar);
+      const table = analyzer.computeTokensShortestStringsLength();
+
+      expect(table["<expr>"]).toBe(1);
+      expect(table["<prim>"]).toBe(1);
+      expect(table["<prod>"]).toBe(5);
+      expect(table["<more>"]).toBe(2);
+      
+      expect(table["i"]).toBe(1);
+      expect(table["o"]).toBe(1);
+      expect(table["->"]).toBe(1);
+      expect(table[","]).toBe(1);
+      expect(table["("]).toBe(1);
+      expect(table[")"]).toBe(1);
+      expect(table["["]).toBe(1);
+      expect(table["]"]).toBe(1);
+    });
+  });
+});

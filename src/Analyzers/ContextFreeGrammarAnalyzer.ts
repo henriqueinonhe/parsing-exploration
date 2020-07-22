@@ -1,6 +1,7 @@
 import { Grammar } from "../Core/Grammar";
-import { TokenSort } from "../Core/TokenSortTable";
+import { TokenSort, TokenSortTable } from "../Core/TokenSortTable";
 import { TokenString } from "../Core/TokenString";
+import { ProductionRule } from "../Core/ProductionRule";
 
 /**
  * Class that analyzes and extract properties
@@ -320,6 +321,102 @@ export class ContextFreeGrammarAnalyzer
     }
 
     return tokenClassificationTable;
+  }
+
+  public computeTokensShortestStringsLength() : {[token : string] : number}
+  {
+    //FIXME! This doesn't work when there are non productive non terminals present
+
+    //Initialize Token Table
+    const tokenTable = this.initializeShortestStringsLengthTokenTable(this.grammar.getTokenSortTable());
+
+    //Alternative Table
+    const alternativeTable = this.initializeShortestStringsLengthAlternativeTable(this.grammar.getRules());
+
+    const rules = this.grammar.getRules();
+    let hasNewInformation = true;
+    while(hasNewInformation)
+    {
+      hasNewInformation = false;
+      for(const rule of rules)
+      {
+        const nonTerminal = rule.getLhs();
+        //No need to recompute
+        if(tokenTable[nonTerminal.toString()].isInfimum)
+        {
+          continue;
+        }
+
+        hasNewInformation = true;
+        const alternatives = rule.getRhs();
+        //Set Alternative Lower Bound
+        for(const alternative of alternatives)
+        {
+          //No need to recompute if alternative has already been assigned an infimum
+          if(alternativeTable[alternative.toString()].isInfimum)
+          {
+            continue;
+          }
+
+          let lowerBound = 0;
+          let isInfimum = true;
+          for(const token of alternative.getTokenList())
+          {
+            lowerBound += tokenTable[token.toString()].lowerBound;
+            isInfimum = isInfimum && tokenTable[token.toString()].isInfimum;
+          }
+          alternativeTable[alternative.toString()] = {lowerBound, isInfimum};
+        }
+
+        tokenTable[nonTerminal.toString()] = alternatives.reduce<{lowerBound : number; isInfimum : boolean}>((prev, alternative) =>
+        {
+          const tokenLowerBound = prev.lowerBound;
+          const alternativeLowerBound = alternativeTable[alternative.toString()].lowerBound;
+          const alternativeIsInfimum = alternativeTable[alternative.toString()].isInfimum;
+          if(alternativeLowerBound <= tokenLowerBound)
+          {
+            return {lowerBound: alternativeLowerBound, isInfimum: alternativeIsInfimum};
+          }
+          else
+          {
+            return prev;
+          }
+        }, {lowerBound: Infinity, isInfimum: false});
+      }
+    }
+    
+    const newTokenTable : {[token : string] : number} = {};
+    for(const token in tokenTable)
+    {
+      newTokenTable[token] = tokenTable[token].lowerBound;
+    }
+    return newTokenTable;
+  }
+
+  private initializeShortestStringsLengthTokenTable(tokenSortTable : TokenSortTable) : {[token : string] : {lowerBound : number; isInfimum : boolean}}
+  {
+    const table : {[token : string] : {lowerBound : number; isInfimum : boolean}} = {};
+    for(const token in tokenSortTable)
+    {
+      table[token] = {
+        lowerBound: tokenSortTable[token] === TokenSort.NonTerminal ? 0 : 1,
+        isInfimum: tokenSortTable[token] === TokenSort.NonTerminal ? false : true
+      };
+    }
+    return table;
+  }
+
+  private initializeShortestStringsLengthAlternativeTable(rules : Array<ProductionRule>) : {[alternative : string] : {lowerBound : number; isInfimum : boolean}}
+  {
+    const table : {[alternative : string] : {lowerBound : number; isInfimum : boolean}} = {};
+    for(const rule of rules)
+    {
+      for(const alternative of rule.getRhs())
+      {
+        table[alternative.toString()] = {lowerBound: 0, isInfimum: false};
+      }
+    }
+    return table;
   }
 
   private readonly grammar : Grammar;
