@@ -58,7 +58,7 @@ export class NoLookaheadLLParser
       {
         for(const alternative of nonTerminalCorrespondingRule.getRhs())
         {
-          //Derive
+          //Derive/Predict
           const newThread = thread.clone();
           const leftmostNonTerminalIndex = newThread.matchIndex;
           newThread.sententialForm.splice(leftmostNonTerminalIndex, 1, ...alternative.getTokenList());
@@ -156,10 +156,10 @@ export class NoLookaheadLLParser
     return parseTrees;
   }
 
-  private runThread(thread : Thread) : void
-  {
+  // private runThread(thread : Thread) : void
+  // {
     
-  }
+  // }
   
 
   private readonly grammar : Grammar;
