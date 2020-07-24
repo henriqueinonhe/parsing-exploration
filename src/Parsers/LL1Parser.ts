@@ -2,8 +2,6 @@ import { Grammar } from "../Core/Grammar";
 import { ParseTree } from "../Core/ParseTree";
 import { TokenString } from "../Core/TokenString";
 import { TokenSort } from "../Core/TokenSortTable";
-import { Token } from "../Core/Token";
-import { ProductionRuleParser } from "../Core/ProductionRule";
 
 export class LL1Parser
 {
@@ -51,7 +49,7 @@ export class LL1Parser
           {
             for(const element of firstSets[alternativeToken.toString()])
             {
-              if(!firstSets[nonTerminal.toString()].has(alternativeToken.toString()))
+              if(!firstSets[nonTerminal.toString()].has(element))
               {
                 firstSets[nonTerminal.toString()].add(element);
                 hasNewInformation = true;
@@ -194,19 +192,21 @@ export class LL1Parser
       const nonTerminal = rule.getLhs().toString();
       for(const alternative of rule.getRhs())
       {
-        const alternativeFirstSet = this.computeTokenStringFirstSet(alternative, tokensThatDeriveEmptyStringSet, firstSets);
-        for(const terminal of alternativeFirstSet)
+        if(alternative.isEmpty())
         {
-          parseTable[nonTerminal][terminal].push(alternative);
+          for(const terminal of followSets[nonTerminal])
+          {
+            const emptyString = new TokenString([]);
+            parseTable[nonTerminal][terminal].push(emptyString);
+          }
         }
-      }
-
-      if(tokensThatDeriveEmptyStringSet.has(nonTerminal))
-      {
-        for(const terminal of followSets[nonTerminal])
+        else
         {
-          const emptyString = new TokenString([]);
-          parseTable[nonTerminal][terminal].push(emptyString);
+          const alternativeFirstSet = this.computeTokenStringFirstSet(alternative, tokensThatDeriveEmptyStringSet, firstSets);
+          for(const terminal of alternativeFirstSet)
+          {
+            parseTable[nonTerminal][terminal].push(alternative);
+          }
         }
       }
     }
@@ -233,10 +233,10 @@ export class LL1Parser
     return firstSet;
   }
 
-  // public parse(inputString : TokenString) : ParseTree
-  // {
+  public parse(inputString : TokenString) : ParseTree
+  {
 
-  // }
+  }
 
   private grammar : Grammar;
   private tokensThatDeriveEmptyStringSet : Set<string>;
