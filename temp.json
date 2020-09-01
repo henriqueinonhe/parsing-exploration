@@ -1,0 +1,44 @@
+[
+  {
+    "token": "Expressions",
+    "children": [
+      {
+        "token": "Expression",
+        "children": [
+          {
+            "token": "Whitespace",
+            "children": [
+              {
+                "token": "",
+                "children": []
+              }
+            ]
+          },
+          {
+            "token": "ExpressionKernel",
+            "children": [
+              {
+                "token": "PrimitiveExpression",
+                "children": [
+                  {
+                    "token": "a",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "token": "Whitespace",
+            "children": [
+              {
+                "token": "",
+                "children": []
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

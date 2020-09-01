@@ -3,6 +3,7 @@ import { CYKRecognizer } from "../Recognizers/CYKRecognizer";
 import { TokenString } from "../Core/TokenString";
 import { TokenSort } from "../Core/TokenSortTable";
 import { Utils } from "../Core/Utils";
+import { SerializedParseTreeNode } from "../Core/ParseTreeNode";
 
 //Helper Classes
 class CYKTreeNode
@@ -27,11 +28,31 @@ class CYKTreeNode
     return new CYKTreeNode(parent, this.token, this.matchedSubstringBeginIndex, this.matchedSubstringEndIndex, clonedChildren);
   }
 
+  public serialize() : SerializedCYKTreeNode
+  {
+    const children = [];
+    for(const child of this.children)
+    {
+      children.push(child.serialize());
+    }
+
+    return {
+      token: this.token.toString(),
+      children
+    };
+  }
+
   public parent : CYKTreeNode | null;
   public token : TokenString;
   public matchedSubstringBeginIndex : number;
   public matchedSubstringEndIndex : number;
   public children : Array<CYKTreeNode>;
+}
+
+interface SerializedCYKTreeNode
+{
+  token : string;
+  children : Array<SerializedParseTreeNode>;
 }
 
 class CYKTree
@@ -73,7 +94,7 @@ export class CYKParser extends CYKRecognizer
     super(grammar);
   }
 
-  public parse(inputString : TokenString) : void
+  public parse(inputString : TokenString) : Array<CYKTree>
   {
     const tokenSortTable = this.grammar.getTokenSortTable();
     const cykTable = this.buildTable(inputString);
@@ -171,7 +192,7 @@ export class CYKParser extends CYKRecognizer
       }
     }
     
-    return;
+    return finishedTreeList;
     //Convert to parse trees?
 
   }

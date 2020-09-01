@@ -47,8 +47,27 @@ export class ParseTreeNode
     return this.children.length === 0;
   }
 
+  public serialize() : SerializedParseTreeNode
+  {
+    const serializedChildren = [];
+    for(const child of this.children)
+    {
+      serializedChildren.push(child.serialize());
+    }
+    return {
+      token: this.token.toString(),
+      children: serializedChildren
+    };
+  }
+
   private tree : ParseTree;
   private parent : ParseTreeNode | null;
   private children : Array<ParseTreeNode>;
   private token : Token;
+}
+
+export interface SerializedParseTreeNode
+{
+  token : string;
+  children : Array<SerializedParseTreeNode>;
 }

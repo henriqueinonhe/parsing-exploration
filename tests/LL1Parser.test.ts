@@ -1,5 +1,19 @@
 import { Grammar } from "../src/Core/Grammar";
 import { LL1Parser } from "../src/Parsers/LL1Parser";
+import { TokenString } from "../src/Core/TokenString";
+
+// const nonTerminals = ["S", "A", "B", "C"];
+//       const terminals = ["a", "b", "c"];
+//       const rules = [
+//         {lhs: "S", rhs: ["A", "a A", "A B C"]},
+//         {lhs: "A", rhs: ["a a a", "b", "B B"]},
+//         {lhs: "B", rhs: ["b b", ""]},
+//         {lhs: "C", rhs: ["B", "c"]}
+//       ];
+//       const startSymbol = "S";
+//       const grammar = Grammar.fromStrings(nonTerminals, terminals, rules, startSymbol);
+//       const parser = new LL1Parser(grammar);
+//       parser.parse(TokenString.fromString(""));
 
 describe("computeTokensThatDeriveEmptyStringSet()", () =>
 {
@@ -109,18 +123,22 @@ describe("computeFollowSets()", () =>
       expect(followSets["S"].has("a")).toBe(false);
       expect(followSets["S"].has("b")).toBe(false);
       expect(followSets["S"].has("c")).toBe(false);
+      expect(followSets["S"].has(`"END_MARKER"`)).toBe(true);
 
       expect(followSets["A"].has("a")).toBe(false);
       expect(followSets["A"].has("b")).toBe(true);
       expect(followSets["A"].has("c")).toBe(true);
+      expect(followSets["A"].has(`"END_MARKER"`)).toBe(true);
 
       expect(followSets["B"].has("a")).toBe(false);
       expect(followSets["B"].has("b")).toBe(true);
       expect(followSets["B"].has("c")).toBe(true);
+      expect(followSets["B"].has(`"END_MARKER"`)).toBe(true);
 
       expect(followSets["C"].has("a")).toBe(false);
       expect(followSets["C"].has("b")).toBe(false);
       expect(followSets["C"].has("c")).toBe(false);
+      expect(followSets["C"].has(`"END_MARKER"`)).toBe(true);
     });
   });
 });
@@ -155,18 +173,22 @@ describe("computeParseTable()", () =>
       expect(parseTable["S"]["a"].map(alternative => alternative.toString())).toStrictEqual(["A", "a A", "A B C"]);
       expect(parseTable["S"]["b"].map(alternative => alternative.toString())).toStrictEqual(["A", "A B C"]);
       expect(parseTable["S"]["c"].map(alternative => alternative.toString())).toStrictEqual(["A B C"]);
+      expect(parseTable["S"][`"END_MARKER"`].map(alternative => alternative.toString())).toStrictEqual(["A", "A B C"]);
 
       expect(parseTable["A"]["a"].map(alternative => alternative.toString())).toStrictEqual(["a a a"]);
       expect(parseTable["A"]["b"].map(alternative => alternative.toString())).toStrictEqual(["b", "B B"]);
-      expect(parseTable["A"]["c"].map(alternative => alternative.toString())).toStrictEqual([]);
+      expect(parseTable["A"]["c"].map(alternative => alternative.toString())).toStrictEqual(["B B"]);
+      expect(parseTable["A"][`"END_MARKER"`].map(alternative => alternative.toString())).toStrictEqual(["B B"]);
 
       expect(parseTable["B"]["a"].map(alternative => alternative.toString())).toStrictEqual([]);
       expect(parseTable["B"]["b"].map(alternative => alternative.toString())).toStrictEqual(["b b", ""]);
       expect(parseTable["B"]["c"].map(alternative => alternative.toString())).toStrictEqual([""]);
+      expect(parseTable["B"][`"END_MARKER"`].map(alternative => alternative.toString())).toStrictEqual([""]);
 
       expect(parseTable["C"]["a"].map(alternative => alternative.toString())).toStrictEqual([]);
       expect(parseTable["C"]["b"].map(alternative => alternative.toString())).toStrictEqual(["B"]);
       expect(parseTable["C"]["c"].map(alternative => alternative.toString())).toStrictEqual(["c"]);
+      expect(parseTable["C"][`"END_MARKER"`].map(alternative => alternative.toString())).toStrictEqual(["B"]);
 
     });
   });
